@@ -6,6 +6,12 @@ client/node_modules/
 .env
 .env.local
 .env.production
+.env.atlas
+.env.atlas.template
+*.env.backup
+
+# Vercel
+.vercel
 
 # Build files
 client/build/
