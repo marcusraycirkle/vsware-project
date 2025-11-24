@@ -1,0 +1,846 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>CompMIS - Complete School Management System</title>
+    <link rel="stylesheet" href="styles.css">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800;900&display=swap" rel="stylesheet">
+</head>
+<body>
+    <!-- LANDING PAGE -->
+    <div id="landing-page" class="landing-page">
+        <nav class="landing-nav">
+            <div class="nav-container">
+                <div class="logo-brand">
+                    <i class="fas fa-graduation-cap"></i>
+                    <span>CompMIS</span>
+                </div>
+                <div class="nav-menu">
+                    <a href="#features">Features</a>
+                    <a href="#about">About</a>
+                    <a href="#contact">Contact</a>
+                    <button class="btn-login-hero" onclick="showLoginPage()">
+                        <i class="fas fa-sign-in-alt"></i> Log In
+                    </button>
+                </div>
+            </div>
+        </nav>
+
+        <section class="hero-section">
+            <div class="hero-background">
+                <div class="animated-bg"></div>
+            </div>
+            <div class="hero-content">
+                <h1 class="hero-title animate-fade-in">
+                    Welcome to <span class="gradient-text">CompMIS</span>
+                </h1>
+                <p class="hero-subtitle animate-fade-in-delay">
+                    Complete School Management Information System for St Patrick's Comprehensive
+                </p>
+                <p class="hero-description animate-fade-in-delay-2">
+                    Manage students, teachers, attendance, behavior, assessments, timetables, communications, 
+                    payments, and everything else your school needs - all in one powerful platform.
+                </p>
+                <button class="btn-hero-primary animate-fade-in-delay-3" onclick="showLoginPage()">
+                    <i class="fas fa-rocket"></i> Get Started Now
+                </button>
+            </div>
+        </section>
+
+        <section id="features" class="features-showcase">
+            <div class="container">
+                <h2 class="section-title">Complete Feature Set</h2>
+                <p class="section-subtitle">Everything a modern school needs in one system</p>
+                
+                <div class="features-grid">
+                    <div class="feature-card animate-slide-up">
+                        <div class="feature-icon blue"><i class="fas fa-user-graduate"></i></div>
+                        <h3>Student Management</h3>
+                        <ul>
+                            <li>Complete student profiles</li>
+                            <li>Enrollment & admissions</li>
+                            <li>Medical & emergency info</li>
+                            <li>Parent/guardian contacts</li>
+                        </ul>
+                    </div>
+                    
+                    <div class="feature-card animate-slide-up delay-1">
+                        <div class="feature-icon green"><i class="fas fa-calendar-check"></i></div>
+                        <h3>Attendance System</h3>
+                        <ul>
+                            <li>Daily & class attendance</li>
+                            <li>Absence tracking & reasons</li>
+                            <li>Late arrivals & early departures</li>
+                            <li>Automated parent notifications</li>
+                        </ul>
+                    </div>
+                    
+                    <div class="feature-card animate-slide-up delay-2">
+                        <div class="feature-icon purple"><i class="fas fa-star"></i></div>
+                        <h3>Behavior Management</h3>
+                        <ul>
+                            <li>Positive behavior tracking</li>
+                            <li>Incident logging</li>
+                            <li>Detention management</li>
+                            <li>Behavior reports & trends</li>
+                        </ul>
+                    </div>
+                    
+                    <div class="feature-card animate-slide-up delay-3">
+                        <div class="feature-icon orange"><i class="fas fa-graduation-cap"></i></div>
+                        <h3>Assessments & Grades</h3>
+                        <ul>
+                            <li>Exam & test management</li>
+                            <li>Continuous assessment</li>
+                            <li>Grade books & report cards</li>
+                            <li>Progress tracking</li>
+                        </ul>
+                    </div>
+                    
+                    <div class="feature-card animate-slide-up delay-4">
+                        <div class="feature-icon red"><i class="fas fa-clock"></i></div>
+                        <h3>Timetable System</h3>
+                        <ul>
+                            <li>Master timetable</li>
+                            <li>Class & teacher schedules</li>
+                            <li>Room allocation</li>
+                            <li>Substitute management</li>
+                        </ul>
+                    </div>
+                    
+                    <div class="feature-card animate-slide-up delay-5">
+                        <div class="feature-icon cyan"><i class="fas fa-chalkboard-teacher"></i></div>
+                        <h3>Teacher Management</h3>
+                        <ul>
+                            <li>Staff profiles & qualifications</li>
+                            <li>Teaching assignments</li>
+                            <li>Leave management</li>
+                            <li>Performance reviews</li>
+                        </ul>
+                    </div>
+                    
+                    <div class="feature-card animate-slide-up delay-6">
+                        <div class="feature-icon pink"><i class="fas fa-envelope"></i></div>
+                        <h3>Communications</h3>
+                        <ul>
+                            <li>Internal messaging</li>
+                            <li>Parent communications</li>
+                            <li>Announcements & notices</li>
+                            <li>Email integration</li>
+                        </ul>
+                    </div>
+                    
+                    <div class="feature-card animate-slide-up delay-7">
+                        <div class="feature-icon yellow"><i class="fas fa-credit-card"></i></div>
+                        <h3>Fee Management</h3>
+                        <ul>
+                            <li>Fee structure & billing</li>
+                            <li>Payment tracking</li>
+                            <li>Receipt generation</li>
+                            <li>Outstanding balances</li>
+                        </ul>
+                    </div>
+                    
+                    <div class="feature-card animate-slide-up delay-8">
+                        <div class="feature-icon indigo"><i class="fas fa-door-open"></i></div>
+                        <h3>Room Management</h3>
+                        <ul>
+                            <li>Room inventory</li>
+                            <li>Room booking system</li>
+                            <li>Capacity tracking</li>
+                            <li>Equipment management</li>
+                        </ul>
+                    </div>
+                    
+                    <div class="feature-card animate-slide-up delay-9">
+                        <div class="feature-icon teal"><i class="fas fa-flag"></i></div>
+                        <h3>House System</h3>
+                        <ul>
+                            <li>House allocations</li>
+                            <li>House points & competitions</li>
+                            <li>Inter-house events</li>
+                            <li>House leadership</li>
+                        </ul>
+                    </div>
+                    
+                    <div class="feature-card animate-slide-up delay-10">
+                        <div class="feature-icon lime"><i class="fas fa-chart-line"></i></div>
+                        <h3>Reports & Analytics</h3>
+                        <ul>
+                            <li>Academic performance</li>
+                            <li>Attendance statistics</li>
+                            <li>Financial reports</li>
+                            <li>Custom report builder</li>
+                        </ul>
+                    </div>
+                    
+                    <div class="feature-card animate-slide-up delay-11">
+                        <div class="feature-icon amber"><i class="fas fa-cog"></i></div>
+                        <h3>System Administration</h3>
+                        <ul>
+                            <li>User management</li>
+                            <li>Role-based permissions</li>
+                            <li>System settings</li>
+                            <li>Backup & security</li>
+                        </ul>
+                    </div>
+                </div>
+            </div>
+        </section>
+    </div>
+
+    <!-- LOGIN PAGE -->
+    <div id="login-page" class="login-page hidden">
+        <div class="login-background">
+            <div class="login-particles"></div>
+        </div>
+        <div class="login-container">
+            <button class="btn-back-landing" onclick="showLandingPage()">
+                <i class="fas fa-arrow-left"></i> Back to Home
+            </button>
+            
+            <div class="login-card">
+                <div class="login-header">
+                    <div class="login-icon">
+                        <i class="fas fa-shield-alt"></i>
+                    </div>
+                    <h2>Secure Login</h2>
+                    <p>Access your CompMIS account</p>
+                </div>
+                
+                <form id="login-form" class="login-form" onsubmit="handleLogin(event)">
+                    <div class="input-group">
+                        <label><i class="fas fa-envelope"></i> Email Address</label>
+                        <input type="email" id="login-email" placeholder="your.email@shannoncomp.ie" required>
+                    </div>
+                    
+                    <div class="input-group">
+                        <label><i class="fas fa-lock"></i> PIN Code</label>
+                        <input type="password" id="login-pin" placeholder="Enter your PIN" maxlength="6" required>
+                    </div>
+                    
+                    <button type="submit" class="btn-login-submit">
+                        <i class="fas fa-sign-in-alt"></i> Sign In
+                    </button>
+                </form>
+                
+                <div class="login-divider">Quick Login (Demo)</div>
+                
+                <div class="quick-login-grid">
+                    <button class="quick-login-btn" onclick="quickLogin('principal@shannoncomp.ie', '1234')">
+                        <i class="fas fa-user-tie"></i>
+                        <span>Principal</span>
+                    </button>
+                    <button class="quick-login-btn" onclick="quickLogin('24corykilmartin@shannoncomp.ie', '1470')">
+                        <i class="fas fa-chalkboard-teacher"></i>
+                        <span>Cory K.</span>
+                    </button>
+                    <button class="quick-login-btn" onclick="quickLogin('24zuzannafrankowska@shannoncomp.ie', '3454')">
+                        <i class="fas fa-chalkboard-teacher"></i>
+                        <span>Zuzanna F.</span>
+                    </button>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- MAIN DASHBOARD -->
+    <div id="dashboard" class="dashboard hidden">
+        <!-- Top Navigation Bar -->
+        <nav class="top-navbar">
+            <div class="navbar-brand">
+                <i class="fas fa-graduation-cap"></i>
+                <span>CompMIS</span>
+            </div>
+            
+            <div class="navbar-menu">
+                <div class="nav-item" onclick="showSection('overview')">
+                    <i class="fas fa-home"></i><span>Dashboard</span>
+                </div>
+                
+                <div class="nav-item dropdown">
+                    <div class="dropdown-trigger">
+                        <i class="fas fa-users"></i><span>Students</span><i class="fas fa-chevron-down"></i>
+                    </div>
+                    <div class="dropdown-content">
+                        <a onclick="showSection('students', 'list')"><i class="fas fa-list"></i> Student Directory</a>
+                        <a onclick="showSection('students', 'enrollment')"><i class="fas fa-user-plus"></i> Enrollment</a>
+                        <a onclick="showSection('students', 'profiles')"><i class="fas fa-id-card"></i> Student Profiles</a>
+                        <a onclick="showSection('students', 'attendance')"><i class="fas fa-calendar-check"></i> Attendance</a>
+                        <a onclick="showSection('students', 'behavior')"><i class="fas fa-star"></i> Behavior</a>
+                        <a onclick="showSection('students', 'assessments')"><i class="fas fa-graduation-cap"></i> Assessments</a>
+                        <a onclick="showSection('students', 'reports')"><i class="fas fa-file-alt"></i> Report Cards</a>
+                    </div>
+                </div>
+                
+                <div class="nav-item dropdown">
+                    <div class="dropdown-trigger">
+                        <i class="fas fa-chalkboard-teacher"></i><span>Teachers</span><i class="fas fa-chevron-down"></i>
+                    </div>
+                    <div class="dropdown-content">
+                        <a onclick="showSection('teachers', 'list')"><i class="fas fa-list"></i> Staff Directory</a>
+                        <a onclick="showSection('teachers', 'timetable')"><i class="fas fa-clock"></i> Timetables</a>
+                        <a onclick="showSection('teachers', 'classes')"><i class="fas fa-book"></i> Class Assignments</a>
+                        <a onclick="showSection('teachers', 'leave')"><i class="fas fa-calendar-times"></i> Leave Management</a>
+                        <a onclick="showSection('teachers', 'substitutes')"><i class="fas fa-user-clock"></i> Substitutes</a>
+                    </div>
+                </div>
+                
+                <div class="nav-item dropdown">
+                    <div class="dropdown-trigger">
+                        <i class="fas fa-building"></i><span>Academic</span><i class="fas fa-chevron-down"></i>
+                    </div>
+                    <div class="dropdown-content">
+                        <a onclick="showSection('classes', 'list')"><i class="fas fa-book-open"></i> Classes</a>
+                        <a onclick="showSection('subjects', 'list')"><i class="fas fa-book"></i> Subjects</a>
+                        <a onclick="showSection('timetable', 'master')"><i class="fas fa-calendar-alt"></i> Master Timetable</a>
+                        <a onclick="showSection('exams', 'schedule')"><i class="fas fa-clipboard-list"></i> Exam Schedule</a>
+                        <a onclick="showSection('curriculum', 'view')"><i class="fas fa-stream"></i> Curriculum</a>
+                    </div>
+                </div>
+                
+                <div class="nav-item dropdown">
+                    <div class="dropdown-trigger">
+                        <i class="fas fa-door-open"></i><span>Facilities</span><i class="fas fa-chevron-down"></i>
+                    </div>
+                    <div class="dropdown-content">
+                        <a onclick="showSection('rooms', 'list')"><i class="fas fa-door-open"></i> Room Directory</a>
+                        <a onclick="showSection('rooms', 'booking')"><i class="fas fa-calendar-plus"></i> Room Booking</a>
+                        <a onclick="showSection('rooms', 'equipment')"><i class="fas fa-tools"></i> Equipment</a>
+                        <a onclick="showSection('library', 'catalog')"><i class="fas fa-book-reader"></i> Library</a>
+                        <a onclick="showSection('transport', 'routes')"><i class="fas fa-bus"></i> Transport</a>
+                    </div>
+                </div>
+                
+                <div class="nav-item dropdown">
+                    <div class="dropdown-trigger">
+                        <i class="fas fa-credit-card"></i><span>Finance</span><i class="fas fa-chevron-down"></i>
+                    </div>
+                    <div class="dropdown-content">
+                        <a onclick="showSection('fees', 'structure')"><i class="fas fa-money-bill"></i> Fee Structure</a>
+                        <a onclick="showSection('fees', 'collection')"><i class="fas fa-coins"></i> Fee Collection</a>
+                        <a onclick="showSection('fees', 'outstanding')"><i class="fas fa-exclamation-triangle"></i> Outstanding</a>
+                        <a onclick="showSection('expenses', 'list')"><i class="fas fa-receipt"></i> Expenses</a>
+                        <a onclick="showSection('payroll', 'view')"><i class="fas fa-wallet"></i> Payroll</a>
+                    </div>
+                </div>
+                
+                <div class="nav-item dropdown">
+                    <div class="dropdown-trigger">
+                        <i class="fas fa-chart-bar"></i><span>Reports</span><i class="fas fa-chevron-down"></i>
+                    </div>
+                    <div class="dropdown-content">
+                        <a onclick="showSection('reports', 'academic')"><i class="fas fa-chart-line"></i> Academic Reports</a>
+                        <a onclick="showSection('reports', 'attendance')"><i class="fas fa-calendar-check"></i> Attendance Reports</a>
+                        <a onclick="showSection('reports', 'behavior')"><i class="fas fa-clipboard-list"></i> Behavior Reports</a>
+                        <a onclick="showSection('reports', 'financial')"><i class="fas fa-dollar-sign"></i> Financial Reports</a>
+                        <a onclick="showSection('reports', 'custom')"><i class="fas fa-cog"></i> Custom Reports</a>
+                    </div>
+                </div>
+                
+                <div class="nav-item" onclick="showSection('messages', 'inbox')">
+                    <i class="fas fa-envelope"></i><span>Messages</span>
+                    <span class="notification-badge">5</span>
+                </div>
+            </div>
+            
+            <div class="navbar-user">
+                <!-- Notification Bell -->
+                <div class="notification-bell" onclick="toggleNotificationPanel()">
+                    <i class="fas fa-bell"></i>
+                    <span class="notification-badge">0</span>
+                </div>
+                
+                <!-- Notification Panel -->
+                <div id="notification-panel" class="notification-panel hidden">
+                    <div class="notification-header">
+                        <h3><i class="fas fa-bell"></i> Notifications</h3>
+                        <div class="notification-actions">
+                            <button class="btn-text" onclick="markAllAsRead()" title="Mark all as read">
+                                <i class="fas fa-check-double"></i>
+                            </button>
+                            <button class="btn-text" onclick="clearAllNotifications()" title="Clear all">
+                                <i class="fas fa-trash"></i>
+                            </button>
+                        </div>
+                    </div>
+                    <div id="notifications-list" class="notifications-list">
+                        <!-- Notifications will be rendered here -->
+                    </div>
+                </div>
+                
+                <div class="user-info">
+                    <span id="user-display-name">User</span>
+                    <small id="user-display-role">Role</small>
+                </div>
+                <div class="user-avatar" onclick="toggleUserMenu()">
+                    <i class="fas fa-user-circle"></i>
+                </div>
+                <div id="user-menu" class="user-dropdown hidden">
+                    <a onclick="showSection('profile', 'view')"><i class="fas fa-user"></i> My Profile</a>
+                    <a onclick="showSection('settings', 'account')"><i class="fas fa-cog"></i> Settings</a>
+                    <a onclick="logout()"><i class="fas fa-sign-out-alt"></i> Logout</a>
+                </div>
+            </div>
+        </nav>
+
+        <!-- Main Content -->
+        <main class="main-content">
+            <!-- DASHBOARD OVERVIEW -->
+            <section id="section-overview" class="content-section active">
+                <div class="page-header">
+                    <h1><i class="fas fa-chart-line"></i> Dashboard Overview</h1>
+                    <p>Welcome back! Here's your school at a glance</p>
+                </div>
+                
+                <div class="stats-grid-4">
+                    <div class="stat-card bg-blue">
+                        <div class="stat-icon"><i class="fas fa-users"></i></div>
+                        <div class="stat-details">
+                            <h3 id="stat-students">0</h3>
+                            <p>Total Students</p>
+                            <small class="stat-change positive"><i class="fas fa-arrow-up"></i> 5% from last year</small>
+                        </div>
+                    </div>
+                    
+                    <div class="stat-card bg-green">
+                        <div class="stat-icon"><i class="fas fa-chalkboard-teacher"></i></div>
+                        <div class="stat-details">
+                            <h3 id="stat-teachers">0</h3>
+                            <p>Teaching Staff</p>
+                            <small class="stat-change"><i class="fas fa-minus"></i> No change</small>
+                        </div>
+                    </div>
+                    
+                    <div class="stat-card bg-purple">
+                        <div class="stat-icon"><i class="fas fa-book"></i></div>
+                        <div class="stat-details">
+                            <h3 id="stat-classes">0</h3>
+                            <p>Active Classes</p>
+                            <small class="stat-change positive"><i class="fas fa-arrow-up"></i> 2 new this term</small>
+                        </div>
+                    </div>
+                    
+                    <div class="stat-card bg-orange">
+                        <div class="stat-icon"><i class="fas fa-door-open"></i></div>
+                        <div class="stat-details">
+                            <h3 id="stat-rooms">0</h3>
+                            <p>School Rooms</p>
+                            <small class="stat-change"><i class="fas fa-check"></i> All operational</small>
+                        </div>
+                    </div>
+                </div>
+                
+                <div class="dashboard-layout">
+                    <div class="dashboard-main">
+                        <div class="card">
+                            <div class="card-header">
+                                <h2><i class="fas fa-flag"></i> House System</h2>
+                                <button class="btn-sm" onclick="showSection('houses', 'overview')">View Details</button>
+                            </div>
+                            <div id="houses-display" class="houses-grid">
+                                <!-- Houses load here -->
+                            </div>
+                        </div>
+                        
+                        <div class="card">
+                            <div class="card-header">
+                                <h2><i class="fas fa-calendar-check"></i> Today's Attendance</h2>
+                                <button class="btn-sm" onclick="showSection('students', 'attendance')">Take Attendance</button>
+                            </div>
+                            <div class="attendance-summary">
+                                <div class="attendance-stat present">
+                                    <div class="attendance-icon"><i class="fas fa-check-circle"></i></div>
+                                    <div>
+                                        <h3 id="attendance-present">0</h3>
+                                        <p>Present</p>
+                                    </div>
+                                </div>
+                                <div class="attendance-stat absent">
+                                    <div class="attendance-icon"><i class="fas fa-times-circle"></i></div>
+                                    <div>
+                                        <h3 id="attendance-absent">0</h3>
+                                        <p>Absent</p>
+                                    </div>
+                                </div>
+                                <div class="attendance-stat late">
+                                    <div class="attendance-icon"><i class="fas fa-clock"></i></div>
+                                    <div>
+                                        <h3 id="attendance-late">0</h3>
+                                        <p>Late</p>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                    
+                    <div class="dashboard-sidebar">
+                        <div class="card">
+                            <div class="card-header">
+                                <h2><i class="fas fa-bell"></i> Notifications</h2>
+                            </div>
+                            <div class="notification-list">
+                                <div class="notification-item unread">
+                                    <i class="fas fa-exclamation-circle text-red"></i>
+                                    <div>
+                                        <p><strong>5 students</strong> absent today</p>
+                                        <small>5 minutes ago</small>
+                                    </div>
+                                </div>
+                                <div class="notification-item">
+                                    <i class="fas fa-star text-yellow"></i>
+                                    <div>
+                                        <p><strong>Positive behavior</strong> logged</p>
+                                        <small>1 hour ago</small>
+                                    </div>
+                                </div>
+                                <div class="notification-item">
+                                    <i class="fas fa-calendar text-blue"></i>
+                                    <div>
+                                        <p><strong>Parent meeting</strong> scheduled</p>
+                                        <small>2 hours ago</small>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                        
+                        <div class="card">
+                            <div class="card-header">
+                                <h2><i class="fas fa-tasks"></i> Quick Actions</h2>
+                            </div>
+                            <div class="quick-actions">
+                                <button class="action-btn" onclick="showSection('students', 'attendance')">
+                                    <i class="fas fa-clipboard-check"></i> Take Attendance
+                                </button>
+                                <button class="action-btn" onclick="showSection('students', 'behavior')">
+                                    <i class="fas fa-plus-circle"></i> Log Behavior
+                                </button>
+                                <button class="action-btn" onclick="showSection('messages', 'compose')">
+                                    <i class="fas fa-envelope"></i> Send Message
+                                </button>
+                                <button class="action-btn" onclick="showSection('rooms', 'booking')">
+                                    <i class="fas fa-calendar-plus"></i> Book Room
+                                </button>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </section>
+
+            <!-- STUDENTS SECTION -->
+            <section id="section-students" class="content-section">
+                <div class="page-header">
+                    <h1><i class="fas fa-users"></i> Student Management</h1>
+                </div>
+                
+                <div class="tabs-container">
+                    <div class="tabs">
+                        <button class="tab active" data-section="students" data-tab="list" onclick="switchTab('students', 'list')">
+                            <i class="fas fa-list"></i> Directory
+                        </button>
+                        <button class="tab" data-section="students" data-tab="profiles" onclick="switchTab('students', 'profiles')">
+                            <i class="fas fa-id-card"></i> Profiles
+                        </button>
+                        <button class="tab" data-section="students" data-tab="attendance" onclick="switchTab('students', 'attendance')">
+                            <i class="fas fa-calendar-check"></i> Attendance
+                        </button>
+                        <button class="tab" data-section="students" data-tab="behavior" onclick="switchTab('students', 'behavior')">
+                            <i class="fas fa-star"></i> Behavior
+                        </button>
+                        <button class="tab" data-section="students" data-tab="assessments" onclick="switchTab('students', 'assessments')">
+                            <i class="fas fa-graduation-cap"></i> Assessments
+                        </button>
+                        <button class="tab" data-section="students" data-tab="reports" onclick="switchTab('students', 'reports')">
+                            <i class="fas fa-file-alt"></i> Reports
+                        </button>
+                    </div>
+                </div>
+                
+                <div id="students-list" class="tab-content active">
+                    <div class="content-card">
+                        <div class="card-toolbar">
+                            <div class="search-bar">
+                                <i class="fas fa-search"></i>
+                                <input type="text" id="student-search" placeholder="Search students by name, ID, or email..." onkeyup="filterStudents()">
+                            </div>
+                            <div class="toolbar-filters">
+                                <select id="filter-house" onchange="filterStudents()" class="select-input">
+                                    <option value="">All Houses</option>
+                                    <option value="Bride">Bride</option>
+                                    <option value="Ide">Ide</option>
+                                    <option value="Tola">Tola</option>
+                                    <option value="Seanan">Seanan</option>
+                                    <option value="Padraig">Padraig</option>
+                                    <option value="Conaire">Conaire</option>
+                                </select>
+                                <select id="filter-year" onchange="filterStudents()" class="select-input">
+                                    <option value="">All Years</option>
+                                    <option value="1">Year 1</option>
+                                    <option value="2">Year 2</option>
+                                    <option value="3">Year 3</option>
+                                    <option value="4">Year 4</option>
+                                    <option value="5">Year 5</option>
+                                    <option value="6">Year 6</option>
+                                </select>
+                                <button class="btn-primary" onclick="exportStudents()">
+                                    <i class="fas fa-download"></i> Export
+                                </button>
+                                <button class="btn-success" onclick="addStudent()">
+                                    <i class="fas fa-user-plus"></i> Add Student
+                                </button>
+                            </div>
+                        </div>
+                        <div id="students-table-container" class="table-container">
+                            <table class="data-table">
+                                <thead>
+                                    <tr>
+                                        <th>ID</th>
+                                        <th>Name</th>
+                                        <th>Email</th>
+                                        <th>Year</th>
+                                        <th>House</th>
+                                        <th>Status</th>
+                                        <th>Actions</th>
+                                    </tr>
+                                </thead>
+                                <tbody id="students-table-body">
+                                    <!-- Students load here -->
+                                </tbody>
+                            </table>
+                        </div>
+                    </div>
+                </div>
+                
+                <div id="students-profiles" class="tab-content">
+                    <div class="content-card">
+                        <h3>Student Profiles</h3>
+                        <p>View and edit detailed student information</p>
+                        <div id="student-profiles-grid" class="profiles-grid">
+                            <!-- Profile cards load here -->
+                        </div>
+                    </div>
+                </div>
+                
+                <div id="students-attendance" class="tab-content">
+                    <div class="content-card">
+                        <div class="card-header-inline">
+                            <h3><i class="fas fa-calendar-check"></i> Attendance Management</h3>
+                            <button class="btn-primary" onclick="takeAttendance()">
+                                <i class="fas fa-clipboard-check"></i> Take Attendance Now
+                            </button>
+                        </div>
+                        <div class="attendance-calendar">
+                            <!-- Calendar view loads here -->
+                        </div>
+                    </div>
+                </div>
+                
+                <div id="students-behavior" class="tab-content">
+                    <div class="content-card">
+                        <div class="card-header-inline">
+                            <h3><i class="fas fa-star"></i> Behavior Tracking</h3>
+                            <div class="button-group">
+                                <button class="btn-success" onclick="logPositiveBehavior()">
+                                    <i class="fas fa-plus-circle"></i> Log Positive
+                                </button>
+                                <button class="btn-warning" onclick="logIncident()">
+                                    <i class="fas fa-exclamation-triangle"></i> Log Incident
+                                </button>
+                            </div>
+                        </div>
+                        <div id="behavior-log" class="behavior-log">
+                            <!-- Behavior entries load here -->
+                        </div>
+                    </div>
+                </div>
+                
+                <div id="students-assessments" class="tab-content">
+                    <div class="content-card">
+                        <h3><i class="fas fa-graduation-cap"></i> Student Assessments</h3>
+                        <div class="assessments-grid">
+                            <!-- Assessments load here -->
+                        </div>
+                    </div>
+                </div>
+                
+                <div id="students-reports" class="tab-content">
+                    <div class="content-card">
+                        <h3><i class="fas fa-file-alt"></i> Student Reports & Report Cards</h3>
+                        <div class="reports-list">
+                            <!-- Report cards load here -->
+                        </div>
+                    </div>
+                </div>
+            </section>
+
+            <!-- TEACHERS SECTION -->
+            <section id="section-teachers" class="content-section">
+                <div class="page-header">
+                    <h1><i class="fas fa-chalkboard-teacher"></i> Teacher Management</h1>
+                </div>
+                
+                <div class="tabs-container">
+                    <div class="tabs">
+                        <button class="tab active" data-section="teachers" data-tab="list" onclick="switchTab('teachers', 'list')">
+                            <i class="fas fa-list"></i> Staff Directory
+                        </button>
+                        <button class="tab" data-section="teachers" data-tab="timetable" onclick="switchTab('teachers', 'timetable')">
+                            <i class="fas fa-clock"></i> Timetables
+                        </button>
+                        <button class="tab" data-section="teachers" data-tab="classes" onclick="switchTab('teachers', 'classes')">
+                            <i class="fas fa-book"></i> Classes
+                        </button>
+                        <button class="tab" data-section="teachers" data-tab="leave" onclick="switchTab('teachers', 'leave')">
+                            <i class="fas fa-calendar-times"></i> Leave
+                        </button>
+                    </div>
+                </div>
+                
+                <div id="teachers-list" class="tab-content active">
+                    <div class="content-card">
+                        <div class="card-toolbar">
+                            <div class="search-bar">
+                                <i class="fas fa-search"></i>
+                                <input type="text" placeholder="Search teachers...">
+                            </div>
+                            <button class="btn-primary"><i class="fas fa-user-plus"></i> Add Teacher</button>
+                        </div>
+                        <div id="teachers-table-container" class="table-container">
+                            <table class="data-table">
+                                <thead>
+                                    <tr>
+                                        <th>Name</th>
+                                        <th>Email</th>
+                                        <th>Subject</th>
+                                        <th>Permission</th>
+                                        <th>Status</th>
+                                        <th>Actions</th>
+                                    </tr>
+                                </thead>
+                                <tbody id="teachers-table-body">
+                                    <!-- Teachers load here -->
+                                </tbody>
+                            </table>
+                        </div>
+                    </div>
+                </div>
+                
+                <div id="teachers-timetable" class="tab-content">
+                    <div class="content-card">
+                        <h3>Teacher Timetables</h3>
+                        <div class="timetable-view">
+                            <!-- Timetables load here -->
+                        </div>
+                    </div>
+                </div>
+                
+                <div id="teachers-classes" class="tab-content">
+                    <div class="content-card">
+                        <h3>Class Assignments</h3>
+                        <div id="teacher-classes-grid">
+                            <!-- Classes load here -->
+                        </div>
+                    </div>
+                </div>
+                
+                <div id="teachers-leave" class="tab-content">
+                    <div class="content-card">
+                        <div class="card-header-inline">
+                            <h3>Leave Management</h3>
+                            <button class="btn-primary"><i class="fas fa-plus"></i> Request Leave</button>
+                        </div>
+                        <div id="leave-requests">
+                            <!-- Leave requests load here -->
+                        </div>
+                    </div>
+                </div>
+            </section>
+
+            <!-- OTHER SECTIONS CONTINUE... -->
+            <section id="section-classes" class="content-section">
+                <div class="page-header">
+                    <h1><i class="fas fa-book-open"></i> Class Management</h1>
+                    <button class="btn-primary"><i class="fas fa-plus"></i> Add Class</button>
+                </div>
+                <div id="classes-grid" class="classes-grid">
+                    <!-- Classes load here -->
+                </div>
+            </section>
+
+            <section id="section-rooms" class="content-section">
+                <div class="page-header">
+                    <h1><i class="fas fa-door-open"></i> Room Management</h1>
+                </div>
+                <div class="tabs-container">
+                    <div class="tabs">
+                        <button class="tab active" onclick="switchTab('rooms', 'list')"><i class="fas fa-list"></i> All Rooms</button>
+                        <button class="tab" onclick="switchTab('rooms', 'booking')"><i class="fas fa-calendar-plus"></i> Booking</button>
+                        <button class="tab" onclick="switchTab('rooms', 'equipment')"><i class="fas fa-tools"></i> Equipment</button>
+                    </div>
+                </div>
+                <div id="rooms-list" class="tab-content active">
+                    <div id="rooms-grid" class="rooms-grid"></div>
+                </div>
+                <div id="rooms-booking" class="tab-content">
+                    <div class="booking-interface">
+                        <h3>Room Booking System</h3>
+                        <button class="btn-primary"><i class="fas fa-plus"></i> New Booking</button>
+                    </div>
+                </div>
+                <div id="rooms-equipment" class="tab-content">
+                    <div class="equipment-list">
+                        <h3>Equipment Inventory</h3>
+                    </div>
+                </div>
+            </section>
+
+            <section id="section-messages" class="content-section">
+                <div class="page-header">
+                    <h1><i class="fas fa-envelope"></i> Messages & Communications</h1>
+                </div>
+                <div class="messages-interface">
+                    <div class="messages-sidebar-nav">
+                        <button class="btn-primary full-width"><i class="fas fa-plus"></i> Compose Message</button>
+                        <div class="message-folders">
+                            <a class="folder-item active"><i class="fas fa-inbox"></i> Inbox <span class="badge">5</span></a>
+                            <a class="folder-item"><i class="fas fa-paper-plane"></i> Sent</a>
+                            <a class="folder-item"><i class="fas fa-star"></i> Starred</a>
+                            <a class="folder-item"><i class="fas fa-archive"></i> Archived</a>
+                            <a class="folder-item"><i class="fas fa-trash"></i> Trash</a>
+                        </div>
+                    </div>
+                    <div class="messages-main">
+                        <div id="message-list" class="message-list">
+                            <!-- Messages load here -->
+                        </div>
+                    </div>
+                </div>
+            </section>
+
+            <section id="section-reports" class="content-section">
+                <div class="page-header">
+                    <h1><i class="fas fa-chart-bar"></i> Reports & Analytics</h1>
+                </div>
+                <div class="tabs-container">
+                    <div class="tabs">
+                        <button class="tab active" onclick="switchTab('reports', 'academic')"><i class="fas fa-chart-line"></i> Academic</button>
+                        <button class="tab" onclick="switchTab('reports', 'attendance')"><i class="fas fa-calendar-check"></i> Attendance</button>
+                        <button class="tab" onclick="switchTab('reports', 'behavior')"><i class="fas fa-clipboard-list"></i> Behavior</button>
+                        <button class="tab" onclick="switchTab('reports', 'financial')"><i class="fas fa-dollar-sign"></i> Financial</button>
+                    </div>
+                </div>
+                <div id="reports-academic" class="tab-content active">
+                    <div class="reports-dashboard">
+                        <h3>Academic Performance Reports</h3>
+                        <button class="btn-primary"><i class="fas fa-file-pdf"></i> Generate Report</button>
+                    </div>
+                </div>
+            </section>
+        </main>
+    </div>
+
+    <script src="app.js"></script>
+</body>
+</html>
