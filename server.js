@@ -10,6 +10,32 @@ const socketIO = require('socket.io');
 // Load environment variables
 dotenv.config();
 
+// MongoDB connection caching for serverless
+let cachedDb = null;
+
+async function connectToDatabase() {
+  if (cachedDb) {
+    console.log('Using cached database connection');
+    return cachedDb;
+  }
+
+  if (mongoose.connection.readyState === 1) {
+    cachedDb = mongoose.connection;
+    return cachedDb;
+  }
+
+  await mongoose.connect(process.env.MONGODB_URI, {
+    useNewUrlParser: true,
+    useUnifiedTopology: true,
+    serverSelectionTimeoutMS: 5000,
+    socketTimeoutMS: 45000,
+  });
+
+  cachedDb = mongoose.connection;
+  console.log('✅ MongoDB connected successfully');
+  return cachedDb;
+}
+
 // Import routes
 const authRoutes = require('./routes/auth');
 const userRoutes = require('./routes/users');
@@ -91,25 +117,38 @@ app.use('/api/reports', reportRoutes);
 app.use('/api/payments', paymentRoutes);
 
 // Health check route
-app.get('/api/health', (req, res) => {
+app.get('/api/health', async (req, res) => {
+  await connectToDatabase();
   res.json({ status: 'OK', message: 'SchoolWare API is running' });
 });
 
-// Connect to MongoDB
-mongoose.connect(process.env.MONGODB_URI, {
-  useNewUrlParser: true,
-  useUnifiedTopology: true
-})
-.then(() => console.log('✅ MongoDB connected successfully'))
-.catch(err => console.error('❌ MongoDB connection error:', err));
+// Middleware to ensure DB connection on each request
+app.use(async (req, res, next) => {
+  try {
+    await connectToDatabase();
+    next();
+  } catch (error) {
+    console.error('Database connection error:', error);
+    res.status(500).json({ message: 'Database connection failed' });
+  }
+});
 
 // Start server (only for local development)
 if (process.env.NODE_ENV !== 'production') {
   const PORT = process.env.PORT || 5000;
-  server.listen(PORT, () => {
-    console.log(`🚀 SchoolWare server running on port ${PORT}`);
-    console.log(`📡 Environment: ${process.env.NODE_ENV}`);
-  });
+  
+  mongoose.connect(process.env.MONGODB_URI, {
+    useNewUrlParser: true,
+    useUnifiedTopology: true
+  })
+  .then(() => {
+    console.log('✅ MongoDB connected successfully');
+    server.listen(PORT, () => {
+      console.log(`🚀 SchoolWare server running on port ${PORT}`);
+      console.log(`📡 Environment: ${process.env.NODE_ENV}`);
+    });
+  })
+  .catch(err => console.error('❌ MongoDB connection error:', err));
 }
 
 // Export for Vercel serverless
