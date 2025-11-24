@@ -1,5 +1,5 @@
 // ========== CONFIGURATION ==========
-const API_URL = 'https://vsware-project-1uvlnjhp0-corys-projects-abc3a3b9.vercel.app/api';
+const API_URL = '/api'; // Relative URL for same domain
 let currentUser = null;
 let authToken = null;
 
