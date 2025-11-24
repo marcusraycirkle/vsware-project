@@ -63,6 +63,17 @@ const io = socketIO(server, {
 // Middleware
 app.use(helmet());
 
+// Middleware to ensure DB connection on each request (MUST BE EARLY)
+app.use(async (req, res, next) => {
+  try {
+    await connectToDatabase();
+    next();
+  } catch (error) {
+    console.error('Database connection error:', error);
+    res.status(500).json({ message: 'Database connection failed', error: error.message });
+  }
+});
+
 // CORS configuration for production
 const corsOptions = {
   origin: [
@@ -117,20 +128,8 @@ app.use('/api/reports', reportRoutes);
 app.use('/api/payments', paymentRoutes);
 
 // Health check route
-app.get('/api/health', async (req, res) => {
-  await connectToDatabase();
-  res.json({ status: 'OK', message: 'SchoolWare API is running' });
-});
-
-// Middleware to ensure DB connection on each request
-app.use(async (req, res, next) => {
-  try {
-    await connectToDatabase();
-    next();
-  } catch (error) {
-    console.error('Database connection error:', error);
-    res.status(500).json({ message: 'Database connection failed' });
-  }
+app.get('/api/health', (req, res) => {
+  res.json({ status: 'OK', message: 'SchoolWare API is running', dbState: mongoose.connection.readyState });
 });
 
 // Start server (only for local development)
