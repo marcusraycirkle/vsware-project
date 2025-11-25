@@ -47,9 +47,16 @@ function checkAuth() {
     
     if (token && user) {
         authToken = token;
-        currentUser = JSON.parse(user);
-        showDashboard();
-        loadDashboardData();
+        try {
+            currentUser = JSON.parse(user);
+            showDashboard();
+            loadDashboardData();
+        } catch (e) {
+            console.error('Invalid user data:', e);
+            localStorage.removeItem('auth_token');
+            localStorage.removeItem('current_user');
+            showLandingPage();
+        }
     } else {
         showLandingPage();
     }
@@ -108,13 +115,6 @@ function quickLogin(email, pin) {
 async function logout() {
     await showGoodbyeAnimation();
     localStorage.removeItem('auth_token');
-    localStorage.removeItem('current_user');
-    authToken = null;
-    currentUser = null;
-    showLandingPage();
-}
-
-// ========== API CALLS ==========
 async function apiCall(endpoint, options = {}) {
     try {
         const config = {
@@ -130,11 +130,30 @@ async function apiCall(endpoint, options = {}) {
         }
         
         const response = await fetch(`${API_URL}${endpoint}`, config);
+        
+        // Handle 401 Unauthorized - token expired or invalid
+        if (response.status === 401) {
+            localStorage.removeItem('auth_token');
+            localStorage.removeItem('current_user');
+            authToken = null;
+            currentUser = null;
+            showError('Session expired. Please login again.');
+            setTimeout(() => showLandingPage(), 1500);
+            throw new Error('Unauthorized');
+        }
+        
         const data = await response.json();
         
         if (!response.ok) {
             throw new Error(data.message || 'API request failed');
         }
+        
+        return data;
+    } catch (error) {
+        console.error('API Error:', error);
+        throw error;
+    }
+}       }
         
         return data;
     } catch (error) {
@@ -239,7 +258,7 @@ async function loadDashboardAttendance() {
         const today = new Date().toISOString().split('T')[0];
         
         // Get today's attendance
-        const attendanceData = await apiCall(`/attendance?date=${today}&limit=1000`);
+        const attendanceData = await apiCall(`/attendance?date=${today}&limit=1000`).catch(() => ({ attendance: [] }));
         
         const attendance = attendanceData.attendance || [];
         
@@ -262,27 +281,32 @@ async function loadDashboardAttendance() {
 async function loadStats() {
     try {
         const [students, teachers, classes, rooms] = await Promise.all([
-            apiCall('/students?limit=1'),
-            apiCall('/teachers'),
-            apiCall('/classes'),
-            apiCall('/rooms?limit=1')
+            apiCall('/students?limit=1').catch(() => ({ total: 0 })),
+            apiCall('/teachers').catch(() => []),
+            apiCall('/classes').catch(() => []),
+            apiCall('/rooms?limit=1').catch(() => ({ total: 0 }))
         ]);
         
         document.getElementById('stat-students').textContent = students.total || 0;
-        document.getElementById('stat-teachers').textContent = teachers.length || 0;
-        document.getElementById('stat-classes').textContent = classes.length || 0;
+        document.getElementById('stat-teachers').textContent = (Array.isArray(teachers) ? teachers.length : 0);
+        document.getElementById('stat-classes').textContent = (Array.isArray(classes) ? classes.length : 0);
         document.getElementById('stat-rooms').textContent = rooms.total || 0;
     } catch (error) {
         console.error('Error loading stats:', error);
+        // Set defaults if all fail
+        document.getElementById('stat-students').textContent = '0';
+        document.getElementById('stat-teachers').textContent = '0';
+        document.getElementById('stat-classes').textContent = '0';
+        document.getElementById('stat-rooms').textContent = '0';
     }
 }
 
 async function loadHouses() {
     try {
-        const students = await apiCall('/students?limit=200');
+        const students = await apiCall('/students?limit=200').catch(() => ({ students: [] }));
         const houses = {};
         
-        students.students.forEach(student => {
+        (students.students || []).forEach(student => {
             if (student.house) {
                 houses[student.house] = (houses[student.house] || 0) + 1;
             }

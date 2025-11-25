@@ -3,7 +3,8 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>CompMIS - Complete School Management System</title>
+    <title>CompMIS - St Patrick's Comprehensive School</title>
+    <link rel="icon" href="data:image/svg+xml,<svg xmlns=%22http://www.w3.org/2000/svg%22 viewBox=%220 0 100 100%22><text y=%22.9em%22 font-size=%2290%22>🎓</text></svg>">
     <link rel="stylesheet" href="styles.css">
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
     <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800;900&display=swap" rel="stylesheet">
@@ -375,13 +376,16 @@
                     <span id="user-display-name">User</span>
                     <small id="user-display-role">Role</small>
                 </div>
+                <button class="btn-logout" onclick="logout()" title="Logout">
+                    <i class="fas fa-sign-out-alt"></i>
+                    <span>Logout</span>
+                </button>
                 <div class="user-avatar" onclick="toggleUserMenu()">
                     <i class="fas fa-user-circle"></i>
                 </div>
                 <div id="user-menu" class="user-dropdown hidden">
                     <a onclick="showSection('profile', 'view')"><i class="fas fa-user"></i> My Profile</a>
                     <a onclick="showSection('settings', 'account')"><i class="fas fa-cog"></i> Settings</a>
-                    <a onclick="logout()"><i class="fas fa-sign-out-alt"></i> Logout</a>
                 </div>
             </div>
         </nav>
