@@ -153,13 +153,6 @@ async function apiCall(endpoint, options = {}) {
         console.error('API Error:', error);
         throw error;
     }
-}       }
-        
-        return data;
-    } catch (error) {
-        console.error('API Error:', error);
-        throw error;
-    }
 }
 
 // ========== PAGE NAVIGATION ==========
