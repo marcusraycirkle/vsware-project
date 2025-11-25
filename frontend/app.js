@@ -115,6 +115,13 @@ function quickLogin(email, pin) {
 async function logout() {
     await showGoodbyeAnimation();
     localStorage.removeItem('auth_token');
+    localStorage.removeItem('current_user');
+    authToken = null;
+    currentUser = null;
+    showLandingPage();
+}
+
+// ========== API CALLS ==========
 async function apiCall(endpoint, options = {}) {
     try {
         const config = {
