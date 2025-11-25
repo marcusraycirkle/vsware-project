@@ -9,7 +9,7 @@ const User = require('../models/User');
 // @access  Private
 router.get('/', auth, async (req, res) => {
   try {
-    const { department, status, search, page = 1, limit = 20 } = req.query;
+    const { department, status, search, page = 1, limit = 100 } = req.query;
     
     let query = {};
     if (department) query.department = department;
@@ -22,27 +22,42 @@ router.get('/', auth, async (req, res) => {
       .populate('classTeacherOf')
       .limit(limit * 1)
       .skip((page - 1) * limit)
-      .sort({ createdAt: -1 });
+      .sort({ 'user.lastName': 1 });
     
-    let filteredTeachers = teachers;
+    // Format teachers with flattened structure for frontend
+    let formattedTeachers = teachers.map(teacher => ({
+      _id: teacher._id,
+      teacherId: teacher.teacherId,
+      employeeId: teacher.employeeId,
+      firstName: teacher.user?.firstName || '',
+      lastName: teacher.user?.lastName || '',
+      email: teacher.user?.email || '',
+      phone: teacher.user?.phoneNumber || '',
+      subject: teacher.subjects && teacher.subjects.length > 0 
+        ? teacher.subjects.map(s => s.name || s).join(', ') 
+        : teacher.department || 'N/A',
+      department: teacher.department || 'General',
+      designation: teacher.designation || 'Teacher',
+      parking: teacher.parkingSpace || 'N/A',
+      status: teacher.status || 'Active',
+      classes: teacher.classes || []
+    }));
+    
+    // Filter by search if provided
     if (search) {
-      filteredTeachers = teachers.filter(teacher => {
-        const fullName = `${teacher.user.firstName} ${teacher.user.lastName}`.toLowerCase();
+      formattedTeachers = formattedTeachers.filter(teacher => {
+        const fullName = `${teacher.firstName} ${teacher.lastName}`.toLowerCase();
         return fullName.includes(search.toLowerCase()) ||
-               teacher.teacherId.toLowerCase().includes(search.toLowerCase()) ||
-               teacher.employeeId.toLowerCase().includes(search.toLowerCase());
+               (teacher.teacherId && teacher.teacherId.toLowerCase().includes(search.toLowerCase())) ||
+               (teacher.email && teacher.email.toLowerCase().includes(search.toLowerCase()));
       });
     }
     
     const count = await Teacher.countDocuments(query);
     
-    res.json({
-      teachers: filteredTeachers,
-      totalPages: Math.ceil(count / limit),
-      currentPage: page,
-      total: count
-    });
+    res.json(formattedTeachers);
   } catch (error) {
+    console.error('Error loading teachers:', error);
     res.status(500).json({ message: 'Server error', error: error.message });
   }
 });

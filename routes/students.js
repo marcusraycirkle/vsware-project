@@ -14,7 +14,7 @@ router.get('/', auth, authorize('admin', 'principal', 'teacher'), async (req, re
     
     let query = {};
     if (classId) query.currentClass = classId;
-    if (year) query.currentYear = year;
+    if (year) query.yearGroup = year;
     if (status) query.status = status;
     
     const students = await Student.find(query)
@@ -23,28 +23,45 @@ router.get('/', auth, authorize('admin', 'principal', 'teacher'), async (req, re
       .populate('parents')
       .limit(limit * 1)
       .skip((page - 1) * limit)
-      .sort({ createdAt: -1 });
+      .sort({ yearGroup: 1, house: 1 });
+    
+    // Format students with flattened structure for frontend
+    let formattedStudents = students.map(student => ({
+      _id: student._id,
+      studentId: student.studentId,
+      firstName: student.user?.firstName || '',
+      lastName: student.user?.lastName || '',
+      email: student.user?.email || '',
+      phone: student.user?.phoneNumber || '',
+      address: student.user?.address || {},
+      yearGroup: student.yearGroup || student.currentYear,
+      house: student.house,
+      dateOfBirth: student.dateOfBirth,
+      gender: student.gender,
+      currentClass: student.currentClass,
+      status: student.status || 'Active'
+    }));
     
     // Filter by search if provided
-    let filteredStudents = students;
     if (search) {
-      filteredStudents = students.filter(student => {
-        const fullName = `${student.user.firstName} ${student.user.lastName}`.toLowerCase();
+      formattedStudents = formattedStudents.filter(student => {
+        const fullName = `${student.firstName} ${student.lastName}`.toLowerCase();
         return fullName.includes(search.toLowerCase()) ||
-               student.studentId.toLowerCase().includes(search.toLowerCase()) ||
-               student.admissionNumber.toLowerCase().includes(search.toLowerCase());
+               (student.studentId && student.studentId.toLowerCase().includes(search.toLowerCase())) ||
+               (student.email && student.email.toLowerCase().includes(search.toLowerCase()));
       });
     }
     
     const count = await Student.countDocuments(query);
     
     res.json({
-      students: filteredStudents,
+      students: formattedStudents,
       totalPages: Math.ceil(count / limit),
       currentPage: page,
       total: count
     });
   } catch (error) {
+    console.error('Error loading students:', error);
     res.status(500).json({ message: 'Server error', error: error.message });
   }
 });
@@ -93,34 +110,47 @@ router.get('/:id', auth, async (req, res) => {
 router.post('/', auth, authorize('admin', 'principal'), async (req, res) => {
   try {
     const { 
-      email, password, firstName, lastName, phoneNumber, address,
-      studentId, admissionNumber, dateOfBirth, gender, currentYear,
-      currentClass, medicalInfo, parents
+      email, firstName, lastName, phone, address,
+      studentId, dateOfBirth, gender, yearGroup,
+      house, currentClass
     } = req.body;
+    
+    if (!email || !firstName || !lastName || !yearGroup) {
+      return res.status(400).json({ message: 'Missing required fields: email, firstName, lastName, yearGroup' });
+    }
+    
+    // Generate default password from student ID or timestamp
+    const defaultPassword = studentId || `STUDENT${Date.now()}`;
     
     // Create user account
     const user = new User({
       email,
-      password,
+      password: defaultPassword,
       firstName,
       lastName,
       role: 'student',
-      phoneNumber,
-      address
+      phoneNumber: phone,
+      address: { street: address || '' }
     });
     await user.save();
+    
+    // Map yearGroup to yearName
+    const yearNames = ['First Year', 'Second Year', 'Third Year', 'TY', 'Fifth Year', 'Sixth Year'];
+    const yearName = yearNames[yearGroup - 1] || 'First Year';
     
     // Create student profile
     const student = new Student({
       user: user._id,
-      studentId: studentId || `STD${Date.now()}`,
-      admissionNumber: admissionNumber || `ADM${Date.now()}`,
-      dateOfBirth,
-      gender,
-      currentYear,
+      studentId: studentId || `24${Date.now().toString().slice(-6)}`,
+      admissionNumber: `ADM${Date.now().toString().slice(-8)}`,
+      dateOfBirth: dateOfBirth || new Date('2008-01-01'),
+      gender: gender || 'Other',
+      currentYear: yearGroup,
+      yearGroup: yearName,
+      yearName: yearName,
+      house: house || 'Bride',
       currentClass,
-      medicalInfo,
-      parents
+      status: 'Active'
     });
     await student.save();
     
@@ -137,14 +167,27 @@ router.post('/', auth, authorize('admin', 'principal'), async (req, res) => {
     
     const populatedStudent = await Student.findById(student._id)
       .populate('user', '-password')
-      .populate('currentClass')
-      .populate('parents');
+      .populate('currentClass');
+    
+    // Format for frontend
+    const formattedStudent = {
+      _id: populatedStudent._id,
+      studentId: populatedStudent.studentId,
+      firstName: populatedStudent.user.firstName,
+      lastName: populatedStudent.user.lastName,
+      email: populatedStudent.user.email,
+      phone: populatedStudent.user.phoneNumber,
+      yearGroup: yearName,
+      house: populatedStudent.house,
+      status: 'Active'
+    };
     
     res.status(201).json({
       message: 'Student created successfully',
-      student: populatedStudent
+      student: formattedStudent
     });
   } catch (error) {
+    console.error('Error creating student:', error);
     res.status(500).json({ message: 'Server error', error: error.message });
   }
 });

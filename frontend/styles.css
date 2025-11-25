@@ -581,6 +581,12 @@ body {
 
 .navbar-brand i { font-size: 1.75rem; }
 
+.school-logo {
+    height: 50px;
+    width: auto;
+    object-fit: contain;
+}
+
 .navbar-menu {
     display: flex;
     align-items: center;
@@ -1880,3 +1886,213 @@ body {
     align-items: center;
     gap: 0.5rem;
 }
+
+/* ========== ROOM BOOKINGS - 4 COLUMN GRID LAYOUT ========== */
+.floor-section {
+    margin-bottom: 3rem;
+}
+
+.floor-header {
+    display: flex;
+    align-items: center;
+    gap: 1rem;
+    padding: 1rem 1.5rem;
+    background: linear-gradient(135deg, var(--primary) 0%, var(--primary-dark) 100%);
+    color: white;
+    border-radius: 0.75rem;
+    margin-bottom: 1.5rem;
+    font-size: 1.25rem;
+    box-shadow: var(--shadow-md);
+}
+
+.floor-header i {
+    font-size: 1.5rem;
+}
+
+.floor-header .room-count {
+    margin-left: auto;
+    background: rgba(255,255,255,0.2);
+    padding: 0.25rem 0.75rem;
+    border-radius: 2rem;
+    font-size: 0.875rem;
+    font-weight: 600;
+}
+
+.rooms-grid-4col {
+    display: grid;
+    grid-template-columns: repeat(4, 1fr);
+    gap: 1.5rem;
+}
+
+@media (max-width: 1400px) {
+    .rooms-grid-4col {
+        grid-template-columns: repeat(3, 1fr);
+    }
+}
+
+@media (max-width: 1024px) {
+    .rooms-grid-4col {
+        grid-template-columns: repeat(2, 1fr);
+    }
+}
+
+@media (max-width: 640px) {
+    .rooms-grid-4col {
+        grid-template-columns: 1fr;
+    }
+}
+
+.room-card {
+    background: var(--bg-card);
+    border-radius: 1rem;
+    border: 2px solid var(--border);
+    overflow: hidden;
+    cursor: pointer;
+    transition: var(--transition);
+    box-shadow: var(--shadow-sm);
+}
+
+.room-card:hover {
+    transform: translateY(-4px);
+    box-shadow: var(--shadow-lg);
+    border-color: var(--primary);
+}
+
+.room-card.available {
+    border-left: 4px solid var(--success);
+}
+
+.room-card.occupied {
+    border-left: 4px solid var(--danger);
+    opacity: 0.85;
+}
+
+.room-card-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    padding: 1rem 1.25rem;
+    background: linear-gradient(135deg, #f8f9fa 0%, #e9ecef 100%);
+    border-bottom: 1px solid var(--border);
+}
+
+.room-number {
+    font-size: 1.25rem;
+    font-weight: 700;
+    color: var(--primary);
+}
+
+.room-status i {
+    font-size: 1.25rem;
+}
+
+.room-card.available .room-status i {
+    color: var(--success);
+}
+
+.room-card.occupied .room-status i {
+    color: var(--danger);
+}
+
+.room-card-body {
+    padding: 1.25rem;
+    text-align: center;
+}
+
+.room-icon {
+    width: 60px;
+    height: 60px;
+    margin: 0 auto 1rem;
+    background: linear-gradient(135deg, var(--primary) 0%, var(--primary-dark) 100%);
+    border-radius: 50%;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    color: white;
+    font-size: 1.75rem;
+}
+
+.room-name {
+    font-size: 1rem;
+    font-weight: 600;
+    color: var(--text-primary);
+    margin-bottom: 0.75rem;
+    min-height: 2.5rem;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+}
+
+.room-details {
+    display: flex;
+    flex-direction: column;
+    gap: 0.5rem;
+    font-size: 0.875rem;
+    color: var(--text-secondary);
+}
+
+.room-category, .room-capacity {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 0.5rem;
+}
+
+.room-category i, .room-capacity i {
+    color: var(--primary);
+}
+
+.room-card-footer {
+    padding: 1rem;
+    background: var(--bg-main);
+    border-top: 1px solid var(--border);
+}
+
+.book-btn {
+    width: 100%;
+    padding: 0.75rem;
+    background: var(--primary);
+    color: white;
+    border: none;
+    border-radius: 0.5rem;
+    font-weight: 600;
+    font-size: 0.875rem;
+    cursor: pointer;
+    transition: var(--transition);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 0.5rem;
+}
+
+.book-btn:hover {
+    background: var(--primary-dark);
+    transform: translateY(-1px);
+    box-shadow: var(--shadow-md);
+}
+
+.room-card.occupied .book-btn {
+    background: var(--text-muted);
+    cursor: not-allowed;
+}
+
+.room-card.occupied .book-btn:hover {
+    background: var(--text-muted);
+    transform: none;
+    box-shadow: none;
+}
+
+.empty-state {
+    text-align: center;
+    padding: 4rem 2rem;
+    color: var(--text-secondary);
+    font-size: 1.125rem;
+}
+
+.empty-state i {
+    font-size: 3rem;
+    display: block;
+    margin-bottom: 1rem;
+    opacity: 0.5;
+}
+

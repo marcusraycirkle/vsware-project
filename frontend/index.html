@@ -251,7 +251,7 @@
         <!-- Top Navigation Bar -->
         <nav class="top-navbar">
             <div class="navbar-brand">
-                <i class="fas fa-graduation-cap"></i>
+                <img src="https://www.stpatrickscomprehensive.ie/uploads/2/3/2/0/23206024/editor/st-patrick-s-comp-logo-layout-2-1.png?1564671961" alt="St Patrick's Logo" class="school-logo">
                 <span>CompMIS</span>
             </div>
             
@@ -631,8 +631,22 @@
                                 <i class="fas fa-clipboard-check"></i> Take Attendance Now
                             </button>
                         </div>
-                        <div class="attendance-calendar">
-                            <!-- Calendar view loads here -->
+                        <div class="table-container">
+                            <table class="data-table">
+                                <thead>
+                                    <tr>
+                                        <th>Date</th>
+                                        <th>Period</th>
+                                        <th>Student Name</th>
+                                        <th>Student ID</th>
+                                        <th>Status</th>
+                                        <th>Notes</th>
+                                    </tr>
+                                </thead>
+                                <tbody id="attendance-table-body">
+                                    <!-- Attendance records load here -->
+                                </tbody>
+                            </table>
                         </div>
                     </div>
                 </div>

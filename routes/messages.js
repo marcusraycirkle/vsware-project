@@ -103,12 +103,57 @@ router.get('/:id', auth, async (req, res) => {
 router.post('/', auth, async (req, res) => {
   try {
     const {
-      recipients, subject, body, type, priority, category,
+      recipients, recipientType, subject, body, type, priority, category,
       attachments, relatedClass, relatedStudent, scheduledFor
     } = req.body;
     
+    let recipientIds = [];
+    
+    // Handle different recipient types
+    if (recipientType) {
+      const Student = require('../models/Student');
+      const Teacher = require('../models/Teacher');
+      const Parent = require('../models/Parent');
+      
+      switch(recipientType) {
+        case 'all-students':
+          const students = await Student.find().populate('user');
+          recipientIds = students.map(s => s.user._id.toString());
+          break;
+        case 'all-teachers':
+          const teachers = await Teacher.find().populate('user');
+          recipientIds = teachers.map(t => t.user._id.toString());
+          break;
+        case 'all-parents':
+          const parents = await Parent.find().populate('user');
+          recipientIds = parents.map(p => p.user._id.toString());
+          break;
+        case 'class':
+          if (relatedClass) {
+            const Class = require('../models/Class');
+            const classData = await Class.findById(relatedClass).populate({
+              path: 'students',
+              populate: { path: 'user' }
+            });
+            recipientIds = classData.students.map(s => s.user._id.toString());
+          }
+          break;
+        case 'individual':
+          recipientIds = recipients || [];
+          break;
+        default:
+          recipientIds = recipients || [];
+      }
+    } else {
+      recipientIds = recipients || [];
+    }
+    
+    if (recipientIds.length === 0) {
+      return res.status(400).json({ message: 'No recipients specified' });
+    }
+    
     // Prepare recipients array
-    const recipientObjects = recipients.map(userId => ({
+    const recipientObjects = recipientIds.map(userId => ({
       user: userId,
       read: false
     }));
@@ -118,9 +163,9 @@ router.post('/', auth, async (req, res) => {
       recipients: recipientObjects,
       subject,
       body,
-      type,
-      priority,
-      category,
+      type: type || 'General',
+      priority: priority ? 'High' : 'Normal',
+      category: category || 'General',
       attachments,
       relatedClass,
       relatedStudent,
@@ -137,15 +182,19 @@ router.post('/', auth, async (req, res) => {
     
     // Emit socket event to recipients
     const io = req.app.get('io');
-    recipients.forEach(recipientId => {
-      io.to(`user-${recipientId}`).emit('new-message', populatedMessage);
-    });
+    if (io) {
+      recipientIds.forEach(recipientId => {
+        io.to(`user-${recipientId}`).emit('new-message', populatedMessage);
+      });
+    }
     
     res.status(201).json({
       message: 'Message sent successfully',
-      data: populatedMessage
+      data: populatedMessage,
+      recipientCount: recipientIds.length
     });
   } catch (error) {
+    console.error('Error sending message:', error);
     res.status(500).json({ message: 'Server error', error: error.message });
   }
 });

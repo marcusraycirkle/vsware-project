@@ -66,7 +66,7 @@ async function handleLogin(e) {
 
 async function login(email, pin) {
     try {
-        showLoading('Logging in...');
+        showAnimatedLogin();
         
         const response = await fetch(`${API_URL}/auth/login`, {
             method: 'POST',
@@ -85,16 +85,15 @@ async function login(email, pin) {
             localStorage.setItem('auth_token', authToken);
             localStorage.setItem('current_user', JSON.stringify(currentUser));
             
-            hideLoading();
-            showSuccess('Login successful!');
+            await showWelcomeAnimation();
             showDashboard();
             loadDashboardData();
         } else {
-            hideLoading();
+            hideAnimatedLogin();
             showError(data.message || 'Login failed');
         }
     } catch (error) {
-        hideLoading();
+        hideAnimatedLogin();
         showError('Connection error. Please check if the backend is running.');
         console.error('Login error:', error);
     }
@@ -106,7 +105,8 @@ function quickLogin(email, pin) {
     login(email, pin);
 }
 
-function logout() {
+async function logout() {
+    await showGoodbyeAnimation();
     localStorage.removeItem('auth_token');
     localStorage.removeItem('current_user');
     authToken = null;
@@ -332,6 +332,64 @@ async function loadSectionData(section, subsection) {
 async function loadTabData(section, tab) {
     // Load data specific to the tab
     console.log(`Loading ${section} - ${tab}`);
+    
+    if (section === 'students' && tab === 'attendance') {
+        loadAttendanceRecords();
+    }
+}
+
+async function loadAttendanceRecords() {
+    try {
+        showLoading('Loading attendance records...');
+        const today = new Date().toISOString().split('T')[0];
+        const data = await apiCall(`/attendance?date=${today}&limit=100`);
+        displayAttendanceRecords(data.attendance || []);
+        hideLoading();
+    } catch (error) {
+        hideLoading();
+        showError('Failed to load attendance records');
+        console.error('Error loading attendance:', error);
+    }
+}
+
+function displayAttendanceRecords(records) {
+    const tbody = document.getElementById('attendance-table-body');
+    if (!tbody) return;
+    
+    if (records.length === 0) {
+        tbody.innerHTML = `
+            <tr>
+                <td colspan="6" style="text-align: center; padding: 2rem; color: var(--text-secondary);">
+                    <i class="fas fa-clipboard-list" style="font-size: 2rem; display: block; margin-bottom: 0.5rem; opacity: 0.5;"></i>
+                    No attendance records for today. Click "Take Attendance" to mark attendance.
+                </td>
+            </tr>
+        `;
+        return;
+    }
+    
+    tbody.innerHTML = records.map(record => {
+        const student = record.student || {};
+        const user = student.user || {};
+        const statusColors = {
+            'Present': 'success',
+            'Absent': 'danger',
+            'Late': 'warning',
+            'Excused': 'info'
+        };
+        const statusColor = statusColors[record.status] || 'info';
+        
+        return `
+            <tr>
+                <td>${new Date(record.date).toLocaleDateString()}</td>
+                <td>${record.period || 'All Day'}</td>
+                <td><strong>${user.firstName || ''} ${user.lastName || ''}</strong></td>
+                <td>${student.studentId || 'N/A'}</td>
+                <td><span class="badge-${statusColor}">${record.status}</span></td>
+                <td>${record.notes || '-'}</td>
+            </tr>
+        `;
+    }).join('');
 }
 
 // ========== STUDENTS ==========
@@ -692,10 +750,15 @@ function displayTeachers(teachers) {
     const tbody = document.getElementById('teachers-table-body');
     if (!tbody) return;
     
+    if (!teachers || teachers.length === 0) {
+        tbody.innerHTML = '<tr><td colspan="5" style="text-align:center;padding:2rem;color:var(--text-secondary)"><i class="fas fa-chalkboard-teacher" style="font-size:2rem;display:block;margin-bottom:0.5rem;opacity:0.5"></i>No teachers found</td></tr>';
+        return;
+    }
+    
     tbody.innerHTML = teachers.map(teacher => `
         <tr>
-            <td><strong>${teacher.firstName} ${teacher.lastName}</strong></td>
-            <td>${teacher.email}</td>
+            <td><strong>${teacher.firstName || ''} ${teacher.lastName || ''}</strong></td>
+            <td>${teacher.email || 'N/A'}</td>
             <td>${teacher.subject || 'N/A'}</td>
             <td>
                 <span class="badge ${getPermissionBadgeClass(teacher.permissionLevel)}">
@@ -949,21 +1012,102 @@ function displayRooms(rooms) {
     const grid = document.getElementById('rooms-grid');
     if (!grid) return;
     
-    grid.innerHTML = rooms.map(room => `
-        <div class="card">
-            <div class="card-header">
-                <h3><i class="fas fa-door-open"></i> ${room.roomNumber}</h3>
+    // Group rooms by floor
+    const roomsByFloor = {};
+    rooms.forEach(room => {
+        const floor = room.floor || 'Ground';
+        if (!roomsByFloor[floor]) {
+            roomsByFloor[floor] = [];
+        }
+        roomsByFloor[floor].push(room);
+    });
+    
+    // Sort floors
+    const floorOrder = ['Ground', '0', '1', '2', '3', '4'];
+    const sortedFloors = Object.keys(roomsByFloor).sort((a, b) => {
+        const aIndex = floorOrder.indexOf(a);
+        const bIndex = floorOrder.indexOf(b);
+        if (aIndex === -1 && bIndex === -1) return a.localeCompare(b);
+        if (aIndex === -1) return 1;
+        if (bIndex === -1) return -1;
+        return aIndex - bIndex;
+    });
+    
+    // Build HTML for each floor
+    let html = '';
+    sortedFloors.forEach(floor => {
+        const floorRooms = roomsByFloor[floor];
+        
+        // Sort rooms by room number
+        floorRooms.sort((a, b) => {
+            const aNum = parseInt(a.roomNumber) || 0;
+            const bNum = parseInt(b.roomNumber) || 0;
+            return aNum - bNum;
+        });
+        
+        html += `
+            <div class="floor-section">
+                <h3 class="floor-header">
+                    <i class="fas fa-building"></i> 
+                    ${floor === 'Ground' || floor === '0' ? 'Ground Floor' : `Floor ${floor}`}
+                    <span class="room-count">${floorRooms.length} rooms</span>
+                </h3>
+                <div class="rooms-grid-4col">
+                    ${floorRooms.map(room => {
+                        const categoryIcons = {
+                            'Classroom': 'fa-chalkboard-teacher',
+                            'Laboratory': 'fa-flask',
+                            'Office': 'fa-briefcase',
+                            'Sports': 'fa-basketball-ball',
+                            'Library': 'fa-book',
+                            'Staff Room': 'fa-coffee',
+                            'Meeting Room': 'fa-users',
+                            'Storage': 'fa-box',
+                            'Utility': 'fa-tools'
+                        };
+                        const icon = categoryIcons[room.category] || 'fa-door-open';
+                        
+                        const statusClass = room.isAvailable ? 'available' : 'occupied';
+                        const statusIcon = room.isAvailable ? 'check-circle' : 'times-circle';
+                        
+                        return `
+                            <div class="room-card ${statusClass}" onclick="bookRoom('${room._id}')">
+                                <div class="room-card-header">
+                                    <span class="room-number">${room.roomNumber}</span>
+                                    <span class="room-status">
+                                        <i class="fas fa-${statusIcon}"></i>
+                                    </span>
+                                </div>
+                                <div class="room-card-body">
+                                    <div class="room-icon">
+                                        <i class="fas ${icon}"></i>
+                                    </div>
+                                    <h4 class="room-name">${room.roomName || room.category}</h4>
+                                    <div class="room-details">
+                                        <span class="room-category">
+                                            <i class="fas fa-tag"></i> ${room.category}
+                                        </span>
+                                        ${room.capacity ? `
+                                            <span class="room-capacity">
+                                                <i class="fas fa-users"></i> ${room.capacity}
+                                            </span>
+                                        ` : ''}
+                                    </div>
+                                </div>
+                                <div class="room-card-footer">
+                                    <button class="book-btn">
+                                        <i class="fas fa-calendar-plus"></i> Book Room
+                                    </button>
+                                </div>
+                            </div>
+                        `;
+                    }).join('')}
+                </div>
             </div>
-            <div style="padding: 1.5rem;">
-                <p><strong>Building:</strong> ${room.building || 'Main'}</p>
-                <p><strong>Type:</strong> ${room.type}</p>
-                <p><strong>Capacity:</strong> ${room.capacity || 'N/A'}</p>
-                <button class="btn-primary" onclick="bookRoom('${room._id}')">
-                    <i class="fas fa-calendar-plus"></i> Book
-                </button>
-            </div>
-        </div>
-    `).join('');
+        `;
+    });
+    
+    grid.innerHTML = html || '<p class="empty-state"><i class="fas fa-door-closed"></i> No rooms available</p>';
 }
 
 async function bookRoom(roomId) {
@@ -1727,13 +1871,13 @@ function removeNotification(notifId) {
 }
 
 function clearAllNotifications() {
-    if (confirm('Clear all notifications?')) {
+    confirmDialog('Clear All Notifications?', 'This action cannot be undone. All notifications will be permanently deleted.', () => {
         notifications = [];
         saveNotifications();
         updateNotificationBadge();
         renderNotifications();
         showSuccess('All notifications cleared');
-    }
+    });
 }
 
 function markAllAsRead() {
@@ -2029,3 +2173,132 @@ Object.values(sounds).forEach(sound => {
     sound.preload = 'auto';
     sound.load();
 });
+
+// ========== ANIMATED LOGIN/LOGOUT ==========
+function showAnimatedLogin() {
+    const overlay = document.createElement('div');
+    overlay.id = 'login-animation';
+    overlay.style.cssText = `
+        position: fixed;
+        top: 0;
+        left: 0;
+        right: 0;
+        bottom: 0;
+        background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        z-index: 10000;
+        animation: fadeIn 0.3s ease-out;
+    `;
+    
+    overlay.innerHTML = `
+        <div style="text-align: center; color: white;">
+            <div class="spinner" style="margin: 0 auto 1.5rem"></div>
+            <h2 style="font-size: 1.5rem; font-weight: 600;">Logging in...</h2>
+        </div>
+    `;
+    
+    document.body.appendChild(overlay);
+}
+
+function hideAnimatedLogin() {
+    const overlay = document.getElementById('login-animation');
+    if (overlay) overlay.remove();
+}
+
+async function showWelcomeAnimation() {
+    return new Promise((resolve) => {
+        const now = new Date();
+        const hour = now.getHours();
+        let greeting = 'Good Evening';
+        if (hour < 12) greeting = 'Good Morning';
+        else if (hour < 18) greeting = 'Good Afternoon';
+        
+        const fullName = `${currentUser.firstName} ${currentUser.lastName}`;
+        
+        const overlay = document.getElementById('login-animation');
+        if (!overlay) return resolve();
+        
+        overlay.innerHTML = `
+            <div style="text-align: center; color: white; position: relative; width: 100%;">
+                <div id="welcome-person" style="font-size: 8rem; opacity: 0; transform: translateX(-100px); transition: all 0.5s ease-out;">
+                    👋
+                </div>
+                <div id="welcome-text" style="opacity: 0; transform: translateY(20px); transition: all 0.5s ease-out;">
+                    <h1 style="font-size: 3rem; font-weight: 700; margin-bottom: 0.5rem;">${greeting}</h1>
+                    <p style="font-size: 1.5rem; font-weight: 600;">${fullName}</p>
+                </div>
+            </div>
+        `;
+        
+        setTimeout(() => {
+            document.getElementById('welcome-person').style.opacity = '1';
+            document.getElementById('welcome-person').style.transform = 'translateX(0)';
+        }, 100);
+        
+        setTimeout(() => {
+            document.getElementById('welcome-text').style.opacity = '1';
+            document.getElementById('welcome-text').style.transform = 'translateY(0)';
+        }, 600);
+        
+        setTimeout(() => {
+            document.getElementById('welcome-person').style.transform = 'translateX(100px)';
+            document.getElementById('welcome-person').style.opacity = '0';
+        }, 2600);
+        
+        setTimeout(() => {
+            document.getElementById('welcome-text').style.transform = 'translateY(-50px) scale(1.2)';
+            document.getElementById('welcome-text').style.opacity = '0';
+        }, 3100);
+        
+        setTimeout(() => {
+            overlay.style.animation = 'fadeOut 0.5s ease-out';
+            setTimeout(() => {
+                overlay.remove();
+                resolve();
+            }, 500);
+        }, 3600);
+    });
+}
+
+async function showGoodbyeAnimation() {
+    return new Promise((resolve) => {
+        const fullName = currentUser ? `${currentUser.firstName} ${currentUser.lastName}` : 'User';
+        
+        const overlay = document.createElement('div');
+        overlay.id = 'goodbye-animation';
+        overlay.style.cssText = `
+            position: fixed;
+            top: 0;
+            left: 0;
+            right: 0;
+            bottom: 0;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            z-index: 10000;
+            animation: fadeIn 0.3s ease-out;
+        `;
+        
+        overlay.innerHTML = `
+            <div style="text-align: center; color: white;">
+                <div style="font-size: 8rem; margin-bottom: 1rem;">👋</div>
+                <h1 style="font-size: 2.5rem; font-weight: 700; margin-bottom: 0.5rem;">Goodbye, ${fullName}</h1>
+                <p style="font-size: 1.25rem;">See you soon!</p>
+            </div>
+        `;
+        
+        document.body.appendChild(overlay);
+        
+        setTimeout(() => {
+            overlay.style.animation = 'fadeOut 0.5s ease-out';
+            setTimeout(() => {
+                overlay.remove();
+                resolve();
+            }, 500);
+        }, 2000);
+    });
+}
+
