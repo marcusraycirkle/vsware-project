@@ -49,6 +49,7 @@ const assessmentRoutes = require('./routes/assessments');
 const messageRoutes = require('./routes/messages');
 const reportRoutes = require('./routes/reports');
 const paymentRoutes = require('./routes/payments');
+const roomRoutes = require('./routes/rooms');
 
 // Initialize express app
 const app = express();
@@ -89,6 +90,9 @@ app.use(cors(corsOptions));
 app.use(express.json());
 app.use(express.urlencoded({ extended: true }));
 
+// Serve static files from frontend directory
+app.use(express.static('frontend'));
+
 // Rate limiting
 const limiter = rateLimit({
   windowMs: 15 * 60 * 1000, // 15 minutes
@@ -126,10 +130,16 @@ app.use('/api/assessments', assessmentRoutes);
 app.use('/api/messages', messageRoutes);
 app.use('/api/reports', reportRoutes);
 app.use('/api/payments', paymentRoutes);
+app.use('/api/rooms', roomRoutes);
 
 // Health check route
 app.get('/api/health', (req, res) => {
   res.json({ status: 'OK', message: 'SchoolWare API is running', dbState: mongoose.connection.readyState });
+});
+
+// Serve index.html for root route
+app.get('/', (req, res) => {
+  res.sendFile(__dirname + '/frontend/index.html');
 });
 
 // Start server (only for local development)

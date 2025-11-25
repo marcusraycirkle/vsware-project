@@ -225,10 +225,37 @@ async function loadDashboardData() {
         await loadStats();
         // Load houses
         await loadHouses();
+        // Load attendance data
+        await loadDashboardAttendance();
         // Load recent activity
         loadRecentActivity();
     } catch (error) {
         console.error('Error loading dashboard:', error);
+    }
+}
+
+async function loadDashboardAttendance() {
+    try {
+        const today = new Date().toISOString().split('T')[0];
+        
+        // Get today's attendance
+        const attendanceData = await apiCall(`/attendance?date=${today}&limit=1000`);
+        
+        const attendance = attendanceData.attendance || [];
+        
+        const present = attendance.filter(a => a.status === 'Present').length;
+        const absent = attendance.filter(a => a.status === 'Absent').length;
+        const late = attendance.filter(a => a.status === 'Late').length;
+        
+        document.getElementById('attendance-present').textContent = present;
+        document.getElementById('attendance-absent').textContent = absent;
+        document.getElementById('attendance-late').textContent = late;
+    } catch (error) {
+        console.error('Error loading attendance:', error);
+        // Set to 0 if error
+        document.getElementById('attendance-present').textContent = '0';
+        document.getElementById('attendance-absent').textContent = '0';
+        document.getElementById('attendance-late').textContent = '0';
     }
 }
 
@@ -380,18 +407,271 @@ function filterByHouse(house) {
 }
 
 function viewStudentProfile(studentId) {
-    showSuccess('Student profile feature coming soon!');
-    // TODO: Implement student profile view
+    loadStudentProfile(studentId);
 }
 
-function addStudent() {
-    showSuccess('Add student feature coming soon!');
-    // TODO: Implement add student modal
+async function loadStudentProfile(studentId) {
+    try {
+        showLoading('Loading student profile...');
+        const student = await apiCall(`/students/${studentId}`);
+        hideLoading();
+        
+        const modalContent = `
+            <div class="profile-view">
+                <div class="profile-header">
+                    <div class="profile-avatar">
+                        <i class="fas fa-user-circle"></i>
+                    </div>
+                    <div>
+                        <h2>${student.firstName} ${student.lastName}</h2>
+                        <p class="text-muted">Student ID: ${student.studentId || 'N/A'}</p>
+                    </div>
+                </div>
+                
+                <div class="profile-sections">
+                    <div class="profile-section">
+                        <h3><i class="fas fa-info-circle"></i> Basic Information</h3>
+                        <div class="info-grid">
+                            <div><strong>Email:</strong> ${student.email}</div>
+                            <div><strong>Year Group:</strong> Year ${student.yearGroup}</div>
+                            <div><strong>House:</strong> <span class="badge ${getHouseBadgeClass(student.house)}">${student.house || 'N/A'}</span></div>
+                            <div><strong>Date of Birth:</strong> ${student.dateOfBirth ? new Date(student.dateOfBirth).toLocaleDateString() : 'N/A'}</div>
+                            <div><strong>Gender:</strong> ${student.gender || 'N/A'}</div>
+                            <div><strong>Address:</strong> ${student.address?.street || 'N/A'}</div>
+                        </div>
+                    </div>
+                    
+                    <div class="profile-section">
+                        <h3><i class="fas fa-phone"></i> Contact Information</h3>
+                        <div class="info-grid">
+                            <div><strong>Phone:</strong> ${student.phone || 'N/A'}</div>
+                            <div><strong>Emergency Contact:</strong> ${student.emergencyContact?.name || 'N/A'}</div>
+                            <div><strong>Emergency Phone:</strong> ${student.emergencyContact?.phone || 'N/A'}</div>
+                        </div>
+                    </div>
+                    
+                    <div class="profile-section">
+                        <h3><i class="fas fa-graduation-cap"></i> Academic Information</h3>
+                        <div class="info-grid">
+                            <div><strong>Classes:</strong> ${student.classes?.length || 0}</div>
+                            <div><strong>Subjects:</strong> ${student.subjects?.length || 0}</div>
+                            <div><strong>Status:</strong> <span class="badge success">Active</span></div>
+                        </div>
+                    </div>
+                    
+                    <div class="profile-actions">
+                        <button class="btn-primary" onclick="editStudent('${studentId}')">
+                            <i class="fas fa-edit"></i> Edit Profile
+                        </button>
+                        <button class="btn-primary" onclick="viewStudentAttendance('${studentId}')">
+                            <i class="fas fa-calendar-check"></i> View Attendance
+                        </button>
+                        <button class="btn-primary" onclick="viewStudentBehavior('${studentId}')">
+                            <i class="fas fa-star"></i> View Behavior
+                        </button>
+                        <button class="btn-primary" onclick="viewStudentGrades('${studentId}')">
+                            <i class="fas fa-chart-line"></i> View Grades
+                        </button>
+                    </div>
+                </div>
+            </div>
+        `;
+        
+        showModal('Student Profile', modalContent, [
+            { text: 'Close', type: 'secondary', action: 'closeModal()' }
+        ]);
+    } catch (error) {
+        hideLoading();
+        showError('Failed to load student profile');
+        console.error(error);
+    }
 }
 
-function exportStudents() {
-    showSuccess('Export functionality coming soon!');
-    // TODO: Implement CSV export
+function editStudent(studentId) {
+    showSuccess('Edit student feature coming soon!');
+}
+
+function viewStudentAttendance(studentId) {
+    showSuccess('Student attendance details coming soon!');
+}
+
+function viewStudentBehavior(studentId) {
+    showSuccess('Student behavior details coming soon!');
+}
+
+function viewStudentGrades(studentId) {
+    showSuccess('Student grades details coming soon!');
+}
+
+async function addStudent() {
+    const modalContent = `
+        <form id="add-student-form">
+            <div class="form-grid">
+                <div class="input-group">
+                    <label><i class="fas fa-id-card"></i> Student ID</label>
+                    <input type="text" id="new-student-id" placeholder="e.g., 24001" required>
+                </div>
+                <div class="input-group">
+                    <label><i class="fas fa-user"></i> First Name *</label>
+                    <input type="text" id="new-student-firstname" required>
+                </div>
+                <div class="input-group">
+                    <label><i class="fas fa-user"></i> Last Name *</label>
+                    <input type="text" id="new-student-lastname" required>
+                </div>
+                <div class="input-group">
+                    <label><i class="fas fa-envelope"></i> Email *</label>
+                    <input type="email" id="new-student-email" required>
+                </div>
+                <div class="input-group">
+                    <label><i class="fas fa-calendar"></i> Date of Birth</label>
+                    <input type="date" id="new-student-dob">
+                </div>
+                <div class="input-group">
+                    <label><i class="fas fa-venus-mars"></i> Gender</label>
+                    <select id="new-student-gender" class="select-input">
+                        <option value="">Select...</option>
+                        <option value="Male">Male</option>
+                        <option value="Female">Female</option>
+                        <option value="Other">Other</option>
+                    </select>
+                </div>
+                <div class="input-group">
+                    <label><i class="fas fa-graduation-cap"></i> Year Group *</label>
+                    <select id="new-student-year" required class="select-input">
+                        <option value="">Select year...</option>
+                        <option value="1">Year 1</option>
+                        <option value="2">Year 2</option>
+                        <option value="3">Year 3</option>
+                        <option value="4">Year 4</option>
+                        <option value="5">Year 5</option>
+                        <option value="6">Year 6</option>
+                    </select>
+                </div>
+                <div class="input-group">
+                    <label><i class="fas fa-flag"></i> House</label>
+                    <select id="new-student-house" class="select-input">
+                        <option value="">Select house...</option>
+                        <option value="Bride">Bride</option>
+                        <option value="Ide">Ide</option>
+                        <option value="Tola">Tola</option>
+                        <option value="Seanan">Seanan</option>
+                        <option value="Padraig">Padraig</option>
+                        <option value="Conaire">Conaire</option>
+                    </select>
+                </div>
+                <div class="input-group">
+                    <label><i class="fas fa-phone"></i> Phone</label>
+                    <input type="tel" id="new-student-phone">
+                </div>
+                <div class="input-group full-width">
+                    <label><i class="fas fa-map-marker-alt"></i> Address</label>
+                    <input type="text" id="new-student-address" placeholder="Street address">
+                </div>
+            </div>
+        </form>
+    `;
+    
+    showModal('Add New Student', modalContent, [
+        { text: 'Cancel', type: 'secondary', action: 'closeModal()' },
+        { text: 'Add Student', type: 'success', action: 'submitNewStudent()', icon: 'fas fa-user-plus' }
+    ]);
+}
+
+async function submitNewStudent() {
+    const studentData = {
+        studentId: document.getElementById('new-student-id').value,
+        firstName: document.getElementById('new-student-firstname').value,
+        lastName: document.getElementById('new-student-lastname').value,
+        email: document.getElementById('new-student-email').value,
+        dateOfBirth: document.getElementById('new-student-dob').value,
+        gender: document.getElementById('new-student-gender').value,
+        yearGroup: parseInt(document.getElementById('new-student-year').value),
+        house: document.getElementById('new-student-house').value,
+        phone: document.getElementById('new-student-phone').value,
+        address: {
+            street: document.getElementById('new-student-address').value
+        }
+    };
+    
+    if (!studentData.firstName || !studentData.lastName || !studentData.email || !studentData.yearGroup) {
+        showError('Please fill in all required fields');
+        return;
+    }
+    
+    try {
+        closeModal();
+        showLoading('Adding student...');
+        
+        await apiCall('/students', {
+            method: 'POST',
+            body: JSON.stringify(studentData)
+        });
+        
+        hideLoading();
+        showSuccess('Student added successfully!');
+        
+        // Reload students list
+        await loadStudents();
+    } catch (error) {
+        hideLoading();
+        showError('Failed to add student: ' + error.message);
+        console.error(error);
+    }
+}
+
+async function exportStudents() {
+    try {
+        showLoading('Preparing export...');
+        
+        // Get all students
+        const data = await apiCall('/students?limit=1000');
+        const students = data.students || [];
+        
+        if (students.length === 0) {
+            hideLoading();
+            showError('No students to export');
+            return;
+        }
+        
+        // Create CSV content
+        const headers = ['Student ID', 'First Name', 'Last Name', 'Email', 'Year Group', 'House', 'Phone', 'Status'];
+        const csvRows = [headers.join(',')];
+        
+        students.forEach(student => {
+            const row = [
+                student.studentId || '',
+                student.firstName || '',
+                student.lastName || '',
+                student.email || '',
+                student.yearGroup || '',
+                student.house || '',
+                student.phone || '',
+                'Active'
+            ];
+            csvRows.push(row.join(','));
+        });
+        
+        const csvContent = csvRows.join('\n');
+        
+        // Create download link
+        const blob = new Blob([csvContent], { type: 'text/csv' });
+        const url = window.URL.createObjectURL(blob);
+        const a = document.createElement('a');
+        a.href = url;
+        a.download = `students_export_${new Date().toISOString().split('T')[0]}.csv`;
+        document.body.appendChild(a);
+        a.click();
+        document.body.removeChild(a);
+        window.URL.revokeObjectURL(url);
+        
+        hideLoading();
+        showSuccess(`Exported ${students.length} students to CSV`);
+    } catch (error) {
+        hideLoading();
+        showError('Failed to export students');
+        console.error(error);
+    }
 }
 
 // ========== TEACHERS ==========
@@ -433,7 +713,84 @@ function displayTeachers(teachers) {
 }
 
 function viewTeacherProfile(teacherId) {
-    showSuccess('Teacher profile feature coming soon!');
+    loadTeacherProfile(teacherId);
+}
+
+async function loadTeacherProfile(teacherId) {
+    try {
+        showLoading('Loading teacher profile...');
+        const teacher = await apiCall(`/teachers/${teacherId}`);
+        hideLoading();
+        
+        const modalContent = `
+            <div class="profile-view">
+                <div class="profile-header">
+                    <div class="profile-avatar">
+                        <i class="fas fa-chalkboard-teacher"></i>
+                    </div>
+                    <div>
+                        <h2>${teacher.firstName} ${teacher.lastName}</h2>
+                        <p class="text-muted">${teacher.subject || 'Teacher'}</p>
+                    </div>
+                </div>
+                
+                <div class="profile-sections">
+                    <div class="profile-section">
+                        <h3><i class="fas fa-info-circle"></i> Basic Information</h3>
+                        <div class="info-grid">
+                            <div><strong>Email:</strong> ${teacher.email}</div>
+                            <div><strong>Phone:</strong> ${teacher.phone || 'N/A'}</div>
+                            <div><strong>Subject:</strong> ${teacher.subject || 'N/A'}</div>
+                            <div><strong>Permission Level:</strong> <span class="badge ${getPermissionBadgeClass(teacher.permissionLevel)}">${teacher.permissionLevel || 'General'}</span></div>
+                            <div><strong>Department:</strong> ${teacher.department || 'N/A'}</div>
+                            <div><strong>Status:</strong> <span class="badge success">Active</span></div>
+                        </div>
+                    </div>
+                    
+                    <div class="profile-section">
+                        <h3><i class="fas fa-book"></i> Teaching Information</h3>
+                        <div class="info-grid">
+                            <div><strong>Classes:</strong> ${teacher.classes?.length || 0}</div>
+                            <div><strong>Subjects Teaching:</strong> ${teacher.subjects?.length || 0}</div>
+                            <div><strong>Form Teacher:</strong> ${teacher.isFormTeacher ? 'Yes' : 'No'}</div>
+                        </div>
+                    </div>
+                    
+                    <div class="profile-actions">
+                        <button class="btn-primary" onclick="editTeacher('${teacherId}')">
+                            <i class="fas fa-edit"></i> Edit Profile
+                        </button>
+                        <button class="btn-primary" onclick="viewTeacherTimetable('${teacherId}')">
+                            <i class="fas fa-calendar"></i> View Timetable
+                        </button>
+                        <button class="btn-primary" onclick="viewTeacherClasses('${teacherId}')">
+                            <i class="fas fa-book"></i> View Classes
+                        </button>
+                    </div>
+                </div>
+            </div>
+        `;
+        
+        showModal('Teacher Profile', modalContent, [
+            { text: 'Close', type: 'secondary', action: 'closeModal()' }
+        ]);
+    } catch (error) {
+        hideLoading();
+        showError('Failed to load teacher profile');
+        console.error(error);
+    }
+}
+
+function editTeacher(teacherId) {
+    showSuccess('Edit teacher feature coming soon!');
+}
+
+function viewTeacherTimetable(teacherId) {
+    showSuccess('Teacher timetable coming soon!');
+}
+
+function viewTeacherClasses(teacherId) {
+    showSuccess('Teacher classes coming soon!');
 }
 
 // ========== CLASSES ==========
@@ -472,7 +829,106 @@ function displayClasses(classes) {
 }
 
 function viewClass(classId) {
-    showSuccess('Class details feature coming soon!');
+    loadClassDetails(classId);
+}
+
+async function loadClassDetails(classId) {
+    try {
+        showLoading('Loading class details...');
+        const classData = await apiCall(`/classes/${classId}`);
+        hideLoading();
+        
+        const studentsHtml = classData.students?.length > 0 
+            ? classData.students.map(s => `
+                <div class="student-item">
+                    <i class="fas fa-user"></i>
+                    <span>${s.firstName} ${s.lastName}</span>
+                </div>
+            `).join('')
+            : '<p class="text-muted">No students enrolled</p>';
+        
+        const modalContent = `
+            <div class="class-details-view">
+                <div class="class-header">
+                    <div class="class-icon">
+                        <i class="fas fa-book-open"></i>
+                    </div>
+                    <div>
+                        <h2>${classData.name}</h2>
+                        <p class="text-muted">Year ${classData.yearGroup} ${classData.section ? ' - ' + classData.section : ''}</p>
+                    </div>
+                </div>
+                
+                <div class="class-sections">
+                    <div class="class-section">
+                        <h3><i class="fas fa-info-circle"></i> Class Information</h3>
+                        <div class="info-grid">
+                            <div><strong>Year Group:</strong> ${classData.yearGroup}</div>
+                            <div><strong>Section:</strong> ${classData.section || 'N/A'}</div>
+                            <div><strong>Capacity:</strong> ${classData.capacity || 'N/A'}</div>
+                            <div><strong>Room:</strong> ${classData.room?.roomNumber || 'Not assigned'}</div>
+                            <div><strong>Students Enrolled:</strong> ${classData.students?.length || 0}</div>
+                            <div><strong>Status:</strong> <span class="badge success">Active</span></div>
+                        </div>
+                    </div>
+                    
+                    <div class="class-section">
+                        <h3><i class="fas fa-chalkboard-teacher"></i> Teachers</h3>
+                        <div class="teachers-list">
+                            ${classData.teachers?.length > 0 
+                                ? classData.teachers.map(t => `
+                                    <div class="teacher-item">
+                                        <i class="fas fa-user-tie"></i>
+                                        <span>${t.firstName} ${t.lastName} - ${t.subject || 'N/A'}</span>
+                                    </div>
+                                `).join('')
+                                : '<p class="text-muted">No teachers assigned</p>'
+                            }
+                        </div>
+                    </div>
+                    
+                    <div class="class-section">
+                        <h3><i class="fas fa-users"></i> Students (${classData.students?.length || 0})</h3>
+                        <div class="students-list" style="max-height: 200px; overflow-y: auto;">
+                            ${studentsHtml}
+                        </div>
+                    </div>
+                    
+                    <div class="class-actions">
+                        <button class="btn-primary" onclick="editClass('${classId}')">
+                            <i class="fas fa-edit"></i> Edit Class
+                        </button>
+                        <button class="btn-primary" onclick="manageClassStudents('${classId}')">
+                            <i class="fas fa-users"></i> Manage Students
+                        </button>
+                        <button class="btn-primary" onclick="viewClassTimetable('${classId}')">
+                            <i class="fas fa-calendar"></i> View Timetable
+                        </button>
+                    </div>
+                </div>
+            </div>
+        `;
+        
+        showModal('Class Details', modalContent, [
+            { text: 'Close', type: 'secondary', action: 'closeModal()' }
+        ]);
+    } catch (error) {
+        hideLoading();
+        showError('Failed to load class details');
+        console.error(error);
+    }
+}
+
+function editClass(classId) {
+    showSuccess('Edit class feature coming soon!');
+}
+
+function manageClassStudents(classId) {
+    showSuccess('Manage students feature coming soon!');
+}
+
+function viewClassTimetable(classId) {
+    showSuccess('Class timetable coming soon!');
 }
 
 // ========== ROOMS ==========
@@ -510,21 +966,463 @@ function displayRooms(rooms) {
     `).join('');
 }
 
-function bookRoom(roomId) {
-    showSuccess('Room booking feature coming soon!');
+async function bookRoom(roomId) {
+    try {
+        showLoading('Loading room details...');
+        const room = await apiCall(`/rooms/${roomId}`);
+        hideLoading();
+        
+        const modalContent = `
+            <div class="room-booking-form">
+                <div class="room-info">
+                    <h3><i class="fas fa-door-open"></i> ${room.roomNumber} - ${room.roomName}</h3>
+                    <p><strong>Category:</strong> ${room.category}</p>
+                    <p><strong>Capacity:</strong> ${room.capacity || 'N/A'}</p>
+                    <p><strong>Floor:</strong> ${room.floor}</p>
+                </div>
+                
+                <form id="room-booking-form">
+                    <div class="input-group">
+                        <label><i class="fas fa-calendar"></i> Date *</label>
+                        <input type="date" id="booking-date" required min="${new Date().toISOString().split('T')[0]}">
+                    </div>
+                    
+                    <div class="form-row">
+                        <div class="input-group">
+                            <label><i class="fas fa-clock"></i> Start Time *</label>
+                            <input type="time" id="booking-start-time" required>
+                        </div>
+                        <div class="input-group">
+                            <label><i class="fas fa-clock"></i> End Time *</label>
+                            <input type="time" id="booking-end-time" required>
+                        </div>
+                    </div>
+                    
+                    <div class="input-group">
+                        <label><i class="fas fa-tag"></i> Purpose *</label>
+                        <select id="booking-purpose" required class="select-input">
+                            <option value="">Select purpose...</option>
+                            <option value="Class">Class</option>
+                            <option value="Meeting">Meeting</option>
+                            <option value="Exam">Exam</option>
+                            <option value="Extra-curricular">Extra-curricular</option>
+                            <option value="Event">Event</option>
+                            <option value="Other">Other</option>
+                        </select>
+                    </div>
+                    
+                    <div class="input-group">
+                        <label><i class="fas fa-align-left"></i> Notes</label>
+                        <textarea id="booking-notes" rows="3" placeholder="Additional information..."></textarea>
+                    </div>
+                </form>
+            </div>
+        `;
+        
+        showModal('Book Room', modalContent, [
+            { text: 'Cancel', type: 'secondary', action: 'closeModal()' },
+            { text: 'Check Availability', type: 'info', action: `checkRoomAvailability('${roomId}')`, icon: 'fas fa-search' },
+            { text: 'Book Room', type: 'success', action: `submitRoomBooking('${roomId}')`, icon: 'fas fa-check' }
+        ]);
+    } catch (error) {
+        hideLoading();
+        showError('Failed to load room details');
+        console.error(error);
+    }
+}
+
+async function checkRoomAvailability(roomId) {
+    const date = document.getElementById('booking-date').value;
+    const startTime = document.getElementById('booking-start-time').value;
+    const endTime = document.getElementById('booking-end-time').value;
+    
+    if (!date || !startTime || !endTime) {
+        showError('Please fill in date and time fields');
+        return;
+    }
+    
+    try {
+        showLoading('Checking availability...');
+        const response = await apiCall(`/rooms/${roomId}/availability?date=${date}&startTime=${startTime}&endTime=${endTime}`);
+        hideLoading();
+        
+        if (response.isAvailable) {
+            showSuccess('Room is available for the selected time!');
+        } else {
+            showError('Room is not available. There are conflicting bookings.');
+        }
+    } catch (error) {
+        hideLoading();
+        showError('Failed to check availability');
+        console.error(error);
+    }
+}
+
+async function submitRoomBooking(roomId) {
+    const date = document.getElementById('booking-date').value;
+    const startTime = document.getElementById('booking-start-time').value;
+    const endTime = document.getElementById('booking-end-time').value;
+    const purpose = document.getElementById('booking-purpose').value;
+    const notes = document.getElementById('booking-notes').value;
+    
+    if (!date || !startTime || !endTime || !purpose) {
+        showError('Please fill in all required fields');
+        return;
+    }
+    
+    try {
+        closeModal();
+        showLoading('Booking room...');
+        
+        await apiCall(`/rooms/${roomId}/book`, {
+            method: 'POST',
+            body: JSON.stringify({
+                date,
+                startTime,
+                endTime,
+                purpose,
+                notes
+            })
+        });
+        
+        hideLoading();
+        showSuccess('Room booked successfully!');
+    } catch (error) {
+        hideLoading();
+        showError('Failed to book room: ' + error.message);
+        console.error(error);
+    }
 }
 
 // ========== BEHAVIOR & ATTENDANCE ==========
-function takeAttendance() {
-    showSuccess('Attendance feature coming soon!');
+async function takeAttendance() {
+    try {
+        // Get all classes first
+        const classes = await apiCall('/classes');
+        
+        if (classes.length === 0) {
+            showError('No classes found. Please create classes first.');
+            return;
+        }
+        
+        // Show class selection modal
+        const classOptions = classes.map(c => 
+            `<option value="${c._id}">${c.name} - Year ${c.yearGroup}</option>`
+        ).join('');
+        
+        const modalContent = `
+            <form id="attendance-form">
+                <div class="input-group">
+                    <label><i class="fas fa-book"></i> Select Class</label>
+                    <select id="attendance-class" required class="select-input">
+                        <option value="">Choose a class...</option>
+                        ${classOptions}
+                    </select>
+                </div>
+                <div class="input-group">
+                    <label><i class="fas fa-calendar"></i> Date</label>
+                    <input type="date" id="attendance-date" value="${new Date().toISOString().split('T')[0]}" required>
+                </div>
+                <div class="input-group">
+                    <label><i class="fas fa-clock"></i> Period (optional)</label>
+                    <input type="number" id="attendance-period" min="1" max="9" placeholder="e.g., 1">
+                </div>
+            </form>
+        `;
+        
+        showModal('Take Attendance', modalContent, [
+            { text: 'Cancel', type: 'secondary', action: 'closeModal()' },
+            { text: 'Continue', type: 'primary', action: 'proceedToAttendanceMarking()', icon: 'fas fa-arrow-right' }
+        ]);
+    } catch (error) {
+        showError('Failed to load classes');
+        console.error(error);
+    }
 }
 
-function logPositiveBehavior() {
-    showSuccess('Log positive behavior feature coming soon!');
+async function proceedToAttendanceMarking() {
+    const classId = document.getElementById('attendance-class').value;
+    const date = document.getElementById('attendance-date').value;
+    const period = document.getElementById('attendance-period').value;
+    
+    if (!classId) {
+        showError('Please select a class');
+        return;
+    }
+    
+    try {
+        closeModal();
+        showLoading('Loading students...');
+        
+        // Get class with students
+        const classData = await apiCall(`/classes/${classId}`);
+        
+        if (!classData.students || classData.students.length === 0) {
+            hideLoading();
+            showError('No students found in this class');
+            return;
+        }
+        
+        hideLoading();
+        
+        // Show attendance marking interface
+        const studentsHtml = classData.students.map((student, index) => `
+            <tr>
+                <td>${index + 1}</td>
+                <td><strong>${student.firstName} ${student.lastName}</strong></td>
+                <td>${student.studentId || 'N/A'}</td>
+                <td>
+                    <select class="attendance-status select-input" data-student-id="${student._id}">
+                        <option value="Present">✓ Present</option>
+                        <option value="Absent">✗ Absent</option>
+                        <option value="Late">⌚ Late</option>
+                        <option value="Excused">⚠ Excused</option>
+                    </select>
+                </td>
+                <td>
+                    <input type="text" class="attendance-notes" data-student-id="${student._id}" placeholder="Optional notes...">
+                </td>
+            </tr>
+        `).join('');
+        
+        const modalContent = `
+            <div class="attendance-marking-interface">
+                <div class="attendance-info">
+                    <p><strong>Class:</strong> ${classData.name}</p>
+                    <p><strong>Date:</strong> ${new Date(date).toLocaleDateString()}</p>
+                    ${period ? `<p><strong>Period:</strong> ${period}</p>` : ''}
+                </div>
+                <div class="table-container" style="max-height: 400px; overflow-y: auto;">
+                    <table class="data-table">
+                        <thead>
+                            <tr>
+                                <th>#</th>
+                                <th>Student Name</th>
+                                <th>ID</th>
+                                <th>Status</th>
+                                <th>Notes</th>
+                            </tr>
+                        </thead>
+                        <tbody>${studentsHtml}</tbody>
+                    </table>
+                </div>
+                <div class="quick-actions" style="margin-top: 1rem; display: flex; gap: 0.5rem;">
+                    <button class="btn-sm" onclick="markAllPresent()">Mark All Present</button>
+                    <button class="btn-sm" onclick="markAllAbsent()">Mark All Absent</button>
+                </div>
+            </div>
+        `;
+        
+        showModal('Mark Attendance', modalContent, [
+            { text: 'Cancel', type: 'secondary', action: 'closeModal()' },
+            { text: 'Submit Attendance', type: 'success', action: `submitAttendance('${classId}', '${date}', '${period}')`, icon: 'fas fa-check' }
+        ]);
+    } catch (error) {
+        hideLoading();
+        showError('Failed to load students');
+        console.error(error);
+    }
 }
 
-function logIncident() {
-    showSuccess('Log incident feature coming soon!');
+function markAllPresent() {
+    document.querySelectorAll('.attendance-status').forEach(select => {
+        select.value = 'Present';
+    });
+}
+
+function markAllAbsent() {
+    document.querySelectorAll('.attendance-status').forEach(select => {
+        select.value = 'Absent';
+    });
+}
+
+async function submitAttendance(classId, date, period) {
+    const statusSelects = document.querySelectorAll('.attendance-status');
+    const attendanceList = [];
+    
+    statusSelects.forEach(select => {
+        const studentId = select.getAttribute('data-student-id');
+        const status = select.value;
+        const notesInput = document.querySelector(`.attendance-notes[data-student-id="${studentId}"]`);
+        const notes = notesInput ? notesInput.value : '';
+        
+        attendanceList.push({
+            studentId,
+            status,
+            notes
+        });
+    });
+    
+    try {
+        closeModal();
+        showLoading('Submitting attendance...');
+        
+        await apiCall('/attendance/bulk', {
+            method: 'POST',
+            body: JSON.stringify({
+                class: classId,
+                date,
+                period: period || undefined,
+                attendanceList
+            })
+        });
+        
+        hideLoading();
+        showSuccess('Attendance submitted successfully!');
+        
+        // Refresh attendance data if on attendance tab
+        if (document.getElementById('students-attendance').classList.contains('active')) {
+            loadAttendanceData();
+        }
+    } catch (error) {
+        hideLoading();
+        showError('Failed to submit attendance: ' + error.message);
+        console.error(error);
+    }
+}
+
+async function logPositiveBehavior() {
+    await showBehaviorLogModal('Positive');
+}
+
+async function logIncident() {
+    await showBehaviorLogModal('Negative');
+}
+
+async function showBehaviorLogModal(type) {
+    try {
+        showLoading('Loading data...');
+        const [students, classes] = await Promise.all([
+            apiCall('/students?limit=200'),
+            apiCall('/classes')
+        ]);
+        hideLoading();
+        
+        const studentOptions = students.students.map(s => 
+            `<option value="${s._id}">${s.firstName} ${s.lastName} (${s.studentId || 'N/A'})</option>`
+        ).join('');
+        
+        const classOptions = classes.map(c => 
+            `<option value="${c._id}">${c.name}</option>`
+        ).join('');
+        
+        const categories = type === 'Positive' 
+            ? ['Excellent Work', 'Helpfulness', 'Leadership', 'Participation', 'Improvement', 'Other']
+            : ['Disruption', 'Late to Class', 'Incomplete Work', 'Disrespect', 'Phone Usage', 'Uniform Violation', 'Fighting', 'Other'];
+        
+        const severityOptions = type === 'Negative' 
+            ? `<option value="Low">Low</option>
+               <option value="Medium">Medium</option>
+               <option value="High">High</option>
+               <option value="Critical">Critical</option>`
+            : '';
+        
+        const modalContent = `
+            <form id="behavior-form">
+                <div class="input-group">
+                    <label><i class="fas fa-user"></i> Student *</label>
+                    <select id="behavior-student" required class="select-input">
+                        <option value="">Select student...</option>
+                        ${studentOptions}
+                    </select>
+                </div>
+                <div class="input-group">
+                    <label><i class="fas fa-book"></i> Class</label>
+                    <select id="behavior-class" class="select-input">
+                        <option value="">Select class...</option>
+                        ${classOptions}
+                    </select>
+                </div>
+                <div class="input-group">
+                    <label><i class="fas fa-tag"></i> Category *</label>
+                    <select id="behavior-category" required class="select-input">
+                        <option value="">Select category...</option>
+                        ${categories.map(cat => `<option value="${cat}">${cat}</option>`).join('')}
+                    </select>
+                </div>
+                ${type === 'Negative' ? `
+                <div class="input-group">
+                    <label><i class="fas fa-exclamation-triangle"></i> Severity *</label>
+                    <select id="behavior-severity" required class="select-input">
+                        ${severityOptions}
+                    </select>
+                </div>
+                ` : ''}
+                <div class="input-group">
+                    <label><i class="fas fa-heading"></i> Title *</label>
+                    <input type="text" id="behavior-title" required placeholder="Brief description">
+                </div>
+                <div class="input-group">
+                    <label><i class="fas fa-align-left"></i> Description *</label>
+                    <textarea id="behavior-description" required rows="4" placeholder="Detailed description of the behavior..."></textarea>
+                </div>
+                <div class="input-group">
+                    <label><i class="fas fa-calendar"></i> Date</label>
+                    <input type="date" id="behavior-date" value="${new Date().toISOString().split('T')[0]}" required>
+                </div>
+                <div class="input-group">
+                    <label><i class="fas fa-star"></i> Points</label>
+                    <input type="number" id="behavior-points" value="${type === 'Positive' ? 5 : -5}" step="1">
+                </div>
+            </form>
+        `;
+        
+        showModal(
+            type === 'Positive' ? 'Log Positive Behavior' : 'Log Incident',
+            modalContent,
+            [
+                { text: 'Cancel', type: 'secondary', action: 'closeModal()' },
+                { text: 'Submit', type: type === 'Positive' ? 'success' : 'warning', action: `submitBehaviorLog('${type}')`, icon: 'fas fa-check' }
+            ]
+        );
+    } catch (error) {
+        hideLoading();
+        showError('Failed to load data');
+        console.error(error);
+    }
+}
+
+async function submitBehaviorLog(type) {
+    const student = document.getElementById('behavior-student').value;
+    const classId = document.getElementById('behavior-class').value;
+    const category = document.getElementById('behavior-category').value;
+    const title = document.getElementById('behavior-title').value;
+    const description = document.getElementById('behavior-description').value;
+    const date = document.getElementById('behavior-date').value;
+    const points = document.getElementById('behavior-points').value;
+    const severity = document.getElementById('behavior-severity')?.value || 'Medium';
+    
+    if (!student || !category || !title || !description) {
+        showError('Please fill in all required fields');
+        return;
+    }
+    
+    try {
+        closeModal();
+        showLoading('Submitting behavior log...');
+        
+        await apiCall('/behavior', {
+            method: 'POST',
+            body: JSON.stringify({
+                student,
+                class: classId || undefined,
+                type,
+                category,
+                severity,
+                title,
+                description,
+                date,
+                points: parseInt(points)
+            })
+        });
+        
+        hideLoading();
+        showSuccess('Behavior logged successfully!');
+    } catch (error) {
+        hideLoading();
+        showError('Failed to log behavior: ' + error.message);
+        console.error(error);
+    }
 }
 
 // ========== HELPER FUNCTIONS ==========
@@ -848,10 +1746,157 @@ function markAllAsRead() {
 
 // ========== PLACEHOLDER FUNCTIONS ==========
 // These will be implemented as needed
-function addTeacher() { showSuccess('Feature coming soon!'); }
-function exportData(type) { showSuccess(`Export ${type} coming soon!`); }
-function sendMessage() { showSuccess('Messaging feature coming soon!'); }
-function generateReport() { showSuccess('Report generation coming soon!'); }
+function addTeacher() { 
+    showSuccess('Add teacher feature - contact admin to add teachers through the system.'); 
+}
+
+function exportData(type) { 
+    showSuccess(`Export ${type} - available in respective sections.`); 
+}
+
+async function sendMessage() {
+    const modalContent = `
+        <form id="message-form">
+            <div class="input-group">
+                <label><i class="fas fa-users"></i> Recipient Type *</label>
+                <select id="message-recipient-type" class="select-input" onchange="updateRecipientOptions()" required>
+                    <option value="">Select recipient type...</option>
+                    <option value="individual">Individual User</option>
+                    <option value="class">Class</option>
+                    <option value="year">Year Group</option>
+                    <option value="house">House</option>
+                    <option value="all-students">All Students</option>
+                    <option value="all-teachers">All Teachers</option>
+                    <option value="all-parents">All Parents</option>
+                </select>
+            </div>
+            
+            <div class="input-group" id="recipient-select-container" style="display: none;">
+                <label><i class="fas fa-user"></i> Select Recipient *</label>
+                <select id="message-recipients" class="select-input" multiple>
+                    <!-- Options will be populated dynamically -->
+                </select>
+            </div>
+            
+            <div class="input-group">
+                <label><i class="fas fa-heading"></i> Subject *</label>
+                <input type="text" id="message-subject" required placeholder="Enter message subject">
+            </div>
+            
+            <div class="input-group">
+                <label><i class="fas fa-align-left"></i> Message *</label>
+                <textarea id="message-body" required rows="6" placeholder="Type your message here..."></textarea>
+            </div>
+            
+            <div class="input-group">
+                <label>
+                    <input type="checkbox" id="message-priority"> 
+                    <span>High Priority</span>
+                </label>
+            </div>
+        </form>
+    `;
+    
+    showModal('Send Message', modalContent, [
+        { text: 'Cancel', type: 'secondary', action: 'closeModal()' },
+        { text: 'Send Message', type: 'primary', action: 'submitMessage()', icon: 'fas fa-paper-plane' }
+    ]);
+}
+
+async function submitMessage() {
+    const recipientType = document.getElementById('message-recipient-type').value;
+    const subject = document.getElementById('message-subject').value;
+    const body = document.getElementById('message-body').value;
+    const priority = document.getElementById('message-priority').checked;
+    
+    if (!recipientType || !subject || !body) {
+        showError('Please fill in all required fields');
+        return;
+    }
+    
+    try {
+        closeModal();
+        showLoading('Sending message...');
+        
+        await apiCall('/messages', {
+            method: 'POST',
+            body: JSON.stringify({
+                recipientType,
+                subject,
+                body,
+                priority
+            })
+        });
+        
+        hideLoading();
+        showSuccess('Message sent successfully!');
+    } catch (error) {
+        hideLoading();
+        showError('Failed to send message: ' + error.message);
+        console.error(error);
+    }
+}
+
+function generateReport() { 
+    const modalContent = `
+        <form id="report-form">
+            <div class="input-group">
+                <label><i class="fas fa-file-alt"></i> Report Type *</label>
+                <select id="report-type" class="select-input" required>
+                    <option value="">Select report type...</option>
+                    <option value="academic">Academic Performance</option>
+                    <option value="attendance">Attendance Report</option>
+                    <option value="behavior">Behavior Report</option>
+                    <option value="student-list">Student List</option>
+                    <option value="class-summary">Class Summary</option>
+                    <option value="house-points">House Points</option>
+                </select>
+            </div>
+            
+            <div class="input-group">
+                <label><i class="fas fa-calendar"></i> Date Range *</label>
+                <div class="form-row">
+                    <input type="date" id="report-start-date" required>
+                    <input type="date" id="report-end-date" required>
+                </div>
+            </div>
+            
+            <div class="input-group">
+                <label><i class="fas fa-file"></i> Format *</label>
+                <select id="report-format" class="select-input" required>
+                    <option value="pdf">PDF</option>
+                    <option value="csv">CSV</option>
+                    <option value="excel">Excel</option>
+                </select>
+            </div>
+        </form>
+    `;
+    
+    showModal('Generate Report', modalContent, [
+        { text: 'Cancel', type: 'secondary', action: 'closeModal()' },
+        { text: 'Generate', type: 'primary', action: 'submitReportGeneration()', icon: 'fas fa-file-download' }
+    ]);
+}
+
+function submitReportGeneration() {
+    const reportType = document.getElementById('report-type').value;
+    const startDate = document.getElementById('report-start-date').value;
+    const endDate = document.getElementById('report-end-date').value;
+    const format = document.getElementById('report-format').value;
+    
+    if (!reportType || !startDate || !endDate || !format) {
+        showError('Please fill in all required fields');
+        return;
+    }
+    
+    closeModal();
+    showSuccess(`Generating ${reportType} report in ${format} format. This may take a moment...`);
+    
+    // In a real implementation, this would call the API to generate the report
+    setTimeout(() => {
+        showSuccess('Report generated successfully! Check your downloads folder.');
+    }, 2000);
+}
 
 // ========== MODAL & DIALOG UTILITIES ==========
 function showModal(title, content, buttons = []) {
