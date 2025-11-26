@@ -187,7 +187,7 @@ router.post('/:id/book', auth, authorize('teacher', 'admin', 'principal'), async
       endTime,
       purpose,
       notes,
-      status: 'Confirmed'
+      status: 'Approved'
     });
     
     await booking.save();

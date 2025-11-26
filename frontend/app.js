@@ -884,7 +884,8 @@ function viewTeacherClasses(teacherId) {
 async function loadClasses() {
     try {
         showLoading('Loading classes...');
-        const classes = await apiCall('/classes');
+        const data = await apiCall('/classes');
+        const classes = data.classes || [];
         displayClasses(classes);
         hideLoading();
     } catch (error) {
@@ -897,6 +898,11 @@ async function loadClasses() {
 function displayClasses(classes) {
     const grid = document.getElementById('classes-grid');
     if (!grid) return;
+    
+    if (!classes || classes.length === 0) {
+        grid.innerHTML = '<div class="empty-state"><i class="fas fa-book-open"></i><p>No classes found</p></div>';
+        return;
+    }
     
     grid.innerHTML = classes.map(cls => `
         <div class="card">
@@ -1266,7 +1272,8 @@ async function submitRoomBooking(roomId) {
 async function takeAttendance() {
     try {
         // Get all classes first
-        const classes = await apiCall('/classes');
+        const data = await apiCall('/classes');
+        const classes = data.classes || [];
         
         if (classes.length === 0) {
             showError('No classes found. Please create classes first.');
@@ -1460,13 +1467,16 @@ async function logIncident() {
 async function showBehaviorLogModal(type) {
     try {
         showLoading('Loading data...');
-        const [students, classes] = await Promise.all([
+        const [studentsData, classesData] = await Promise.all([
             apiCall('/students?limit=200'),
             apiCall('/classes')
         ]);
         hideLoading();
         
-        const studentOptions = students.students.map(s => 
+        const students = studentsData.students || [];
+        const classes = classesData.classes || [];
+        
+        const studentOptions = students.map(s => 
             `<option value="${s._id}">${s.firstName} ${s.lastName} (${s.studentId || 'N/A'})</option>`
         ).join('');
         

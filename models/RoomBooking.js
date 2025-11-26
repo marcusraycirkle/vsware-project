@@ -8,7 +8,7 @@ const roomBookingSchema = new mongoose.Schema({
   },
   bookedBy: {
     type: mongoose.Schema.Types.ObjectId,
-    ref: 'Teacher',
+    ref: 'User',
     required: true
   },
   date: {
