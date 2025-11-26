@@ -150,7 +150,28 @@ router.get('/:id/availability', auth, async (req, res) => {
 // @access  Private (Teacher/Admin)
 router.post('/:id/book', auth, authorize('teacher', 'admin', 'principal'), async (req, res) => {
   try {
-    const { date, startTime, endTime, purpose, notes } = req.body;
+    const { date, period, purpose, notes, class: classId, subject } = req.body;
+    
+    // Period time mapping
+    const periodTimes = {
+      'Class 1': { start: '09:00', end: '09:40' },
+      'Class 2': { start: '09:40', end: '10:20' },
+      'Class 3': { start: '10:20', end: '11:00' },
+      'Break': { start: '11:00', end: '11:15' },
+      'Class 4': { start: '11:15', end: '11:55' },
+      'Class 5': { start: '11:55', end: '12:35' },
+      'Class 6': { start: '12:35', end: '13:15' },
+      'Lunch': { start: '13:15', end: '14:00' },
+      'Class 7': { start: '14:00', end: '14:40' },
+      'Class 8': { start: '14:40', end: '15:20' },
+      'Class 9': { start: '15:20', end: '16:00' }
+    };
+    
+    if (!periodTimes[period]) {
+      return res.status(400).json({ message: 'Invalid period selected' });
+    }
+    
+    const { start: startTime, end: endTime } = periodTimes[period];
     
     // Check if room exists
     const room = await Room.findById(req.params.id);
@@ -162,18 +183,13 @@ router.post('/:id/book', auth, authorize('teacher', 'admin', 'principal'), async
     const conflictingBookings = await RoomBooking.find({
       room: req.params.id,
       date: new Date(date),
-      status: { $ne: 'Cancelled' },
-      $or: [
-        {
-          startTime: { $lt: endTime },
-          endTime: { $gt: startTime }
-        }
-      ]
+      period: period,
+      status: { $ne: 'Cancelled' }
     });
     
     if (conflictingBookings.length > 0) {
       return res.status(400).json({ 
-        message: 'Room is not available at this time',
+        message: 'Room is not available during this period',
         conflictingBookings 
       });
     }
@@ -183,10 +199,13 @@ router.post('/:id/book', auth, authorize('teacher', 'admin', 'principal'), async
       room: req.params.id,
       bookedBy: req.userId,
       date: new Date(date),
+      period,
       startTime,
       endTime,
       purpose,
       notes,
+      class: classId,
+      subject,
       status: 'Approved'
     });
     

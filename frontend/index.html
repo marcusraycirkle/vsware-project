@@ -820,18 +820,17 @@
                 </div>
                 <div class="messages-interface">
                     <div class="messages-sidebar-nav">
-                        <button class="btn-primary full-width"><i class="fas fa-plus"></i> Compose Message</button>
+                        <button class="btn-primary full-width" onclick="composeNewMessage()"><i class="fas fa-plus"></i> Compose Message</button>
                         <div class="message-folders">
-                            <a class="folder-item active"><i class="fas fa-inbox"></i> Inbox <span class="badge">5</span></a>
-                            <a class="folder-item"><i class="fas fa-paper-plane"></i> Sent</a>
-                            <a class="folder-item"><i class="fas fa-star"></i> Starred</a>
-                            <a class="folder-item"><i class="fas fa-archive"></i> Archived</a>
-                            <a class="folder-item"><i class="fas fa-trash"></i> Trash</a>
+                            <a class="folder-item active" onclick="loadMessages('inbox')"><i class="fas fa-inbox"></i> Inbox</a>
+                            <a class="folder-item" onclick="loadMessages('sent')"><i class="fas fa-paper-plane"></i> Sent</a>
+                            <a class="folder-item" onclick="loadMessages('starred')"><i class="fas fa-star"></i> Starred</a>
+                            <a class="folder-item" onclick="loadMessages('archived')"><i class="fas fa-archive"></i> Archived</a>
                         </div>
                     </div>
                     <div class="messages-main">
                         <div id="message-list" class="message-list">
-                            <!-- Messages load here -->
+                            <div class="empty-state"><i class="fas fa-envelope"></i><p>Select a folder to view messages</p></div>
                         </div>
                     </div>
                 </div>

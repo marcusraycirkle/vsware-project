@@ -347,6 +347,15 @@ async function loadSectionData(section, subsection) {
         case 'rooms':
             await loadRooms();
             break;
+        case 'messages':
+            await loadMessages(subsection || 'inbox');
+            break;
+        case 'payments':
+            await loadPayments();
+            break;
+        case 'timetable':
+            await loadMyTimetable();
+            break;
         case 'overview':
             await loadDashboardData();
             break;
@@ -1161,15 +1170,22 @@ async function bookRoom(roomId) {
                         <input type="date" id="booking-date" required min="${new Date().toISOString().split('T')[0]}">
                     </div>
                     
-                    <div class="form-row">
-                        <div class="input-group">
-                            <label><i class="fas fa-clock"></i> Start Time *</label>
-                            <input type="time" id="booking-start-time" required>
-                        </div>
-                        <div class="input-group">
-                            <label><i class="fas fa-clock"></i> End Time *</label>
-                            <input type="time" id="booking-end-time" required>
-                        </div>
+                    <div class="input-group">
+                        <label><i class="fas fa-clock"></i> Period/Time Slot *</label>
+                        <select id="booking-period" required class="select-input">
+                            <option value="">Select period...</option>
+                            <option value="Class 1">Class 1 (9:00 - 9:40)</option>
+                            <option value="Class 2">Class 2 (9:40 - 10:20)</option>
+                            <option value="Class 3">Class 3 (10:20 - 11:00)</option>
+                            <option value="Break">Break (11:00 - 11:15)</option>
+                            <option value="Class 4">Class 4 (11:15 - 11:55)</option>
+                            <option value="Class 5">Class 5 (11:55 - 12:35)</option>
+                            <option value="Class 6">Class 6 (12:35 - 1:15)</option>
+                            <option value="Lunch">Lunch (1:15 - 2:00)</option>
+                            <option value="Class 7">Class 7 (2:00 - 2:40)</option>
+                            <option value="Class 8">Class 8 (2:40 - 3:20)</option>
+                            <option value="Class 9">Class 9 (3:20 - 4:00)</option>
+                        </select>
                     </div>
                     
                     <div class="input-group">
@@ -1234,12 +1250,11 @@ async function checkRoomAvailability(roomId) {
 
 async function submitRoomBooking(roomId) {
     const date = document.getElementById('booking-date').value;
-    const startTime = document.getElementById('booking-start-time').value;
-    const endTime = document.getElementById('booking-end-time').value;
+    const period = document.getElementById('booking-period').value;
     const purpose = document.getElementById('booking-purpose').value;
     const notes = document.getElementById('booking-notes').value;
     
-    if (!date || !startTime || !endTime || !purpose) {
+    if (!date || !period || !purpose) {
         showError('Please fill in all required fields');
         return;
     }
@@ -1252,8 +1267,7 @@ async function submitRoomBooking(roomId) {
             method: 'POST',
             body: JSON.stringify({
                 date,
-                startTime,
-                endTime,
+                period,
                 purpose,
                 notes
             })
@@ -1261,6 +1275,7 @@ async function submitRoomBooking(roomId) {
         
         hideLoading();
         showSuccess('Room booked successfully!');
+        await loadRooms(); // Reload to show updated availability
     } catch (error) {
         hideLoading();
         showError('Failed to book room: ' + error.message);
@@ -2348,6 +2363,358 @@ async function showGoodbyeAnimation() {
                 resolve();
             }, 500);
         }, 2000);
+    });
+}
+
+// ========== MESSAGES & COMMUNICATIONS ==========
+async function loadMessages(folder = 'inbox') {
+    try {
+        showLoading('Loading messages...');
+        const data = await apiCall(`/messages?folder=${folder}&limit=50`);
+        displayMessages(data.messages || [], folder);
+        hideLoading();
+    } catch (error) {
+        hideLoading();
+        showError('Failed to load messages');
+        console.error(error);
+    }
+}
+
+function displayMessages(messages, folder) {
+    const listEl = document.getElementById('message-list');
+    if (!listEl) return;
+    
+    if (messages.length === 0) {
+        listEl.innerHTML = '<div class="empty-state"><i class="fas fa-envelope-open"></i><p>No messages in ' + folder + '</p></div>';
+        return;
+    }
+    
+    listEl.innerHTML = messages.map(msg => `
+        <div class="message-item ${msg.recipients?.find(r => r.user === currentUser?._id && !r.read) ? 'unread' : ''}" 
+             onclick="viewMessage('${msg._id}')">
+            <div class="message-avatar">
+                ${msg.sender?.profileImage ? 
+                    `<img src="${msg.sender.profileImage}" alt="${msg.sender?.firstName}">` :
+                    `<i class="fas fa-user-circle"></i>`
+                }
+            </div>
+            <div class="message-content">
+                <div class="message-header">
+                    <span class="message-sender">${msg.sender?.firstName} ${msg.sender?.lastName}</span>
+                    <span class="message-time">${formatDate(msg.sentAt)}</span>
+                </div>
+                <div class="message-subject">${msg.subject}</div>
+                <div class="message-preview">${msg.body?.substring(0, 100)}...</div>
+            </div>
+            ${msg.priority === 'High' ? '<span class="priority-badge">High Priority</span>' : ''}
+        </div>
+    `).join('');
+}
+
+async function viewMessage(messageId) {
+    try {
+        showLoading('Loading message...');
+        const message = await apiCall(`/messages/${messageId}`);
+        hideLoading();
+        
+        const modalContent = `
+            <div class="message-view">
+                <div class="message-meta">
+                    <div class="message-sender-info">
+                        ${message.sender?.profileImage ? 
+                            `<img src="${message.sender.profileImage}" class="avatar-lg">` :
+                            `<i class="fas fa-user-circle avatar-lg"></i>`
+                        }
+                        <div>
+                            <h3>${message.sender?.firstName} ${message.sender?.lastName}</h3>
+                            <p class="text-muted">${message.sender?.email}</p>
+                        </div>
+                    </div>
+                    <div class="message-date">${formatDateTime(message.sentAt)}</div>
+                </div>
+                <h2 class="message-subject-full">${message.subject}</h2>
+                <div class="message-body">${message.body}</div>
+                ${message.attachments?.length ? `
+                    <div class="message-attachments">
+                        <h4><i class="fas fa-paperclip"></i> Attachments</h4>
+                        ${message.attachments.map(att => `
+                            <a href="${att.url}" class="attachment-item" target="_blank">
+                                <i class="fas fa-file"></i> ${att.filename}
+                            </a>
+                        `).join('')}
+                    </div>
+                ` : ''}
+            </div>
+        `;
+        
+        showModal('Message', modalContent, [
+            { text: 'Close', type: 'secondary', action: 'closeModal()' },
+            { text: 'Reply', type: 'primary', action: `replyToMessage('${messageId}')`, icon: 'fas fa-reply' }
+        ]);
+    } catch (error) {
+        hideLoading();
+        showError('Failed to load message');
+        console.error(error);
+    }
+}
+
+async function composeNewMessage() {
+    const modalContent = `
+        <form id="compose-message-form">
+            <div class="input-group">
+                <label><i class="fas fa-users"></i> Recipient Type *</label>
+                <select id="msg-recipient-type" class="select-input" required onchange="handleRecipientTypeChange(this.value)">
+                    <option value="">Select recipient type...</option>
+                    <option value="individual">Individual</option>
+                    <option value="class">Class</option>
+                    <option value="all-students">All Students</option>
+                    <option value="all-teachers">All Teachers</option>
+                    <option value="all-parents">All Parents</option>
+                </select>
+            </div>
+            <div id="recipient-selector" class="input-group hidden">
+                <label><i class="fas fa-user"></i> Select Recipient</label>
+                <select id="msg-recipients" multiple class="select-input"></select>
+            </div>
+            <div class="input-group">
+                <label><i class="fas fa-heading"></i> Subject *</label>
+                <input type="text" id="msg-subject" required placeholder="Enter subject...">
+            </div>
+            <div class="input-group">
+                <label><i class="fas fa-envelope"></i> Message *</label>
+                <textarea id="msg-body" required rows="6" placeholder="Type your message..."></textarea>
+            </div>
+            <div class="input-group">
+                <label><i class="fas fa-flag"></i> Priority</label>
+                <select id="msg-priority" class="select-input">
+                    <option value="Normal">Normal</option>
+                    <option value="High">High</option>
+                    <option value="Urgent">Urgent</option>
+                </select>
+            </div>
+        </form>
+    `;
+    
+    showModal('Compose Message', modalContent, [
+        { text: 'Cancel', type: 'secondary', action: 'closeModal()' },
+        { text: 'Send Message', type: 'success', action: 'sendMessage()', icon: 'fas fa-paper-plane' }
+    ]);
+}
+
+async function handleRecipientTypeChange(type) {
+    const selector = document.getElementById('recipient-selector');
+    const recipientSelect = document.getElementById('msg-recipients');
+    
+    if (type === 'individual') {
+        selector.classList.remove('hidden');
+        // Load users
+        const users = await apiCall('/users?limit=100').catch(() => ({ users: [] }));
+        recipientSelect.innerHTML = (users.users || []).map(u => 
+            `<option value="${u._id}">${u.firstName} ${u.lastName} (${u.email})</option>`
+        ).join('');
+    } else if (type === 'class') {
+        selector.classList.remove('hidden');
+        const data = await apiCall('/classes').catch(() => ({ classes: [] }));
+        recipientSelect.innerHTML = (data.classes || []).map(c => 
+            `<option value="${c._id}">${c.name} - ${c.yearGroup}</option>`
+        ).join('');
+    } else {
+        selector.classList.add('hidden');
+    }
+}
+
+async function sendMessage() {
+    const recipientType = document.getElementById('msg-recipient-type').value;
+    const subject = document.getElementById('msg-subject').value;
+    const body = document.getElementById('msg-body').value;
+    const priority = document.getElementById('msg-priority').value;
+    
+    if (!recipientType || !subject || !body) {
+        showError('Please fill in all required fields');
+        return;
+    }
+    
+    try {
+        closeModal();
+        showLoading('Sending message...');
+        
+        const payload = {
+            recipientType,
+            subject,
+            body,
+            priority,
+            type: 'Broadcast',
+            category: 'General'
+        };
+        
+        if (recipientType === 'individual' || recipientType === 'class') {
+            const selected = Array.from(document.getElementById('msg-recipients').selectedOptions).map(o => o.value);
+            if (recipientType === 'individual') {
+                payload.recipients = selected;
+            } else {
+                payload.relatedClass = selected[0];
+            }
+        }
+        
+        await apiCall('/messages', {
+            method: 'POST',
+            body: JSON.stringify(payload)
+        });
+        
+        hideLoading();
+        showSuccess('Message sent successfully!');
+        await loadMessages();
+    } catch (error) {
+        hideLoading();
+        showError('Failed to send message: ' + error.message);
+        console.error(error);
+    }
+}
+
+// ========== PAYMENTS & PAYROLL ==========
+async function loadPayments() {
+    try {
+        showLoading('Loading payments...');
+        const data = await apiCall('/payments?limit=50');
+        displayPayments(data.payments || []);
+        hideLoading();
+    } catch (error) {
+        hideLoading();
+        showError('Failed to load payments');
+        console.error(error);
+    }
+}
+
+function displayPayments(payments) {
+    const container = document.getElementById('payments-list');
+    if (!container) return;
+    
+    if (payments.length === 0) {
+        container.innerHTML = '<div class="empty-state"><i class="fas fa-receipt"></i><p>No payment records found</p></div>';
+        return;
+    }
+    
+    const tableHTML = `
+        <table class="data-table">
+            <thead>
+                <tr>
+                    <th>Student</th>
+                    <th>Type</th>
+                    <th>Amount</th>
+                    <th>Status</th>
+                    <th>Due Date</th>
+                    <th>Actions</th>
+                </tr>
+            </thead>
+            <tbody>
+                ${payments.map(payment => `
+                    <tr>
+                        <td>${payment.student?.user?.firstName || ''} ${payment.student?.user?.lastName || ''}</td>
+                        <td>${payment.type}</td>
+                        <td>€${payment.amount?.toFixed(2)}</td>
+                        <td><span class="status-badge status-${payment.status?.toLowerCase()}">${payment.status}</span></td>
+                        <td>${formatDate(payment.dueDate)}</td>
+                        <td>
+                            <button class="btn-sm" onclick="viewPayment('${payment._id}')">
+                                <i class="fas fa-eye"></i> View
+                            </button>
+                        </td>
+                    </tr>
+                `).join('')}
+            </tbody>
+        </table>
+    `;
+    
+    container.innerHTML = tableHTML;
+}
+
+// ========== TIMETABLE MANAGEMENT ==========
+async function loadMyTimetable() {
+    try {
+        showLoading('Loading timetable...');
+        const data = await apiCall('/timetable/teacher/me/current').catch(() => null);
+        
+        if (!data) {
+            // Try loading all timetables and filter
+            const allData = await apiCall('/timetable?limit=50');
+            displayTimetableGrid(allData.timetables?.[0] || null);
+        } else {
+            displayTimetableGrid(data);
+        }
+        hideLoading();
+    } catch (error) {
+        hideLoading();
+        console.error(error);
+        displayTimetableGrid(null);
+    }
+}
+
+function displayTimetableGrid(timetable) {
+    const container = document.getElementById('timetable-display');
+    if (!container) return;
+    
+    if (!timetable || !timetable.schedule) {
+        container.innerHTML = '<div class="empty-state"><i class="fas fa-calendar"></i><p>No timetable available</p></div>';
+        return;
+    }
+    
+    const periods = ['Class 1', 'Class 2', 'Class 3', 'Break', 'Class 4', 'Class 5', 'Class 6', 'Lunch', 'Class 7', 'Class 8', 'Class 9'];
+    const days = ['Monday', 'Tuesday', 'Wednesday', 'Thursday', 'Friday'];
+    
+    let html = `
+        <table class="timetable-grid">
+            <thead>
+                <tr>
+                    <th>Period</th>
+                    ${days.map(day => `<th>${day}</th>`).join('')}
+                </tr>
+            </thead>
+            <tbody>
+    `;
+    
+    periods.forEach((period, idx) => {
+        html += `<tr><td class="period-label">${period}</td>`;
+        days.forEach(day => {
+            const daySchedule = timetable.schedule?.find(s => s.day === day);
+            const periodData = daySchedule?.periods?.find(p => p.periodNumber === idx + 1);
+            
+            if (period === 'Break' || period === 'Lunch') {
+                html += `<td class="break-cell">${period}</td>`;
+            } else if (periodData) {
+                html += `
+                    <td class="period-cell">
+                        <div class="period-subject">${periodData.subject?.name || 'N/A'}</div>
+                        <div class="period-room">${periodData.room || ''}</div>
+                        <div class="period-time">${periodData.startTime} - ${periodData.endTime}</div>
+                    </td>
+                `;
+            } else {
+                html += '<td class="empty-cell">-</td>';
+            }
+        });
+        html += '</tr>';
+    });
+    
+    html += '</tbody></table>';
+    container.innerHTML = html;
+}
+
+// ========== UTILITY FUNCTIONS ==========
+function formatDate(dateString) {
+    if (!dateString) return 'N/A';
+    const date = new Date(dateString);
+    return date.toLocaleDateString('en-IE', { day: 'numeric', month: 'short', year: 'numeric' });
+}
+
+function formatDateTime(dateString) {
+    if (!dateString) return 'N/A';
+    const date = new Date(dateString);
+    return date.toLocaleString('en-IE', { 
+        day: 'numeric', 
+        month: 'short', 
+        year: 'numeric',
+        hour: '2-digit',
+        minute: '2-digit'
     });
 }
 

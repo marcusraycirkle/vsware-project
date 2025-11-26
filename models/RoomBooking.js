@@ -15,6 +15,11 @@ const roomBookingSchema = new mongoose.Schema({
     type: Date,
     required: true
   },
+  period: {
+    type: String,
+    enum: ['Class 1', 'Class 2', 'Class 3', 'Break', 'Class 4', 'Class 5', 'Class 6', 'Lunch', 'Class 7', 'Class 8', 'Class 9'],
+    required: true
+  },
   startTime: {
     type: String,
     required: true
@@ -23,7 +28,6 @@ const roomBookingSchema = new mongoose.Schema({
     type: String,
     required: true
   },
-  period: Number,
   purpose: {
     type: String,
     required: true
