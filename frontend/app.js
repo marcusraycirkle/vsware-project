@@ -185,6 +185,15 @@ function showDashboard() {
         const userName = currentUser.firstName + ' ' + currentUser.lastName;
         document.getElementById('user-display-name').textContent = userName;
         document.getElementById('user-display-role').textContent = currentUser.role || 'User';
+        
+        // Show role-specific dashboard
+        if (currentUser.role === 'student') {
+            showSection('student-dashboard');
+        } else if (currentUser.role === 'parent') {
+            showSection('parent-dashboard');
+        } else {
+            showSection('overview');
+        }
     }
 }
 
@@ -355,6 +364,15 @@ async function loadSectionData(section, subsection) {
             break;
         case 'timetable':
             await loadMyTimetable();
+            break;
+        case 'student-dashboard':
+            await loadStudentDashboard();
+            break;
+        case 'parent-dashboard':
+            await loadParentDashboard();
+            break;
+        case 'my-timetable':
+            await loadMyPersonalTimetable();
             break;
         case 'overview':
             await loadDashboardData();
@@ -1286,55 +1304,111 @@ async function submitRoomBooking(roomId) {
 // ========== BEHAVIOR & ATTENDANCE ==========
 async function takeAttendance() {
     try {
-        // Get teacher's classes
-        const data = await apiCall('/classes');
-        const allClasses = data.classes || [];
+        showLoading('Loading your schedule...');
         
-        // Filter to only show classes (in production, filter by teacher's timetable)
-        const classes = allClasses;
+        // Get current day and time
+        const now = new Date();
+        const days = ['Sunday', 'Monday', 'Tuesday', 'Wednesday', 'Thursday', 'Friday', 'Saturday'];
+        const currentDay = days[now.getDay()];
+        const currentHour = now.getHours();
+        const currentMinute = now.getMinutes();
+        const currentTimeStr = `${currentHour.toString().padStart(2, '0')}:${currentMinute.toString().padStart(2, '0')}`;
         
-        if (classes.length === 0) {
-            showError('No classes assigned. Please contact administration.');
-            return;
+        // Try to get teacher's timetable
+        let timetable = null;
+        try {
+            timetable = await apiCall('/timetable?limit=100');
+        } catch (err) {
+            console.log('No timetable found, will show all classes');
         }
         
-        // Auto-select if only one class
-        if (classes.length === 1) {
-            proceedToAttendanceMarking(null, classes[0]._id, new Date().toISOString().split('T')[0], null);
-            return;
+        let scheduledClasses = [];
+        let currentPeriod = null;
+        
+        // If timetable exists, get today's schedule
+        if (timetable?.timetables?.length > 0) {
+            const myTimetable = timetable.timetables[0];
+            const todaySchedule = myTimetable.schedule?.find(s => s.day === currentDay);
+            
+            if (todaySchedule?.periods) {
+                // Find current period based on time
+                const periodTimes = {
+                    1: { start: '09:00', end: '09:40' },
+                    2: { start: '09:40', end: '10:20' },
+                    3: { start: '10:20', end: '11:00' },
+                    4: { start: '11:15', end: '11:55' },
+                    5: { start: '11:55', end: '12:35' },
+                    6: { start: '12:35', end: '13:15' },
+                    7: { start: '14:00', end: '14:40' },
+                    8: { start: '14:40', end: '15:20' },
+                    9: { start: '15:20', end: '16:00' }
+                };
+                
+                for (let period of todaySchedule.periods) {
+                    const times = periodTimes[period.periodNumber];
+                    if (times && currentTimeStr >= times.start && currentTimeStr <= times.end) {
+                        currentPeriod = period;
+                        break;
+                    }
+                }
+                
+                scheduledClasses = todaySchedule.periods;
+            }
         }
         
-        // Show class selection modal
-        const classOptions = classes.map(c => 
-            `<option value="${c._id}">${c.name || 'Class'} ${c.year ? '- Year ' + c.year : ''}</option>`
-        ).join('');
+        hideLoading();
         
-        const modalContent = `
-            <form id="attendance-form">
-                <div class="input-group">
-                    <label><i class="fas fa-book"></i> Select Class</label>
-                    <select id="attendance-class" required class="select-input">
-                        <option value="">Choose a class...</option>
-                        ${classOptions}
-                    </select>
-                </div>
-                <div class="input-group">
-                    <label><i class="fas fa-calendar"></i> Date</label>
-                    <input type="date" id="attendance-date" value="${new Date().toISOString().split('T')[0]}" required>
-                </div>
-                <div class="input-group">
-                    <label><i class="fas fa-clock"></i> Period (optional)</label>
-                    <input type="number" id="attendance-period" min="1" max="9" placeholder="e.g., 1">
-                </div>
-            </form>
-        `;
+        // If we found current period, auto-select it
+        if (currentPeriod) {
+            const confirmMsg = `Take attendance for ${currentPeriod.subject?.name || 'current class'} (Period ${currentPeriod.periodNumber})?`;
+            if (confirm(confirmMsg)) {
+                // Get class from timetable
+                const classData = await apiCall('/classes');
+                const classes = classData.classes || [];
+                if (classes.length > 0) {
+                    proceedToAttendanceMarking(null, classes[0]._id, new Date().toISOString().split('T')[0], currentPeriod.periodNumber);
+                    return;
+                }
+            }
+        }
         
-        showModal('Take Attendance', modalContent, [
-            { text: 'Cancel', type: 'secondary', action: 'closeModal()' },
-            { text: 'Continue', type: 'primary', action: 'proceedToAttendanceMarking()', icon: 'fas fa-arrow-right' }
-        ]);
+        // Show schedule-based selection
+        if (scheduledClasses.length > 0) {
+            const periodOptions = scheduledClasses.map(p => 
+                `<option value="${p.periodNumber}">${p.subject?.name || 'Period ' + p.periodNumber} - Period ${p.periodNumber} (${p.startTime}-${p.endTime}) ${p.room ? '@ ' + p.room : ''}</option>`
+            ).join('');
+            
+            const modalContent = `
+                <div class="schedule-info">
+                    <h3><i class="fas fa-calendar-day"></i> ${currentDay}'s Schedule</h3>
+                    <p>Select the period you want to take attendance for:</p>
+                </div>
+                <form id="attendance-form">
+                    <div class="input-group">
+                        <label><i class="fas fa-clock"></i> Period from Your Schedule *</label>
+                        <select id="attendance-period-select" required class="select-input">
+                            <option value="">Select a period...</option>
+                            ${periodOptions}
+                        </select>
+                    </div>
+                    <div class="input-group">
+                        <label><i class="fas fa-calendar"></i> Date</label>
+                        <input type="date" id="attendance-date" value="${new Date().toISOString().split('T')[0]}" required>
+                    </div>
+                </form>
+            `;
+            
+            showModal('Take Attendance from Schedule', modalContent, [
+                { text: 'Cancel', type: 'secondary', action: 'closeModal()' },
+                { text: 'Continue', type: 'primary', action: 'proceedFromSchedule()', icon: 'fas fa-arrow-right' }
+            ]);
+        } else {
+            // Fallback to manual selection
+            showError('No schedule found for today. Please contact administration to set up your timetable.');
+        }
     } catch (error) {
-        showError('Failed to load classes');
+        hideLoading();
+        showError('Failed to load schedule: ' + error.message);
         console.error(error);
     }
 }
@@ -2716,5 +2790,456 @@ function formatDateTime(dateString) {
         hour: '2-digit',
         minute: '2-digit'
     });
+}
+
+// ========== SCHEDULE-BASED ATTENDANCE ==========
+async function proceedFromSchedule() {
+    const periodNum = document.getElementById('attendance-period-select')?.value;
+    const date = document.getElementById('attendance-date')?.value;
+    
+    if (!periodNum || !date) {
+        showError('Please select a period and date');
+        return;
+    }
+    
+    try {
+        closeModal();
+        showLoading('Loading class roster...');
+        
+        // Get classes for this teacher
+        const classData = await apiCall('/classes');
+        const classes = classData.classes || [];
+        
+        if (classes.length === 0) {
+            hideLoading();
+            showError('No classes found. Please contact administration.');
+            return;
+        }
+        
+        // Use first class for now (in production, match with timetable)
+        const classId = classes[0]._id;
+        await proceedToAttendanceMarking(null, classId, date, parseInt(periodNum));
+    } catch (error) {
+        hideLoading();
+        showError('Failed to load class: ' + error.message);
+        console.error(error);
+    }
+}
+
+// ========== STUDENT DASHBOARD ==========
+async function loadStudentDashboard() {
+    try {
+        showLoading('Loading your dashboard...');
+        
+        // Get student data
+        const studentData = await apiCall('/students?limit=1').catch(() => ({ students: [] }));
+        const student = studentData.students?.[0];
+        
+        // Get timetable, attendance, assessments in parallel
+        const [timetable, attendance, behavior] = await Promise.all([
+            apiCall('/timetable?limit=1').catch(() => ({ timetables: [] })),
+            apiCall('/attendance?limit=10').catch(() => ({ attendance: [] })),
+            apiCall('/behavior?limit=5').catch(() => ({ behaviors: [] }))
+        ]);
+        
+        hideLoading();
+        
+        const container = document.getElementById('student-dashboard-content');
+        if (!container) return;
+        
+        const attendanceRate = calculateAttendanceRate(attendance.attendance || []);
+        const recentBehavior = (behavior.behaviors || []).slice(0, 5);
+        
+        container.innerHTML = `
+            <div class=\"dashboard-grid-student\">
+                <div class=\"dash-card\">
+                    <div class=\"dash-card-header\">
+                        <h3><i class=\"fas fa-user-circle\"></i> My Profile</h3>
+                    </div>
+                    <div class=\"dash-card-body\">
+                        <div class=\"profile-info\">
+                            <p><strong>Name:</strong> ${currentUser?.firstName || ''} ${currentUser?.lastName || ''}</p>
+                            <p><strong>Student ID:</strong> ${student?.studentId || 'N/A'}</p>
+                            <p><strong>Year:</strong> ${student?.yearGroup || 'N/A'}</p>
+                            <p><strong>House:</strong> ${student?.house || 'N/A'}</p>
+                            <p><strong>Email:</strong> ${currentUser?.email || 'N/A'}</p>
+                        </div>
+                        <button class=\"btn-primary full-width\" onclick=\"viewMyProfile()\">
+                            <i class=\"fas fa-edit\"></i> Edit Profile
+                        </button>
+                    </div>
+                </div>
+                
+                <div class=\"dash-card\">
+                    <div class=\"dash-card-header\">
+                        <h3><i class=\"fas fa-calendar-alt\"></i> My Timetable</h3>
+                        <button class=\"btn-sm\" onclick=\"showSection('my-timetable')\">View Full</button>
+                    </div>
+                    <div class=\"dash-card-body\">
+                        ${timetable.timetables?.[0] ? 
+                            '<p>Your timetable is available. Click "View Full" to see your weekly schedule.</p>' :
+                            '<p class=\"text-muted\">No timetable available yet.</p>'
+                        }
+                        <button class=\"btn-primary full-width\" onclick=\"showSection('my-timetable')\">
+                            <i class=\"fas fa-calendar\"></i> View My Schedule
+                        </button>
+                    </div>
+                </div>
+                
+                <div class=\"dash-card\">
+                    <div class=\"dash-card-header\">
+                        <h3><i class=\"fas fa-chart-line\"></i> Attendance</h3>
+                    </div>
+                    <div class=\"dash-card-body\">
+                        <div class=\"stat-large\">
+                            <div class=\"stat-value\">${attendanceRate}%</div>
+                            <div class=\"stat-label\">Attendance Rate</div>
+                        </div>
+                        <div class=\"attendance-breakdown\">
+                            <div class=\"stat-item\">
+                                <i class=\"fas fa-check-circle text-success\"></i>
+                                <span>Present: ${(attendance.attendance || []).filter(a => a.status === 'Present').length}</span>
+                            </div>
+                            <div class=\"stat-item\">
+                                <i class=\"fas fa-times-circle text-danger\"></i>
+                                <span>Absent: ${(attendance.attendance || []).filter(a => a.status === 'Absent').length}</span>
+                            </div>
+                            <div class=\"stat-item\">
+                                <i class=\"fas fa-clock text-warning\"></i>
+                                <span>Late: ${(attendance.attendance || []).filter(a => a.status === 'Late').length}</span>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                
+                <div class=\"dash-card\">
+                    <div class=\"dash-card-header\">
+                        <h3><i class=\"fas fa-star\"></i> Recent Behavior</h3>
+                    </div>
+                    <div class=\"dash-card-body\">
+                        ${recentBehavior.length > 0 ? `
+                            <div class=\"behavior-list\">
+                                ${recentBehavior.map(b => `
+                                    <div class=\"behavior-item ${b.type?.toLowerCase()}\">
+                                        <i class=\"fas fa-${b.type === 'Positive' ? 'smile' : 'exclamation-triangle'}\"></i>
+                                        <div>
+                                            <strong>${b.title}</strong>
+                                            <p class=\"text-muted small\">${formatDate(b.date)}</p>
+                                        </div>
+                                        <span class=\"badge badge-${b.type?.toLowerCase()}\">${b.type}</span>
+                                    </div>
+                                `).join('')}
+                            </div>
+                        ` : '<p class=\"text-muted\">No recent behavior logs.</p>'}
+                    </div>
+                </div>
+                
+                <div class=\"dash-card\">
+                    <div class=\"dash-card-header\">
+                        <h3><i class=\"fas fa-envelope\"></i> Messages</h3>
+                        <button class=\"btn-sm\" onclick=\"showSection('messages')\">View All</button>
+                    </div>
+                    <div class=\"dash-card-body\">
+                        <button class=\"btn-primary full-width\" onclick=\"showSection('messages', 'inbox')\">
+                            <i class=\"fas fa-inbox\"></i> Check Messages
+                        </button>
+                    </div>
+                </div>
+                
+                <div class=\"dash-card\">
+                    <div class=\"dash-card-header\">
+                        <h3><i class=\"fas fa-graduation-cap\"></i> My Assessments</h3>
+                    </div>
+                    <div class=\"dash-card-body\">
+                        <p>View your grades and assessment results</p>
+                        <button class=\"btn-primary full-width\" onclick=\"viewMyAssessments()\">
+                            <i class=\"fas fa-file-alt\"></i> View Grades
+                        </button>
+                    </div>
+                </div>
+            </div>
+        `;
+    } catch (error) {
+        hideLoading();
+        console.error('Error loading student dashboard:', error);
+        showError('Failed to load dashboard');
+    }
+}
+
+// ========== PARENT DASHBOARD ==========
+async function loadParentDashboard() {
+    try {
+        showLoading('Loading children information...');
+        
+        // Get parent's children
+        const childrenData = await apiCall('/students?limit=20').catch(() => ({ students: [] }));
+        const children = childrenData.students || [];
+        
+        hideLoading();
+        
+        const container = document.getElementById('parent-dashboard-content');
+        if (!container) return;
+        
+        if (children.length === 0) {
+            container.innerHTML = `
+                <div class=\"empty-state\">
+                    <i class=\"fas fa-users\"></i>
+                    <p>No children found in your account. Please contact administration.</p>
+                </div>
+            `;
+            return;
+        }
+        
+        // Load data for each child
+        const childrenCards = await Promise.all(children.slice(0, 4).map(async child => {
+            const [attendance, behavior] = await Promise.all([
+                apiCall(`/attendance?student=${child._id}&limit=30`).catch(() => ({ attendance: [] })),
+                apiCall(`/behavior?student=${child._id}&limit=5`).catch(() => ({ behaviors: [] }))
+            ]);
+            
+            const attendanceRate = calculateAttendanceRate(attendance.attendance || []);
+            const recentBehavior = behavior.behaviors || [];
+            
+            return `
+                <div class=\"child-card\">
+                    <div class=\"child-header\">
+                        <div class=\"child-avatar\">
+                            <i class=\"fas fa-user-circle\"></i>
+                        </div>
+                        <div class=\"child-info\">
+                            <h3>${child.firstName || ''} ${child.lastName || ''}</h3>
+                            <p class=\"text-muted\">${child.yearGroup || ''} - ${child.house || ''} House</p>
+                        </div>
+                    </div>
+                    <div class=\"child-stats\">
+                        <div class=\"stat-box\">
+                            <div class=\"stat-value\">${attendanceRate}%</div>
+                            <div class=\"stat-label\">Attendance</div>
+                        </div>
+                        <div class=\"stat-box\">
+                            <div class=\"stat-value\">${recentBehavior.filter(b => b.type === 'Positive').length}</div>
+                            <div class=\"stat-label\">Positive</div>
+                        </div>
+                        <div class=\"stat-box\">
+                            <div class=\"stat-value\">${recentBehavior.filter(b => b.type === 'Negative').length}</div>
+                            <div class=\"stat-label\">Incidents</div>
+                        </div>
+                    </div>
+                    <div class=\"child-actions\">
+                        <button class=\"btn-sm\" onclick=\"viewChildDetails('${child._id}')\">
+                            <i class=\"fas fa-eye\"></i> View Details
+                        </button>
+                        <button class=\"btn-sm\" onclick=\"viewChildTimetable('${child._id}')\">
+                            <i class=\"fas fa-calendar\"></i> Timetable
+                        </button>
+                        <button class=\"btn-sm\" onclick=\"contactTeacher('${child._id}')\">
+                            <i class=\"fas fa-envelope\"></i> Contact Teacher
+                        </button>
+                    </div>
+                </div>
+            `;
+        }));
+        
+        container.innerHTML = `
+            <div class=\"parent-dashboard\">
+                <div class=\"page-header\">
+                    <h1><i class=\"fas fa-users\"></i> My Children</h1>
+                    <p>Monitor your children's progress and attendance</p>
+                </div>
+                <div class=\"children-grid\">
+                    ${childrenCards.join('')}
+                </div>
+                <div class=\"parent-actions-section\">
+                    <div class=\"action-card\" onclick=\"showSection('messages')\">
+                        <i class=\"fas fa-envelope\"></i>
+                        <h3>Messages</h3>
+                        <p>View communications from teachers</p>
+                    </div>
+                    <div class=\"action-card\" onclick=\"showSection('payments')\">
+                        <i class=\"fas fa-receipt\"></i>
+                        <h3>Payments</h3>
+                        <p>View and manage school fees</p>
+                    </div>
+                    <div class=\"action-card\" onclick=\"viewCalendar()\">
+                        <i class=\"fas fa-calendar-alt\"></i>
+                        <h3>School Calendar</h3>
+                        <p>View upcoming events</p>
+                    </div>
+                </div>
+            </div>
+        `;
+    } catch (error) {
+        hideLoading();
+        console.error('Error loading parent dashboard:', error);
+        showError('Failed to load dashboard');
+    }
+}
+
+// ========== PERSONAL TIMETABLE ==========
+async function loadMyPersonalTimetable() {
+    try {
+        showLoading('Loading your timetable...');
+        
+        let timetable = null;
+        
+        // Try different endpoints based on role
+        if (currentUser?.role === 'teacher') {
+            timetable = await apiCall('/timetable?limit=1').catch(() => null);
+        } else if (currentUser?.role === 'student') {
+            timetable = await apiCall('/timetable?limit=1').catch(() => null);
+        }
+        
+        hideLoading();
+        
+        const container = document.getElementById('my-timetable-content');
+        if (!container) return;
+        
+        if (!timetable?.timetables?.[0]) {
+            container.innerHTML = `
+                <div class=\"empty-state\">
+                    <i class=\"fas fa-calendar-times\"></i>
+                    <p>No timetable available. Please contact administration.</p>
+                </div>
+            `;
+            return;
+        }
+        
+        const tt = timetable.timetables[0];
+        displayPersonalTimetable(tt, container);
+    } catch (error) {
+        hideLoading();
+        console.error('Error loading timetable:', error);
+        showError('Failed to load timetable');
+    }
+}
+
+function displayPersonalTimetable(timetable, container) {
+    const periods = [
+        { num: 1, time: '9:00 - 9:40' },
+        { num: 2, time: '9:40 - 10:20' },
+        { num: 3, time: '10:20 - 11:00' },
+        { num: 'break', time: '11:00 - 11:15', label: 'Break' },
+        { num: 4, time: '11:15 - 11:55' },
+        { num: 5, time: '11:55 - 12:35' },
+        { num: 6, time: '12:35 - 1:15' },
+        { num: 'lunch', time: '1:15 - 2:00', label: 'Lunch' },
+        { num: 7, time: '2:00 - 2:40' },
+        { num: 8, time: '2:40 - 3:20' },
+        { num: 9, time: '3:20 - 4:00' }
+    ];
+    const days = ['Monday', 'Tuesday', 'Wednesday', 'Thursday', 'Friday'];
+    
+    let html = `
+        <div class=\"timetable-container\">
+            <div class=\"timetable-header\">
+                <h2><i class=\"fas fa-calendar-week\"></i> My Weekly Timetable</h2>
+                <p class=\"text-muted\">Academic Year: ${timetable.academicYear || '2024-2025'} | Term: ${timetable.term || '1'}</p>
+            </div>
+            <div class=\"timetable-scroll\">
+                <table class=\"timetable-grid-personal\">
+                    <thead>
+                        <tr>
+                            <th class=\"period-col\">Period</th>
+                            <th class=\"time-col\">Time</th>
+                            ${days.map(day => `<th class=\"day-col\">${day}</th>`).join('')}
+                        </tr>
+                    </thead>
+                    <tbody>
+    `;
+    
+    periods.forEach(period => {
+        if (period.label) {
+            // Break or Lunch row
+            html += `
+                <tr class=\"break-row\">
+                    <td class=\"period-col\">${period.label}</td>
+                    <td class=\"time-col\">${period.time}</td>
+                    <td colspan=\"5\" class=\"break-cell\">
+                        <i class=\"fas fa-${period.label === 'Break' ? 'coffee' : 'utensils'}\"></i> ${period.label}
+                    </td>
+                </tr>
+            `;
+        } else {
+            html += `<tr><td class=\"period-col\">Period ${period.num}</td><td class=\"time-col\">${period.time}</td>`;
+            
+            days.forEach(day => {
+                const daySchedule = timetable.schedule?.find(s => s.day === day);
+                const periodData = daySchedule?.periods?.find(p => p.periodNumber === period.num);
+                
+                if (periodData) {
+                    const subjectName = periodData.subject?.name || 'Class';
+                    const room = periodData.room || '';
+                    const teacher = periodData.teacher ? `${periodData.teacher.firstName} ${periodData.teacher.lastName}` : '';
+                    
+                    html += `
+                        <td class=\"period-cell filled\">
+                            <div class=\"period-subject\">${subjectName}</div>
+                            ${room ? `<div class=\"period-room\"><i class=\"fas fa-door-open\"></i> ${room}</div>` : ''}
+                            ${teacher && currentUser?.role !== 'teacher' ? `<div class=\"period-teacher\"><i class=\"fas fa-user\"></i> ${teacher}</div>` : ''}
+                        </td>
+                    `;
+                } else {
+                    html += '<td class=\"period-cell empty\"><span class=\"text-muted\">—</span></td>';
+                }
+            });
+            html += '</tr>';
+        }
+    });
+    
+    html += `
+                    </tbody>
+                </table>
+            </div>
+            <div class=\"timetable-footer\">
+                <button class=\"btn-primary\" onclick=\"printTimetable()\">
+                    <i class=\"fas fa-print\"></i> Print Timetable
+                </button>
+                <button class=\"btn-secondary\" onclick=\"exportTimetable()\">
+                    <i class=\"fas fa-download\"></i> Export PDF
+                </button>
+            </div>
+        </div>
+    `;
+    
+    container.innerHTML = html;
+}
+
+// ========== UTILITY FUNCTIONS ==========
+function calculateAttendanceRate(attendanceRecords) {
+    if (!attendanceRecords || attendanceRecords.length === 0) return 0;
+    const present = attendanceRecords.filter(a => a.status === 'Present' || a.status === 'Late').length;
+    return Math.round((present / attendanceRecords.length) * 100);
+}
+
+function viewMyProfile() {
+    showError('Profile editing coming soon!');
+}
+
+function viewMyAssessments() {
+    showError('Assessments view coming soon!');
+}
+
+function viewChildDetails(childId) {
+    showError('Child details view coming soon!');
+}
+
+function viewChildTimetable(childId) {
+    showError('Child timetable view coming soon!');
+}
+
+function contactTeacher(childId) {
+    showSection('messages', 'compose');
+}
+
+function viewCalendar() {
+    showError('School calendar coming soon!');
+}
+
+function printTimetable() {
+    window.print();
+}
+
+function exportTimetable() {
+    showError('PDF export coming soon!');
 }
 
