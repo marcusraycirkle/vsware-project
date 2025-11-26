@@ -507,6 +507,18 @@ textarea {
     gap: 1.5rem;
 }
 
+.form-grid-2 {
+    display: grid;
+    grid-template-columns: repeat(2, 1fr);
+    gap: 1rem;
+}
+
+@media (max-width: 768px) {
+    .form-grid-2 {
+        grid-template-columns: 1fr;
+    }
+}
+
 .input-group {
     display: flex;
     flex-direction: column;
@@ -879,7 +891,7 @@ textarea {
 }
 
 .notifications-list {
-    max-height: 500px;
+    max-height: min(500px, calc(100vh - 200px));
     overflow-y: auto;
     overscroll-behavior: contain;
 }
@@ -1063,9 +1075,12 @@ textarea {
     border: 1px solid var(--border);
     border-radius: 0.75rem;
     box-shadow: var(--shadow-lg);
-    min-width: 200px;
+    min-width: 220px;
     padding: 0.5rem;
     margin-top: 0.5rem;
+    z-index: 10000;
+    max-height: calc(100vh - 100px);
+    overflow-y: auto;
 }
 
 .user-dropdown a {
@@ -2129,6 +2144,31 @@ textarea {
     color: var(--primary);
 }
 
+/* Booking Indicator */
+.booking-indicator {
+    display: flex;
+    align-items: center;
+    gap: 0.5rem;
+    padding: 0.5rem;
+    margin-top: 0.75rem;
+    background: #FEF3C7;
+    border: 1px solid #FCD34D;
+    border-radius: 0.375rem;
+    font-size: 0.8125rem;
+    font-weight: 600;
+    color: #92400E;
+}
+
+.booking-indicator i {
+    font-size: 1rem;
+    animation: pulse-warning 2s ease-in-out infinite;
+}
+
+@keyframes pulse-warning {
+    0%, 100% { opacity: 1; }
+    50% { opacity: 0.6; }
+}
+
 .room-card-footer {
     padding: 1rem;
     background: var(--bg-main);
@@ -2167,6 +2207,411 @@ textarea {
     background: var(--text-muted);
     transform: none;
     box-shadow: none;
+}
+
+/* Current Bookings Display */
+.current-bookings {
+    margin: 1.5rem 0;
+    padding: 1rem;
+    background: var(--bg-main);
+    border-radius: 0.5rem;
+    border: 1px solid var(--border);
+}
+
+.current-bookings h4 {
+    margin-bottom: 1rem;
+    color: var(--text-primary);
+    display: flex;
+    align-items: center;
+    gap: 0.5rem;
+}
+
+.bookings-list {
+    display: flex;
+    flex-direction: column;
+    gap: 0.75rem;
+}
+
+.booking-item {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    padding: 0.75rem;
+    background: white;
+    border: 1px solid var(--border);
+    border-radius: 0.375rem;
+    font-size: 0.875rem;
+}
+
+.booking-period {
+    font-weight: 700;
+    color: var(--primary);
+    min-width: 100px;
+}
+
+.booking-purpose {
+    flex: 1;
+    color: var(--text-primary);
+    padding: 0 1rem;
+}
+
+.booking-time {
+    color: var(--text-secondary);
+    font-size: 0.8125rem;
+}
+
+/* Report Styles */
+.report-view {
+    max-width: 100%;
+}
+
+.report-header {
+    margin-bottom: 2rem;
+    padding-bottom: 1rem;
+    border-bottom: 2px solid var(--border);
+}
+
+.report-header h2 {
+    color: var(--text-primary);
+    margin-bottom: 0.5rem;
+}
+
+.report-table {
+    width: 100%;
+    border-collapse: collapse;
+    margin: 1.5rem 0;
+}
+
+.report-table th,
+.report-table td {
+    padding: 0.75rem 1rem;
+    text-align: left;
+    border-bottom: 1px solid var(--border);
+}
+
+.report-table th {
+    background: var(--bg-main);
+    font-weight: 600;
+    color: var(--text-primary);
+}
+
+.report-table tr:hover {
+    background: var(--bg-hover);
+}
+
+.report-footer {
+    margin-top: 2rem;
+    padding-top: 1rem;
+    border-top: 1px solid var(--border);
+}
+
+/* Fees/Payroll Dashboard */
+.fees-dashboard,
+.payroll-dashboard {
+    padding: 1rem;
+}
+
+.fees-summary,
+.payroll-summary {
+    margin-bottom: 2rem;
+}
+
+.summary-cards {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+    gap: 1rem;
+    margin-top: 1rem;
+}
+
+.summary-card {
+    padding: 1.5rem;
+    background: white;
+    border-radius: 0.5rem;
+    border-left: 4px solid var(--primary);
+    box-shadow: var(--shadow-sm);
+}
+
+.summary-card.success {
+    border-left-color: var(--success);
+}
+
+.summary-card.warning {
+    border-left-color: var(--warning);
+}
+
+.summary-label {
+    font-size: 0.875rem;
+    color: var(--text-secondary);
+    margin-bottom: 0.5rem;
+}
+
+.summary-value {
+    font-size: 2rem;
+    font-weight: 700;
+    color: var(--text-primary);
+}
+
+.payroll-actions {
+    margin-top: 2rem;
+    display: flex;
+    gap: 1rem;
+}
+
+/* Status Badges */
+.status-badge {
+    padding: 0.25rem 0.75rem;
+    border-radius: 1rem;
+    font-size: 0.75rem;
+    font-weight: 600;
+    text-transform: uppercase;
+}
+
+.status-paid {
+    background: #D1FAE5;
+    color: #065F46;
+}
+
+.status-pending {
+    background: #FEF3C7;
+    color: #92400E;
+}
+
+.status-not-due {
+    background: #E0E7FF;
+    color: #3730A3;
+}
+
+/* Report Actions */
+.reports-dashboard {
+    padding: 2rem;
+    background: white;
+    border-radius: 0.5rem;
+    box-shadow: var(--shadow-sm);
+}
+
+.reports-dashboard h3 {
+    margin-bottom: 0.5rem;
+    color: var(--text-primary);
+    display: flex;
+    align-items: center;
+    gap: 0.75rem;
+}
+
+.reports-dashboard p.text-muted {
+    margin-bottom: 2rem;
+}
+
+.report-actions {
+    display: flex;
+    gap: 1rem;
+    flex-wrap: wrap;
+}
+
+/* Timetable Modal Styles */
+.timetable-modal-view {
+    max-width: 100%;
+    overflow-x: auto;
+}
+
+.timetable-header {
+    margin-bottom: 1.5rem;
+    padding-bottom: 1rem;
+    border-bottom: 2px solid var(--border);
+}
+
+.timetable-header h3 {
+    display: flex;
+    align-items: center;
+    gap: 0.75rem;
+    margin-bottom: 0.5rem;
+}
+
+.timetable-grid-modal {
+    display: grid;
+    grid-template-columns: 120px repeat(5, 1fr);
+    gap: 1px;
+    background: var(--border);
+    border: 1px solid var(--border);
+    border-radius: 0.5rem;
+    overflow: hidden;
+}
+
+.timetable-corner {
+    background: var(--bg-main);
+    padding: 1rem;
+    font-weight: 700;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    color: var(--text-secondary);
+}
+
+.timetable-day-header {
+    background: var(--primary);
+    color: white;
+    padding: 1rem;
+    font-weight: 700;
+    text-align: center;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+}
+
+.timetable-period-label {
+    background: var(--bg-main);
+    padding: 0.75rem;
+    font-weight: 600;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    gap: 0.25rem;
+}
+
+.timetable-period-label.break-period,
+.timetable-period-label.lunch-period {
+    background: #FEF3C7;
+    color: #92400E;
+}
+
+.timetable-period-label strong {
+    font-size: 0.875rem;
+}
+
+.timetable-period-label small {
+    font-size: 0.75rem;
+    color: var(--text-muted);
+}
+
+.timetable-cell {
+    background: white;
+    padding: 0.75rem;
+    min-height: 80px;
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+    align-items: center;
+    gap: 0.25rem;
+}
+
+.timetable-cell.empty-cell {
+    background: #F9FAFB;
+    color: var(--text-muted);
+    font-size: 0.875rem;
+}
+
+.timetable-cell.break-cell,
+.timetable-cell.lunch-cell {
+    background: #FEF3C7;
+}
+
+.timetable-cell.has-class {
+    background: #EEF2FF;
+    border-left: 3px solid var(--primary);
+}
+
+.class-subject {
+    font-weight: 700;
+    color: var(--primary);
+    font-size: 0.875rem;
+    text-align: center;
+}
+
+.class-teacher,
+.class-name {
+    font-size: 0.8125rem;
+    color: var(--text-secondary);
+    text-align: center;
+}
+
+.class-room {
+    font-size: 0.75rem;
+    color: var(--text-muted);
+    padding: 0.125rem 0.5rem;
+    background: white;
+    border-radius: 0.25rem;
+}
+
+/* Activity Items */
+.activity-item {
+    display: flex;
+    align-items: flex-start;
+    gap: 1rem;
+    padding: 1rem;
+    background: white;
+    border-radius: 0.5rem;
+    margin-bottom: 0.75rem;
+    transition: var(--transition);
+}
+
+.activity-item:hover {
+    background: var(--bg-hover);
+}
+
+.activity-icon {
+    width: 40px;
+    height: 40px;
+    border-radius: 50%;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    flex-shrink: 0;
+    font-size: 1.125rem;
+}
+
+.activity-content {
+    flex: 1;
+}
+
+.activity-content p {
+    margin: 0 0 0.25rem 0;
+    color: var(--text-primary);
+    font-size: 0.875rem;
+}
+
+.activity-content small {
+    font-size: 0.8125rem;
+}
+
+/* Quick Stats Cards */
+.quick-stat-card {
+    display: flex;
+    align-items: center;
+    gap: 1rem;
+    padding: 1.5rem;
+    background: white;
+    border-radius: 0.75rem;
+    box-shadow: var(--shadow-sm);
+    transition: var(--transition);
+}
+
+.quick-stat-card:hover {
+    transform: translateY(-2px);
+    box-shadow: var(--shadow-md);
+}
+
+.quick-stat-card .stat-icon {
+    width: 50px;
+    height: 50px;
+    border-radius: 0.75rem;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 1.5rem;
+    flex-shrink: 0;
+}
+
+.quick-stat-card .stat-content h4 {
+    font-size: 1.75rem;
+    font-weight: 700;
+    margin: 0 0 0.25rem 0;
+    color: var(--text-primary);
+}
+
+.quick-stat-card .stat-content p {
+    margin: 0;
+    font-size: 0.875rem;
+    color: var(--text-secondary);
 }
 
 .empty-state {

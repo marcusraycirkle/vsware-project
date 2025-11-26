@@ -91,9 +91,12 @@ async function login(email, pin) {
             
             localStorage.setItem('auth_token', authToken);
             localStorage.setItem('current_user', JSON.stringify(currentUser));
+            localStorage.setItem('userRole', currentUser.role);
+            localStorage.setItem('permissionLevel', currentUser.permissionLevel || 'General');
             
             await showWelcomeAnimation();
             showDashboard();
+            applyRoleBasedNavigation();
             loadDashboardData();
         } else {
             hideAnimatedLogin();
@@ -116,9 +119,30 @@ async function logout() {
     await showGoodbyeAnimation();
     localStorage.removeItem('auth_token');
     localStorage.removeItem('current_user');
+    localStorage.removeItem('userRole');
+    localStorage.removeItem('permissionLevel');
     authToken = null;
     currentUser = null;
     showLandingPage();
+}
+
+function applyRoleBasedNavigation() {
+    const permissionLevel = localStorage.getItem('permissionLevel') || 'General';
+    const userRole = localStorage.getItem('userRole') || 'Teacher';
+    
+    // Hide admin-only elements for general teachers
+    if (userRole === 'Teacher' && permissionLevel !== 'Principal' && permissionLevel !== 'Admin' && permissionLevel !== 'Deputy Principal') {
+        document.querySelectorAll('[data-admin-only=\"true\"]').forEach(element => {
+            element.style.display = 'none';
+        });
+    }
+    
+    // Show all for admins/principals
+    if (permissionLevel === 'Principal' || permissionLevel === 'Admin' || permissionLevel === 'Deputy Principal') {
+        document.querySelectorAll('[data-admin-only=\"true\"]').forEach(element => {
+            element.style.display = '';
+        });
+    }
 }
 
 // ========== API CALLS ==========
@@ -249,16 +273,150 @@ function toggleUserMenu() {
 // ========== DATA LOADING ==========
 async function loadDashboardData() {
     try {
-        // Load stats
+        // Check user role and load appropriate dashboard
+        const userRole = currentUser?.role || localStorage.getItem('userRole');
+        
+        if (userRole === 'Student') {
+            await loadStudentDashboard();
+            return;
+        } else if (userRole === 'Parent') {
+            await loadParentDashboard();
+            return;
+        }
+        
+        // Admin/Teacher dashboard
         await loadStats();
-        // Load houses
         await loadHouses();
-        // Load attendance data
         await loadDashboardAttendance();
-        // Load recent activity
-        loadRecentActivity();
+        await loadRecentActivity();
+        await loadQuickStats();
     } catch (error) {
         console.error('Error loading dashboard:', error);
+    }
+}
+
+async function loadQuickStats() {
+    try {
+        // Get today's date
+        const today = new Date().toISOString().split('T')[0];
+        
+        // Load recent behavior logs
+        const behaviorData = await apiCall('/behavior?limit=5&sort=-createdAt').catch(() => ({ behavior: [] }));
+        const recentBehavior = behaviorData.behavior || [];
+        
+        // Load today's room bookings
+        const bookingsData = await apiCall(`/rooms/bookings?date=${today}`).catch(() => []);
+        const todayBookings = Array.isArray(bookingsData) ? bookingsData.length : 0;
+        
+        // Load pending messages
+        const messagesData = await apiCall('/messages?status=unread&limit=10').catch(() => ({ messages: [] }));
+        const unreadMessages = messagesData.messages?.length || 0;
+        
+        // Update quick stats cards
+        const statsContainer = document.getElementById('quick-stats-container');
+        if (statsContainer) {
+            statsContainer.innerHTML = `
+                <div class=\"quick-stat-card\">
+                    <div class=\"stat-icon\" style=\"background: #EEF2FF;\">
+                        <i class=\"fas fa-calendar-check\" style=\"color: #4F46E5;\"></i>
+                    </div>
+                    <div class=\"stat-content\">
+                        <h4>${todayBookings}</h4>
+                        <p>Room Bookings Today</p>
+                    </div>
+                </div>
+                <div class=\"quick-stat-card\">
+                    <div class=\"stat-icon\" style=\"background: #FEF3C7;\">
+                        <i class=\"fas fa-clipboard-list\" style=\"color: #F59E0B;\"></i>
+                    </div>
+                    <div class=\"stat-content\">
+                        <h4>${recentBehavior.length}</h4>
+                        <p>Recent Behavior Logs</p>
+                    </div>
+                </div>
+                <div class=\"quick-stat-card\">
+                    <div class=\"stat-icon\" style=\"background: #DBEAFE;\">
+                        <i class=\"fas fa-envelope\" style=\"color: #3B82F6;\"></i>
+                    </div>
+                    <div class=\"stat-content\">
+                        <h4>${unreadMessages}</h4>
+                        <p>Unread Messages</p>
+                    </div>
+                </div>
+            `;
+        }
+    } catch (error) {
+        console.error('Error loading quick stats:', error);
+    }
+}
+
+async function loadRecentActivity() {
+    try {
+        const today = new Date().toISOString().split('T')[0];
+        
+        // Get recent attendance records
+        const attendanceData = await apiCall(`/attendance?date=${today}&limit=5&sort=-createdAt`).catch(() => ({ attendance: [] }));
+        const attendance = attendanceData.attendance || [];
+        
+        // Get recent behavior logs
+        const behaviorData = await apiCall('/behavior?limit=5&sort=-createdAt').catch(() => ({ behavior: [] }));
+        const behavior = behaviorData.behavior || [];
+        
+        // Combine and sort activities
+        const activities = [];
+        
+        attendance.forEach(record => {
+            const student = record.student?.user || {};
+            activities.push({
+                type: 'attendance',
+                icon: record.status === 'Present' ? 'fa-check-circle' : 'fa-times-circle',
+                color: record.status === 'Present' ? '#10B981' : '#EF4444',
+                text: `${student.firstName || ''} ${student.lastName || ''} marked ${record.status}`,
+                time: new Date(record.date).toLocaleTimeString('en-US', { hour: '2-digit', minute: '2-digit' }),
+                timestamp: new Date(record.date).getTime()
+            });
+        });
+        
+        behavior.forEach(log => {
+            const student = log.student?.user || {};
+            activities.push({
+                type: 'behavior',
+                icon: log.type === 'Positive' ? 'fa-star' : 'fa-exclamation-triangle',
+                color: log.type === 'Positive' ? '#F59E0B' : '#EF4444',
+                text: `${log.type} behavior logged for ${student.firstName || ''} ${student.lastName || ''}`,
+                time: new Date(log.date).toLocaleTimeString('en-US', { hour: '2-digit', minute: '2-digit' }),
+                timestamp: new Date(log.date).getTime()
+            });
+        });
+        
+        // Sort by timestamp
+        activities.sort((a, b) => b.timestamp - a.timestamp);
+        
+        // Display recent activity
+        const activityContainer = document.getElementById('recent-activity-list');
+        if (activityContainer) {
+            if (activities.length === 0) {
+                activityContainer.innerHTML = '<p class=\"text-muted\" style=\"text-align: center; padding: 2rem;\">No recent activity</p>';
+            } else {
+                activityContainer.innerHTML = activities.slice(0, 8).map(activity => `
+                    <div class=\"activity-item\">
+                        <div class=\"activity-icon\" style=\"background: ${activity.color}15; color: ${activity.color};\">
+                            <i class=\"fas ${activity.icon}\"></i>
+                        </div>
+                        <div class=\"activity-content\">
+                            <p>${activity.text}</p>
+                            <small class=\"text-muted\">${activity.time}</small>
+                        </div>
+                    </div>
+                `).join('');
+            }
+        }
+    } catch (error) {
+        console.error('Error loading recent activity:', error);
+        const activityContainer = document.getElementById('recent-activity-list');
+        if (activityContainer) {
+            activityContainer.innerHTML = '<p class=\"text-muted\" style=\"text-align: center; padding: 2rem;\">Unable to load activity</p>';
+        }
     }
 }
 
@@ -373,6 +531,12 @@ async function loadSectionData(section, subsection) {
             break;
         case 'my-timetable':
             await loadMyPersonalTimetable();
+            break;
+        case 'fees':
+            showSampleFees();
+            break;
+        case 'payroll':
+            showSamplePayroll();
             break;
         case 'overview':
             await loadDashboardData();
@@ -572,6 +736,9 @@ async function loadStudentProfile(studentId) {
                         <button class="btn-primary" onclick="editStudent('${studentId}')">
                             <i class="fas fa-edit"></i> Edit Profile
                         </button>
+                        <button class="btn-primary" onclick="viewStudentTimetable('${studentId}')">
+                            <i class="fas fa-calendar-alt"></i> View Timetable
+                        </button>
                         <button class="btn-primary" onclick="viewStudentAttendance('${studentId}')">
                             <i class="fas fa-calendar-check"></i> View Attendance
                         </button>
@@ -610,6 +777,111 @@ function viewStudentBehavior(studentId) {
 
 function viewStudentGrades(studentId) {
     showSuccess('Student grades details coming soon!');
+}
+
+async function viewStudentTimetable(studentId) {
+    try {
+        showLoading('Loading student timetable...');
+        const student = await apiCall(`/students/${studentId}`);
+        const timetableData = await apiCall(`/timetable?student=${studentId}`).catch(() => ({ timetable: [] }));
+        hideLoading();
+        
+        const timetable = timetableData.timetable || [];
+        const studentName = `${student.firstName || ''} ${student.lastName || ''}`;
+        
+        displayTimetableModal(studentName, timetable, 'student');
+    } catch (error) {
+        hideLoading();
+        showError('Failed to load student timetable');
+        console.error(error);
+    }
+}
+
+function displayTimetableModal(userName, timetable, userType) {
+    const days = ['Monday', 'Tuesday', 'Wednesday', 'Thursday', 'Friday'];
+    const periods = [
+        { name: 'Class 1', time: '9:00-9:40' },
+        { name: 'Class 2', time: '9:40-10:20' },
+        { name: 'Class 3', time: '10:20-11:00' },
+        { name: 'Break', time: '11:00-11:15', isBreak: true },
+        { name: 'Class 4', time: '11:15-11:55' },
+        { name: 'Class 5', time: '11:55-12:35' },
+        { name: 'Class 6', time: '12:35-1:15' },
+        { name: 'Lunch', time: '1:15-2:00', isLunch: true },
+        { name: 'Class 7', time: '2:00-2:40' },
+        { name: 'Class 8', time: '2:40-3:20' },
+        { name: 'Class 9', time: '3:20-4:00' }
+    ];
+    
+    // Organize timetable by day and period
+    const scheduleMap = {};
+    timetable.forEach(entry => {
+        const key = `${entry.day}-${entry.period}`;
+        scheduleMap[key] = entry;
+    });
+    
+    let timetableHTML = `
+        <div class="timetable-modal-view">
+            <div class="timetable-header">
+                <h3><i class="fas fa-calendar-week"></i> ${userName}'s Timetable</h3>
+                <p class="text-muted">${userType === 'teacher' ? 'Teaching Schedule' : 'Class Schedule'}</p>
+            </div>
+            <div class="timetable-grid-modal">
+                <div class="timetable-corner">Period</div>
+                ${days.map(day => `<div class="timetable-day-header">${day}</div>`).join('')}
+                
+                ${periods.map(period => {
+                    if (period.isBreak || period.isLunch) {
+                        return `
+                            <div class="timetable-period-label ${period.isBreak ? 'break-period' : 'lunch-period'}">
+                                <strong>${period.name}</strong>
+                                <small>${period.time}</small>
+                            </div>
+                            ${days.map(() => `<div class="timetable-cell ${period.isBreak ? 'break-cell' : 'lunch-cell'}"></div>`).join('')}
+                        `;
+                    }
+                    
+                    return `
+                        <div class="timetable-period-label">
+                            <strong>${period.name}</strong>
+                            <small>${period.time}</small>
+                        </div>
+                        ${days.map(day => {
+                            const entry = scheduleMap[`${day}-${period.name}`];
+                            if (entry) {
+                                return `
+                                    <div class="timetable-cell has-class">
+                                        <div class="class-subject">${entry.subject?.name || 'Class'}</div>
+                                        ${userType === 'student' ? 
+                                            `<div class="class-teacher">${entry.teacher?.user?.firstName || ''} ${entry.teacher?.user?.lastName || ''}</div>` :
+                                            `<div class="class-name">${entry.class?.name || ''}</div>`
+                                        }
+                                        <div class="class-room">${entry.room?.roomNumber || ''}</div>
+                                    </div>
+                                `;
+                            }
+                            return '<div class="timetable-cell empty-cell">Free</div>';
+                        }).join('')}
+                    `;
+                }).join('')}
+            </div>
+        </div>
+    `;
+    
+    if (timetable.length === 0) {
+        timetableHTML = `
+            <div class="empty-state" style="padding: 3rem; text-align: center;">
+                <i class="fas fa-calendar-times" style="font-size: 3rem; color: var(--text-muted); opacity: 0.5; margin-bottom: 1rem;"></i>
+                <h3 style="color: var(--text-secondary);">No Timetable Available</h3>
+                <p class="text-muted">No schedule has been assigned yet.</p>
+            </div>
+        `;
+    }
+    
+    showModal(`${userName}'s Timetable`, timetableHTML, [
+        { text: 'Close', type: 'secondary', action: 'closeModal()' },
+        { text: 'Print', type: 'info', action: 'window.print()', icon: 'fas fa-print' }
+    ]);
 }
 
 async function addStudent() {
@@ -895,16 +1167,119 @@ async function loadTeacherProfile(teacherId) {
     }
 }
 
-function editTeacher(teacherId) {
-    showSuccess('Edit teacher feature coming soon!');
+async function editTeacher(teacherId) {
+    try {
+        showLoading('Loading teacher details...');
+        const teacher = await apiCall(`/teachers/${teacherId}`);
+        hideLoading();
+        
+        const modalContent = `
+            <form id="edit-teacher-form">
+                <div class="form-grid-2">
+                    <div class="input-group">
+                        <label><i class="fas fa-user"></i> First Name *</label>
+                        <input type="text" id="teacher-firstName" value="${teacher.user?.firstName || ''}" required>
+                    </div>
+                    <div class="input-group">
+                        <label><i class="fas fa-user"></i> Last Name *</label>
+                        <input type="text" id="teacher-lastName" value="${teacher.user?.lastName || ''}" required>
+                    </div>
+                    <div class="input-group">
+                        <label><i class="fas fa-envelope"></i> Email *</label>
+                        <input type="email" id="teacher-email" value="${teacher.user?.email || ''}" required>
+                    </div>
+                    <div class="input-group">
+                        <label><i class="fas fa-phone"></i> Phone</label>
+                        <input type="tel" id="teacher-phone" value="${teacher.user?.phone || ''}">
+                    </div>
+                    <div class="input-group">
+                        <label><i class="fas fa-id-card"></i> Employee ID</label>
+                        <input type="text" id="teacher-employeeId" value="${teacher.employeeId || ''}" readonly>
+                    </div>
+                    <div class="input-group">
+                        <label><i class="fas fa-chalkboard"></i> Department</label>
+                        <select id="teacher-department" class="select-input">
+                            <option value="Mathematics" ${teacher.department === 'Mathematics' ? 'selected' : ''}>Mathematics</option>
+                            <option value="English" ${teacher.department === 'English' ? 'selected' : ''}>English</option>
+                            <option value="Science" ${teacher.department === 'Science' ? 'selected' : ''}>Science</option>
+                            <option value="History" ${teacher.department === 'History' ? 'selected' : ''}>History</option>
+                            <option value="Geography" ${teacher.department === 'Geography' ? 'selected' : ''}>Geography</option>
+                            <option value="Languages" ${teacher.department === 'Languages' ? 'selected' : ''}>Languages</option>
+                            <option value="Arts" ${teacher.department === 'Arts' ? 'selected' : ''}>Arts</option>
+                            <option value="PE" ${teacher.department === 'PE' ? 'selected' : ''}>Physical Education</option>
+                            <option value="Technology" ${teacher.department === 'Technology' ? 'selected' : ''}>Technology</option>
+                            <option value="Other" ${teacher.department === 'Other' ? 'selected' : ''}>Other</option>
+                        </select>
+                    </div>
+                    <div class="input-group">
+                        <label><i class="fas fa-briefcase"></i> Position</label>
+                        <input type="text" id="teacher-position" value="${teacher.position || ''}">
+                    </div>
+                </div>
+            </form>
+        `;
+        
+        showModal('Edit Teacher', modalContent, [
+            { text: 'Cancel', type: 'secondary', action: 'closeModal()' },
+            { text: 'Save Changes', type: 'primary', action: `submitTeacherEdit('${teacherId}')`, icon: 'fas fa-save' }
+        ]);
+    } catch (error) {
+        hideLoading();
+        showError('Failed to load teacher details');
+        console.error(error);
+    }
 }
 
-function viewTeacherTimetable(teacherId) {
-    showSuccess('Teacher timetable coming soon!');
+async function submitTeacherEdit(teacherId) {
+    const firstName = document.getElementById('teacher-firstName').value;
+    const lastName = document.getElementById('teacher-lastName').value;
+    const email = document.getElementById('teacher-email').value;
+    const phone = document.getElementById('teacher-phone').value;
+    const department = document.getElementById('teacher-department').value;
+    const position = document.getElementById('teacher-position').value;
+    
+    if (!firstName || !lastName || !email) {
+        showError('Please fill in all required fields');
+        return;
+    }
+    
+    closeModal();
+    showLoading('Updating teacher...');
+    
+    try {
+        await apiCall(`/teachers/${teacherId}`, 'PUT', {
+            firstName, lastName, email, phone, department, position
+        });
+        hideLoading();
+        showSuccess('Teacher updated successfully!');
+        await loadTeachers();
+    } catch (error) {
+        hideLoading();
+        showError('Failed to update teacher');
+        console.error(error);
+    }
+}
+
+async function viewTeacherTimetable(teacherId) {
+    try {
+        showLoading('Loading teacher timetable...');
+        const teacher = await apiCall(`/teachers/${teacherId}`);
+        const timetableData = await apiCall(`/timetable?teacher=${teacherId}`).catch(() => ({ timetable: [] }));
+        hideLoading();
+        
+        const timetable = timetableData.timetable || [];
+        const teacherName = `${teacher.user?.firstName || ''} ${teacher.user?.lastName || ''}`;
+        
+        displayTimetableModal(teacherName, timetable, 'teacher');
+    } catch (error) {
+        hideLoading();
+        showError('Failed to load teacher timetable');
+        console.error(error);
+    }
 }
 
 function viewTeacherClasses(teacherId) {
-    showSuccess('Teacher classes coming soon!');
+    showSuccess('Teacher classes view - check Classes section for classes taught by this teacher');
 }
 
 // ========== CLASSES ==========
@@ -1065,9 +1440,26 @@ async function loadRooms() {
     }
 }
 
-function displayRooms(rooms) {
+async function displayRooms(rooms) {
     const grid = document.getElementById('rooms-grid');
     if (!grid) return;
+    
+    // Get today's bookings to show indicators
+    const today = new Date().toISOString().split('T')[0];
+    let bookingCounts = {};
+    try {
+        // Fetch all rooms with bookings - endpoint needs to be created or we'll just show basic info
+        for (const room of rooms) {
+            try {
+                const bookings = await apiCall(`/rooms/${room._id}/bookings?startDate=${today}&endDate=${today}`).catch(() => []);
+                bookingCounts[room._id] = Array.isArray(bookings) ? bookings.length : 0;
+            } catch (e) {
+                bookingCounts[room._id] = 0;
+            }
+        }
+    } catch (error) {
+        console.log('Could not fetch booking counts:', error);
+    }
     
     // Group rooms by floor
     const roomsByFloor = {};
@@ -1124,6 +1516,9 @@ function displayRooms(rooms) {
                         };
                         const icon = categoryIcons[room.category] || 'fa-door-open';
                         
+                        const bookings = bookingCounts[room._id] || 0;
+                        const hasBookings = bookings > 0;
+                        
                         const statusClass = room.isAvailable ? 'available' : 'occupied';
                         const statusIcon = room.isAvailable ? 'check-circle' : 'times-circle';
                         
@@ -1150,6 +1545,12 @@ function displayRooms(rooms) {
                                             </span>
                                         ` : ''}
                                     </div>
+                                    ${hasBookings ? `
+                                        <div class="booking-indicator">
+                                            <i class="fas fa-exclamation-triangle" style="color: #F59E0B;"></i>
+                                            <span>${bookings} booking${bookings > 1 ? 's' : ''} today</span>
+                                        </div>
+                                    ` : ''}
                                 </div>
                                 <div class="room-card-footer">
                                     <button class="book-btn">
@@ -1167,97 +1568,33 @@ function displayRooms(rooms) {
     grid.innerHTML = html || '<p class="empty-state"><i class="fas fa-door-closed"></i> No rooms available</p>';
 }
 
-async function bookRoom(roomId) {
-    try {
-        showLoading('Loading room details...');
-        const room = await apiCall(`/rooms/${roomId}`);
-        hideLoading();
-        
-        const modalContent = `
-            <div class="room-booking-form">
-                <div class="room-info">
-                    <h3><i class="fas fa-door-open"></i> ${room.roomNumber} - ${room.roomName}</h3>
-                    <p><strong>Category:</strong> ${room.category}</p>
-                    <p><strong>Capacity:</strong> ${room.capacity || 'N/A'}</p>
-                    <p><strong>Floor:</strong> ${room.floor}</p>
-                </div>
-                
-                <form id="room-booking-form">
-                    <div class="input-group">
-                        <label><i class="fas fa-calendar"></i> Date *</label>
-                        <input type="date" id="booking-date" required min="${new Date().toISOString().split('T')[0]}">
-                    </div>
-                    
-                    <div class="input-group">
-                        <label><i class="fas fa-clock"></i> Period/Time Slot *</label>
-                        <select id="booking-period" required class="select-input">
-                            <option value="">Select period...</option>
-                            <option value="Class 1">Class 1 (9:00 - 9:40)</option>
-                            <option value="Class 2">Class 2 (9:40 - 10:20)</option>
-                            <option value="Class 3">Class 3 (10:20 - 11:00)</option>
-                            <option value="Break">Break (11:00 - 11:15)</option>
-                            <option value="Class 4">Class 4 (11:15 - 11:55)</option>
-                            <option value="Class 5">Class 5 (11:55 - 12:35)</option>
-                            <option value="Class 6">Class 6 (12:35 - 1:15)</option>
-                            <option value="Lunch">Lunch (1:15 - 2:00)</option>
-                            <option value="Class 7">Class 7 (2:00 - 2:40)</option>
-                            <option value="Class 8">Class 8 (2:40 - 3:20)</option>
-                            <option value="Class 9">Class 9 (3:20 - 4:00)</option>
-                        </select>
-                    </div>
-                    
-                    <div class="input-group">
-                        <label><i class="fas fa-tag"></i> Purpose *</label>
-                        <select id="booking-purpose" required class="select-input">
-                            <option value="">Select purpose...</option>
-                            <option value="Class">Class</option>
-                            <option value="Meeting">Meeting</option>
-                            <option value="Exam">Exam</option>
-                            <option value="Extra-curricular">Extra-curricular</option>
-                            <option value="Event">Event</option>
-                            <option value="Other">Other</option>
-                        </select>
-                    </div>
-                    
-                    <div class="input-group">
-                        <label><i class="fas fa-align-left"></i> Notes</label>
-                        <textarea id="booking-notes" rows="3" placeholder="Additional information..."></textarea>
-                    </div>
-                </form>
-            </div>
-        `;
-        
-        showModal('Book Room', modalContent, [
-            { text: 'Cancel', type: 'secondary', action: 'closeModal()' },
-            { text: 'Check Availability', type: 'info', action: `checkRoomAvailability('${roomId}')`, icon: 'fas fa-search' },
-            { text: 'Book Room', type: 'success', action: `submitRoomBooking('${roomId}')`, icon: 'fas fa-check' }
-        ]);
-    } catch (error) {
-        hideLoading();
-        showError('Failed to load room details');
-        console.error(error);
-    }
-}
+// bookRoom function moved to comprehensive version below with booking indicators and current bookings display
 
 async function checkRoomAvailability(roomId) {
-    const date = document.getElementById('booking-date').value;
-    const startTime = document.getElementById('booking-start-time').value;
-    const endTime = document.getElementById('booking-end-time').value;
+    const date = document.getElementById('booking-date')?.value;
+    const period = document.getElementById('booking-period')?.value;
     
-    if (!date || !startTime || !endTime) {
-        showError('Please fill in date and time fields');
+    if (!date || !period) {
+        showError('Please select date and period first');
         return;
     }
     
     try {
         showLoading('Checking availability...');
-        const response = await apiCall(`/rooms/${roomId}/availability?date=${date}&startTime=${startTime}&endTime=${endTime}`);
+        // Check availability by period not time
+        const response = await apiCall(`/rooms/${roomId}/bookings?startDate=${date}&endDate=${date}`).catch(() => []);
+        
         hideLoading();
         
-        if (response.isAvailable) {
-            showSuccess('Room is available for the selected time!');
+        // Check if the period is already booked
+        const isBooked = Array.isArray(response) && response.some(booking => 
+            booking.period === period && booking.date.split('T')[0] === date
+        );
+        
+        if (isBooked) {
+            showError(`Room is not available for ${period} on this date. Please select a different period.`);
         } else {
-            showError('Room is not available. There are conflicting bookings.');
+            showSuccess(`Room is available for ${period}! You can proceed with booking.`);
         }
     } catch (error) {
         hideLoading();
@@ -1683,19 +2020,25 @@ async function submitBehaviorLog(type) {
         closeModal();
         showLoading('Submitting behavior log...');
         
+        const payload = {
+            student,
+            type,
+            category,
+            severity: type === 'Negative' ? severity : undefined,
+            title,
+            description,
+            date: date || new Date().toISOString().split('T')[0],
+            points: parseInt(points) || (type === 'Positive' ? 5 : -5)
+        };
+        
+        // Only add class if selected
+        if (classId) {
+            payload.class = classId;
+        }
+        
         await apiCall('/behavior', {
             method: 'POST',
-            body: JSON.stringify({
-                student,
-                class: classId || undefined,
-                type,
-                category,
-                severity,
-                title,
-                description,
-                date,
-                points: parseInt(points)
-            })
+            body: JSON.stringify(payload)
         });
         
         hideLoading();
@@ -2028,8 +2371,99 @@ function markAllAsRead() {
 
 // ========== PLACEHOLDER FUNCTIONS ==========
 // These will be implemented as needed
-function addTeacher() { 
-    showSuccess('Add teacher feature - contact admin to add teachers through the system.'); 
+async function addTeacher() { 
+    const modalContent = `
+        <form id="add-teacher-form">
+            <div class="form-grid-2">
+                <div class="input-group">
+                    <label><i class="fas fa-user"></i> First Name *</label>
+                    <input type="text" id="new-teacher-firstName" required>
+                </div>
+                <div class="input-group">
+                    <label><i class="fas fa-user"></i> Last Name *</label>
+                    <input type="text" id="new-teacher-lastName" required>
+                </div>
+                <div class="input-group">
+                    <label><i class="fas fa-envelope"></i> Email *</label>
+                    <input type="email" id="new-teacher-email" required>
+                </div>
+                <div class="input-group">
+                    <label><i class="fas fa-lock"></i> Password *</label>
+                    <input type="password" id="new-teacher-password" required placeholder="Minimum 6 characters">
+                </div>
+                <div class="input-group">
+                    <label><i class="fas fa-phone"></i> Phone</label>
+                    <input type="tel" id="new-teacher-phone">
+                </div>
+                <div class="input-group">
+                    <label><i class="fas fa-id-card"></i> Employee ID *</label>
+                    <input type="text" id="new-teacher-employeeId" required placeholder="e.g., T001">
+                </div>
+                <div class="input-group">
+                    <label><i class="fas fa-chalkboard"></i> Department *</label>
+                    <select id="new-teacher-department" class="select-input" required>
+                        <option value="">Select department...</option>
+                        <option value="Mathematics">Mathematics</option>
+                        <option value="English">English</option>
+                        <option value="Science">Science</option>
+                        <option value="History">History</option>
+                        <option value="Geography">Geography</option>
+                        <option value="Languages">Languages</option>
+                        <option value="Arts">Arts</option>
+                        <option value="PE">Physical Education</option>
+                        <option value="Technology">Technology</option>
+                        <option value="Other">Other</option>
+                    </select>
+                </div>
+                <div class="input-group">
+                    <label><i class="fas fa-briefcase"></i> Position</label>
+                    <input type="text" id="new-teacher-position" placeholder="e.g., Head of Department">
+                </div>
+            </div>
+        </form>
+    `;
+    
+    showModal('Add New Teacher', modalContent, [
+        { text: 'Cancel', type: 'secondary', action: 'closeModal()' },
+        { text: 'Add Teacher', type: 'primary', action: 'submitNewTeacher()', icon: 'fas fa-user-plus' }
+    ]);
+}
+
+async function submitNewTeacher() {
+    const firstName = document.getElementById('new-teacher-firstName').value;
+    const lastName = document.getElementById('new-teacher-lastName').value;
+    const email = document.getElementById('new-teacher-email').value;
+    const password = document.getElementById('new-teacher-password').value;
+    const phone = document.getElementById('new-teacher-phone').value;
+    const employeeId = document.getElementById('new-teacher-employeeId').value;
+    const department = document.getElementById('new-teacher-department').value;
+    const position = document.getElementById('new-teacher-position').value;
+    
+    if (!firstName || !lastName || !email || !password || !employeeId || !department) {
+        showError('Please fill in all required fields');
+        return;
+    }
+    
+    if (password.length < 6) {
+        showError('Password must be at least 6 characters');
+        return;
+    }
+    
+    closeModal();
+    showLoading('Adding teacher...');
+    
+    try {
+        await apiCall('/teachers', 'POST', {
+            firstName, lastName, email, password, phone, employeeId, department, position
+        });
+        hideLoading();
+        showSuccess('Teacher added successfully!');
+        await loadTeachers();
+    } catch (error) {
+        hideLoading();
+        showError(error.message || 'Failed to add teacher');
+        console.error(error);
+    }
 }
 
 function exportData(type) { 
@@ -3241,5 +3675,494 @@ function printTimetable() {
 
 function exportTimetable() {
     showError('PDF export coming soon!');
+}
+
+// ========== ROOM BOOKING WITH AVAILABILITY INDICATORS ==========
+async function bookRoom(roomId) {
+    try {
+        showLoading('Loading room details...');
+        const room = await apiCall(`/rooms/${roomId}`);
+        
+        // Get today's bookings for this room
+        const today = new Date().toISOString().split('T')[0];
+        const bookings = await apiCall(`/rooms/${roomId}/bookings?startDate=${today}&endDate=${today}`).catch(() => []);
+        
+        hideLoading();
+        
+        // Check which periods are booked
+        const bookedPeriods = new Set();
+        if (Array.isArray(bookings)) {
+            bookings.forEach(booking => {
+                if (booking.period) {
+                    bookedPeriods.add(booking.period);
+                }
+            });
+        }
+        
+        const periods = [
+            { value: 'Class 1', label: 'Class 1 (9:00 - 9:40)' },
+            { value: 'Class 2', label: 'Class 2 (9:40 - 10:20)' },
+            { value: 'Class 3', label: 'Class 3 (10:20 - 11:00)' },
+            { value: 'Break', label: 'Break (11:00 - 11:15)', disabled: true },
+            { value: 'Class 4', label: 'Class 4 (11:15 - 11:55)' },
+            { value: 'Class 5', label: 'Class 5 (11:55 - 12:35)' },
+            { value: 'Class 6', label: 'Class 6 (12:35 - 1:15)' },
+            { value: 'Lunch', label: 'Lunch (1:15 - 2:00)', disabled: true },
+            { value: 'Class 7', label: 'Class 7 (2:00 - 2:40)' },
+            { value: 'Class 8', label: 'Class 8 (2:40 - 3:20)' },
+            { value: 'Class 9', label: 'Class 9 (3:20 - 4:00)' }
+        ];
+        
+        const periodOptions = periods.map(p => {
+            const isBooked = bookedPeriods.has(p.value);
+            const disabled = p.disabled || isBooked;
+            const warningIcon = isBooked ? '⚠️ ' : '';
+            const statusText = isBooked ? ' (UNAVAILABLE)' : '';
+            return `<option value="${p.value}" ${disabled ? 'disabled' : ''}>${warningIcon}${p.label}${statusText}</option>`;
+        }).join('');
+        
+        // Show current bookings
+        let bookingsHTML = '';
+        if (Array.isArray(bookings) && bookings.length > 0) {
+            bookingsHTML = `
+                <div class="current-bookings">
+                    <h4><i class="fas fa-calendar-check"></i> Current Bookings (Today)</h4>
+                    <div class="bookings-list">
+                        ${bookings.map(b => `
+                            <div class="booking-item">
+                                <span class="booking-period">${b.period || 'N/A'}</span>
+                                <span class="booking-purpose">${b.purpose || 'Reserved'}</span>
+                                <span class="booking-time">${b.startTime}-${b.endTime}</span>
+                            </div>
+                        `).join('')}
+                    </div>
+                </div>
+            `;
+        }
+        
+        const modalContent = `
+            <div class="room-booking-form">
+                <div class="room-info">
+                    <h3><i class="fas fa-door-open"></i> ${room.roomNumber} - ${room.roomName}</h3>
+                    <p><strong>Category:</strong> ${room.category}</p>
+                    <p><strong>Capacity:</strong> ${room.capacity || 'N/A'}</p>
+                    <p><strong>Floor:</strong> ${room.floor}</p>
+                </div>
+                
+                ${bookingsHTML}
+                
+                <form id="room-booking-form">
+                    <div class="input-group">
+                        <label><i class="fas fa-calendar"></i> Date *</label>
+                        <input type="date" id="booking-date" required min="${new Date().toISOString().split('T')[0]}">
+                    </div>
+                    
+                    <div class="input-group">
+                        <label><i class="fas fa-clock"></i> Period/Time Slot *</label>
+                        <select id="booking-period" required class="select-input">
+                            <option value="">Select period...</option>
+                            ${periodOptions}
+                        </select>
+                        <small class="help-text">⚠️ = Period already booked</small>
+                    </div>
+                    
+                    <div class="input-group">
+                        <label><i class="fas fa-tag"></i> Purpose *</label>
+                        <select id="booking-purpose" required class="select-input">
+                            <option value="">Select purpose...</option>
+                            <option value="Class">Class</option>
+                            <option value="Meeting">Meeting</option>
+                            <option value="Exam">Exam</option>
+                            <option value="Extra-curricular">Extra-curricular</option>
+                            <option value="Event">Event</option>
+                            <option value="Other">Other</option>
+                        </select>
+                    </div>
+                    
+                    <div class="input-group">
+                        <label><i class="fas fa-align-left"></i> Notes</label>
+                        <textarea id="booking-notes" rows="3" placeholder="Additional information..."></textarea>
+                    </div>
+                </form>
+            </div>
+        `;
+        
+        showModal('Book Room', modalContent, [
+            { text: 'Cancel', type: 'secondary', action: 'closeModal()' },
+            { text: 'Check Availability', type: 'info', action: `checkRoomAvailability('${roomId}')`, icon: 'fas fa-search' },
+            { text: 'Book Room', type: 'success', action: `submitRoomBooking('${roomId}')`, icon: 'fas fa-check' }
+        ]);
+    } catch (error) {
+        hideLoading();
+        showError('Failed to load room details');
+        console.error(error);
+    }
+}
+
+// ========== LEAVE REQUEST SYSTEM ==========
+async function requestLeave() {
+    const modalContent = `
+        <form id="leave-request-form">
+            <div class="input-group">
+                <label><i class="fas fa-calendar"></i> Leave Type *</label>
+                <select id="leave-type" required class="select-input">
+                    <option value="">Select type...</option>
+                    <option value="Sick Leave">Sick Leave</option>
+                    <option value="Personal Leave">Personal Leave</option>
+                    <option value="Emergency">Emergency</option>
+                    <option value="Maternity/Paternity">Maternity/Paternity</option>
+                    <option value="Vacation">Vacation</option>
+                    <option value="Other">Other</option>
+                </select>
+            </div>
+            <div class="input-group">
+                <label><i class="fas fa-calendar-day"></i> Start Date *</label>
+                <input type="date" id="leave-start" required min="${new Date().toISOString().split('T')[0]}">
+            </div>
+            <div class="input-group">
+                <label><i class="fas fa-calendar-day"></i> End Date *</label>
+                <input type="date" id="leave-end" required min="${new Date().toISOString().split('T')[0]}">
+            </div>
+            <div class="input-group">
+                <label><i class="fas fa-align-left"></i> Reason *</label>
+                <textarea id="leave-reason" required rows="4" placeholder="Please explain the reason for leave..."></textarea>
+            </div>
+            <div class="input-group">
+                <label><i class="fas fa-phone"></i> Emergency Contact</label>
+                <input type="tel" id="leave-contact" placeholder="Phone number">
+            </div>
+        </form>
+    `;
+    
+    showModal('Request Leave', modalContent, [
+        { text: 'Cancel', type: 'secondary', action: 'closeModal()' },
+        { text: 'Submit Request', type: 'primary', action: 'submitLeaveRequest()', icon: 'fas fa-paper-plane' }
+    ]);
+}
+
+async function submitLeaveRequest() {
+    const leaveType = document.getElementById('leave-type').value;
+    const startDate = document.getElementById('leave-start').value;
+    const endDate = document.getElementById('leave-end').value;
+    const reason = document.getElementById('leave-reason').value;
+    const contact = document.getElementById('leave-contact').value;
+    
+    if (!leaveType || !startDate || !endDate || !reason) {
+        showError('Please fill in all required fields');
+        return;
+    }
+    
+    closeModal();
+    showLoading('Submitting leave request...');
+    
+    // Simulate API call
+    setTimeout(() => {
+        hideLoading();
+        showSuccess('Leave request submitted successfully! You will be notified once approved.');
+    }, 1000);
+}
+
+// ========== REPORT GENERATION ==========
+async function generateReport(reportType) {
+    showLoading('Generating report...');
+    
+    // Simulate report generation with sample data
+    setTimeout(() => {
+        hideLoading();
+        
+        const reportData = getSampleReportData(reportType);
+        displayReportModal(reportType, reportData);
+    }, 1500);
+}
+
+function getSampleReportData(reportType) {
+    switch(reportType) {
+        case 'academic':
+            return {
+                title: 'Academic Performance Report',
+                period: 'Term 1, 2024-2025',
+                data: [
+                    { class: 'Fifth Year', avgGrade: '78%', topSubject: 'Mathematics', improvement: '+5%' },
+                    { class: 'Fourth Year', avgGrade: '72%', topSubject: 'English', improvement: '+3%' },
+                    { class: 'Third Year', avgGrade: '81%', topSubject: 'Science', improvement: '+8%' }
+                ]
+            };
+        case 'attendance':
+            return {
+                title: 'Attendance Report',
+                period: 'November 2025',
+                data: [
+                    { yearGroup: 'Fifth Year', present: '92%', absent: '5%', late: '3%' },
+                    { yearGroup: 'Fourth Year', present: '89%', absent: '7%', late: '4%' },
+                    { yearGroup: 'Third Year', present: '94%', absent: '4%', late: '2%' }
+                ]
+            };
+        case 'behavior':
+            return {
+                title: 'Behavior Report',
+                period: 'November 2025',
+                data: [
+                    { house: 'Bride', positive: 45, negative: 8, points: 185 },
+                    { house: 'Ide', positive: 52, negative: 5, points: 235 },
+                    { house: 'Tola', positive: 38, negative: 12, points: 140 }
+                ]
+            };
+        case 'financial':
+            return {
+                title: 'Financial Report',
+                period: 'November 2025',
+                data: [
+                    { category: 'Tuition Fees', collected: '€45,000', outstanding: '€5,000', percentage: '90%' },
+                    { category: 'Book Fees', collected: '€12,000', outstanding: '€2,000', percentage: '86%' },
+                    { category: 'Activity Fees', collected: '€8,000', outstanding: '€1,500', percentage: '84%' }
+                ]
+            };
+        default:
+            return { title: 'Report', data: [] };
+    }
+}
+
+function displayReportModal(reportType, reportData) {
+    let dataTable = '';
+    
+    if (reportType === 'academic') {
+        dataTable = `
+            <table class="report-table">
+                <thead>
+                    <tr>
+                        <th>Class</th>
+                        <th>Average Grade</th>
+                        <th>Top Subject</th>
+                        <th>Improvement</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    ${reportData.data.map(row => `
+                        <tr>
+                            <td>${row.class}</td>
+                            <td><strong>${row.avgGrade}</strong></td>
+                            <td>${row.topSubject}</td>
+                            <td class="text-success">${row.improvement}</td>
+                        </tr>
+                    `).join('')}
+                </tbody>
+            </table>
+        `;
+    } else if (reportType === 'attendance') {
+        dataTable = `
+            <table class="report-table">
+                <thead>
+                    <tr>
+                        <th>Year Group</th>
+                        <th>Present</th>
+                        <th>Absent</th>
+                        <th>Late</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    ${reportData.data.map(row => `
+                        <tr>
+                            <td>${row.yearGroup}</td>
+                            <td class="text-success"><strong>${row.present}</strong></td>
+                            <td class="text-danger">${row.absent}</td>
+                            <td class="text-warning">${row.late}</td>
+                        </tr>
+                    `).join('')}
+                </tbody>
+            </table>
+        `;
+    } else if (reportType === 'behavior') {
+        dataTable = `
+            <table class="report-table">
+                <thead>
+                    <tr>
+                        <th>House</th>
+                        <th>Positive</th>
+                        <th>Negative</th>
+                        <th>Total Points</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    ${reportData.data.map(row => `
+                        <tr>
+                            <td><strong>${row.house}</strong></td>
+                            <td class="text-success">${row.positive}</td>
+                            <td class="text-danger">${row.negative}</td>
+                            <td><strong>${row.points}</strong></td>
+                        </tr>
+                    `).join('')}
+                </tbody>
+            </table>
+        `;
+    } else if (reportType === 'financial') {
+        dataTable = `
+            <table class="report-table">
+                <thead>
+                    <tr>
+                        <th>Category</th>
+                        <th>Collected</th>
+                        <th>Outstanding</th>
+                        <th>Collection Rate</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    ${reportData.data.map(row => `
+                        <tr>
+                            <td>${row.category}</td>
+                            <td class="text-success"><strong>${row.collected}</strong></td>
+                            <td class="text-warning">${row.outstanding}</td>
+                            <td>${row.percentage}</td>
+                        </tr>
+                    `).join('')}
+                </tbody>
+            </table>
+        `;
+    }
+    
+    const modalContent = `
+        <div class="report-view">
+            <div class="report-header">
+                <h2>${reportData.title}</h2>
+                <p class="text-muted">Period: ${reportData.period}</p>
+            </div>
+            <div class="report-body">
+                ${dataTable}
+            </div>
+            <div class="report-footer">
+                <p class="text-muted"><i class="fas fa-info-circle"></i> This is a sample report with generated data</p>
+            </div>
+        </div>
+    `;
+    
+    showModal(reportData.title, modalContent, [
+        { text: 'Close', type: 'secondary', action: 'closeModal()' },
+        { text: 'Export PDF', type: 'primary', action: 'exportReportPDF()', icon: 'fas fa-file-pdf' },
+        { text: 'Print', type: 'info', action: 'window.print()', icon: 'fas fa-print' }
+    ]);
+}
+
+function exportReportPDF() {
+    showSuccess('PDF export feature coming soon! Report will be downloaded.');
+}
+
+// ========== SAMPLE DATA GENERATORS ==========
+function showSampleFees() {
+    const container = document.getElementById('fees-content');
+    if (!container) return;
+    
+    const sampleFees = [
+        { type: 'Tuition Fee', amount: '€500', dueDate: '2025-01-15', status: 'Paid' },
+        { type: 'Book Rental', amount: '€120', dueDate: '2025-02-01', status: 'Pending' },
+        { type: 'Activity Fee', amount: '€80', dueDate: '2025-03-01', status: 'Pending' },
+        { type: 'Exam Fee', amount: '€150', dueDate: '2025-05-01', status: 'Not Due' }
+    ];
+    
+    container.innerHTML = `
+        <div class="fees-dashboard">
+            <div class="fees-summary">
+                <h3>Fee Summary</h3>
+                <div class="summary-cards">
+                    <div class="summary-card">
+                        <div class="summary-label">Total Fees</div>
+                        <div class="summary-value">€850</div>
+                    </div>
+                    <div class="summary-card success">
+                        <div class="summary-label">Paid</div>
+                        <div class="summary-value">€500</div>
+                    </div>
+                    <div class="summary-card warning">
+                        <div class="summary-label">Outstanding</div>
+                        <div class="summary-value">€350</div>
+                    </div>
+                </div>
+            </div>
+            <table class="data-table">
+                <thead>
+                    <tr>
+                        <th>Fee Type</th>
+                        <th>Amount</th>
+                        <th>Due Date</th>
+                        <th>Status</th>
+                        <th>Actions</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    ${sampleFees.map(fee => `
+                        <tr>
+                            <td>${fee.type}</td>
+                            <td><strong>${fee.amount}</strong></td>
+                            <td>${fee.dueDate}</td>
+                            <td><span class="status-badge status-${fee.status.toLowerCase().replace(' ', '-')}">${fee.status}</span></td>
+                            <td>
+                                <button class="btn-sm" onclick="showSuccess('Payment feature coming soon!')">
+                                    <i class="fas fa-credit-card"></i> Pay Now
+                                </button>
+                            </td>
+                        </tr>
+                    `).join('')}
+                </tbody>
+            </table>
+        </div>
+    `;
+}
+
+function showSamplePayroll() {
+    const container = document.getElementById('payroll-content');
+    if (!container) return;
+    
+    const samplePayroll = [
+        { name: 'John Smith', position: 'Teacher', department: 'Mathematics', salary: '€3,500', status: 'Paid' },
+        { name: 'Mary Johnson', position: 'Teacher', department: 'English', salary: '€3,400', status: 'Paid' },
+        { name: 'David Wilson', position: 'Principal', department: 'Administration', salary: '€5,000', status: 'Paid' }
+    ];
+    
+    container.innerHTML = `
+        <div class="payroll-dashboard">
+            <div class="payroll-summary">
+                <h3>November 2025 Payroll</h3>
+                <div class="summary-cards">
+                    <div class="summary-card">
+                        <div class="summary-label">Total Staff</div>
+                        <div class="summary-value">45</div>
+                    </div>
+                    <div class="summary-card">
+                        <div class="summary-label">Monthly Payroll</div>
+                        <div class="summary-value">€145,000</div>
+                    </div>
+                    <div class="summary-card success">
+                        <div class="summary-label">Processed</div>
+                        <div class="summary-value">100%</div>
+                    </div>
+                </div>
+            </div>
+            <table class="data-table">
+                <thead>
+                    <tr>
+                        <th>Name</th>
+                        <th>Position</th>
+                        <th>Department</th>
+                        <th>Salary</th>
+                        <th>Status</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    ${samplePayroll.map(emp => `
+                        <tr>
+                            <td><strong>${emp.name}</strong></td>
+                            <td>${emp.position}</td>
+                            <td>${emp.department}</td>
+                            <td><strong>${emp.salary}</strong></td>
+                            <td><span class="status-badge status-paid">${emp.status}</span></td>
+                        </tr>
+                    `).join('')}
+                </tbody>
+            </table>
+            <div class="payroll-actions">
+                <button class="btn-primary" onclick="generateReport('financial')">
+                    <i class="fas fa-file-invoice-dollar"></i> Generate Payroll Report
+                </button>
+            </div>
+        </div>
+    `;
 }
 

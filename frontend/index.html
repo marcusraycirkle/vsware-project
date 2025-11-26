@@ -236,7 +236,15 @@
                     </button>
                     <button class="quick-login-btn" onclick="quickLogin('24corykilmartin@shannoncomp.ie', '1470')">
                         <i class="fas fa-chalkboard-teacher"></i>
-                        <span>Cory K.</span>
+                        <span>Teacher (Cory)</span>
+                    </button>
+                    <button class="quick-login-btn" onclick="quickLogin('student@shannoncomp.ie', '1234')">
+                        <i class="fas fa-user-graduate"></i>
+                        <span>Student</span>
+                    </button>
+                    <button class="quick-login-btn" onclick="quickLogin('parent@shannoncomp.ie', '1234')">
+                        <i class="fas fa-user-friends"></i>
+                        <span>Parent</span>
                     </button>
                     <button class="quick-login-btn" onclick="quickLogin('24zuzannafrankowska@shannoncomp.ie', '3454')">
                         <i class="fas fa-chalkboard-teacher"></i>
@@ -282,10 +290,7 @@
                     </div>
                     <div class="dropdown-content">
                         <a onclick="showSection('teachers', 'list')"><i class="fas fa-list"></i> Staff Directory</a>
-                        <a onclick="showSection('teachers', 'timetable')"><i class="fas fa-clock"></i> Timetables</a>
                         <a onclick="showSection('teachers', 'classes')"><i class="fas fa-book"></i> Class Assignments</a>
-                        <a onclick="showSection('teachers', 'leave')"><i class="fas fa-calendar-times"></i> Leave Management</a>
-                        <a onclick="showSection('teachers', 'substitutes')"><i class="fas fa-user-clock"></i> Substitutes</a>
                     </div>
                 </div>
                 
@@ -297,7 +302,7 @@
                         <a onclick="showSection('my-timetable')"><i class="fas fa-calendar-week"></i> My Timetable</a>
                         <a onclick="showSection('classes', 'list')"><i class="fas fa-book-open"></i> Classes</a>
                         <a onclick="showSection('subjects', 'list')"><i class="fas fa-book"></i> Subjects</a>
-                        <a onclick="showSection('timetable', 'master')"><i class="fas fa-calendar-alt"></i> Master Timetable</a>
+                        <a onclick="showSection('timetable', 'master')" data-admin-only="true"><i class="fas fa-calendar-alt"></i> Master Timetable</a>
                         <a onclick="showSection('exams', 'schedule')"><i class="fas fa-clipboard-list"></i> Exam Schedule</a>
                         <a onclick="showSection('curriculum', 'view')"><i class="fas fa-stream"></i> Curriculum</a>
                     </div>
@@ -316,7 +321,7 @@
                     </div>
                 </div>
                 
-                <div class="nav-item dropdown">
+                <div class="nav-item dropdown" data-admin-only="true">
                     <div class="dropdown-trigger">
                         <i class="fas fa-credit-card"></i><span>Finance</span><i class="fas fa-chevron-down"></i>
                     </div>
@@ -335,16 +340,15 @@
                     </div>
                     <div class="dropdown-content">
                         <a onclick="showSection('reports', 'academic')"><i class="fas fa-chart-line"></i> Academic Reports</a>
-                        <a onclick="showSection('reports', 'attendance')"><i class="fas fa-calendar-check"></i> Attendance Reports</a>
+                        <a onclick="showSection('reports', 'attendance')" data-admin-only="true"><i class="fas fa-calendar-check"></i> Attendance Reports</a>
                         <a onclick="showSection('reports', 'behavior')"><i class="fas fa-clipboard-list"></i> Behavior Reports</a>
-                        <a onclick="showSection('reports', 'financial')"><i class="fas fa-dollar-sign"></i> Financial Reports</a>
+                        <a onclick="showSection('reports', 'financial')" data-admin-only="true"><i class="fas fa-dollar-sign"></i> Financial Reports</a>
                         <a onclick="showSection('reports', 'custom')"><i class="fas fa-cog"></i> Custom Reports</a>
                     </div>
                 </div>
                 
                 <div class="nav-item" onclick="showSection('messages', 'inbox')">
                     <i class="fas fa-envelope"></i><span>Messages</span>
-                    <span class="notification-badge">5</span>
                 </div>
             </div>
             
@@ -387,6 +391,7 @@
                 <div id="user-menu" class="user-dropdown hidden">
                     <a onclick="showSection('profile', 'view')"><i class="fas fa-user"></i> My Profile</a>
                     <a onclick="showSection('settings', 'account')"><i class="fas fa-cog"></i> Settings</a>
+                    <a onclick="logout()" style="border-top: 1px solid var(--border); margin-top: 0.5rem; padding-top: 0.75rem; color: var(--danger);"><i class="fas fa-sign-out-alt"></i> Logout</a>
                 </div>
             </div>
         </nav>
@@ -835,10 +840,64 @@
                         <button class="tab" onclick="switchTab('reports', 'financial')"><i class="fas fa-dollar-sign"></i> Financial</button>
                     </div>
                 </div>
+                
                 <div id="reports-academic" class="tab-content active">
                     <div class="reports-dashboard">
-                        <h3>Academic Performance Reports</h3>
-                        <button class="btn-primary"><i class="fas fa-file-pdf"></i> Generate Report</button>
+                        <h3><i class="fas fa-chart-line"></i> Academic Performance Reports</h3>
+                        <p class="text-muted">Generate comprehensive academic reports for classes and students</p>
+                        <div class="report-actions">
+                            <button class="btn-primary" onclick="generateReport('academic')">
+                                <i class="fas fa-file-chart-line"></i> Generate Academic Report
+                            </button>
+                            <button class="btn-secondary" onclick="showSuccess('Export feature coming soon!')">
+                                <i class="fas fa-download"></i> Export to Excel
+                            </button>
+                        </div>
+                    </div>
+                </div>
+                
+                <div id="reports-attendance" class="tab-content">
+                    <div class="reports-dashboard">
+                        <h3><i class="fas fa-calendar-check"></i> Attendance Reports</h3>
+                        <p class="text-muted">View attendance statistics and trends across year groups</p>
+                        <div class="report-actions">
+                            <button class="btn-primary" onclick="generateReport('attendance')">
+                                <i class="fas fa-file-chart-column"></i> Generate Attendance Report
+                            </button>
+                            <button class="btn-secondary" onclick="showSuccess('Export feature coming soon!')">
+                                <i class="fas fa-download"></i> Export to Excel
+                            </button>
+                        </div>
+                    </div>
+                </div>
+                
+                <div id="reports-behavior" class="tab-content">
+                    <div class="reports-dashboard">
+                        <h3><i class="fas fa-clipboard-list"></i> Behavior Reports</h3>
+                        <p class="text-muted">Track behavior incidents and house points</p>
+                        <div class="report-actions">
+                            <button class="btn-primary" onclick="generateReport('behavior')">
+                                <i class="fas fa-file-contract"></i> Generate Behavior Report
+                            </button>
+                            <button class="btn-secondary" onclick="showSuccess('Export feature coming soon!')">
+                                <i class="fas fa-download"></i> Export to Excel
+                            </button>
+                        </div>
+                    </div>
+                </div>
+                
+                <div id="reports-financial" class="tab-content">
+                    <div class="reports-dashboard">
+                        <h3><i class="fas fa-dollar-sign"></i> Financial Reports</h3>
+                        <p class="text-muted">Monitor fees collection and outstanding payments</p>
+                        <div class="report-actions">
+                            <button class="btn-primary" onclick="generateReport('financial')">
+                                <i class="fas fa-file-invoice-dollar"></i> Generate Financial Report
+                            </button>
+                            <button class="btn-secondary" onclick="showSuccess('Export feature coming soon!')">
+                                <i class="fas fa-download"></i> Export to Excel
+                            </button>
+                        </div>
                     </div>
                 </div>
             </section>
