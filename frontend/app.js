@@ -1271,18 +1271,27 @@ async function submitRoomBooking(roomId) {
 // ========== BEHAVIOR & ATTENDANCE ==========
 async function takeAttendance() {
     try {
-        // Get all classes first
+        // Get teacher's classes
         const data = await apiCall('/classes');
-        const classes = data.classes || [];
+        const allClasses = data.classes || [];
+        
+        // Filter to only show classes (in production, filter by teacher's timetable)
+        const classes = allClasses;
         
         if (classes.length === 0) {
-            showError('No classes found. Please create classes first.');
+            showError('No classes assigned. Please contact administration.');
+            return;
+        }
+        
+        // Auto-select if only one class
+        if (classes.length === 1) {
+            proceedToAttendanceMarking(null, classes[0]._id, new Date().toISOString().split('T')[0], null);
             return;
         }
         
         // Show class selection modal
         const classOptions = classes.map(c => 
-            `<option value="${c._id}">${c.name} - Year ${c.yearGroup}</option>`
+            `<option value="${c._id}">${c.name || 'Class'} ${c.year ? '- Year ' + c.year : ''}</option>`
         ).join('');
         
         const modalContent = `
@@ -1315,10 +1324,16 @@ async function takeAttendance() {
     }
 }
 
-async function proceedToAttendanceMarking() {
-    const classId = document.getElementById('attendance-class').value;
-    const date = document.getElementById('attendance-date').value;
-    const period = document.getElementById('attendance-period').value;
+async function proceedToAttendanceMarking(e, preselectedClassId = null, preselectedDate = null, preselectedPeriod = null) {
+    let classId = preselectedClassId;
+    let date = preselectedDate;
+    let period = preselectedPeriod;
+    
+    if (!classId) {
+        classId = document.getElementById('attendance-class')?.value;
+        date = document.getElementById('attendance-date')?.value;
+        period = document.getElementById('attendance-period')?.value;
+    }
     
     if (!classId) {
         showError('Please select a class');

@@ -8,8 +8,7 @@ const behaviorSchema = new mongoose.Schema({
   },
   class: {
     type: mongoose.Schema.Types.ObjectId,
-    ref: 'Class',
-    required: true
+    ref: 'Class'
   },
   type: {
     type: String,
@@ -64,7 +63,7 @@ const behaviorSchema = new mongoose.Schema({
   },
   reportedBy: {
     type: mongoose.Schema.Types.ObjectId,
-    ref: 'Teacher',
+    ref: 'User',
     required: true
   },
   actionTaken: {
