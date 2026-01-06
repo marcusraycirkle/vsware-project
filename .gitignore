@@ -39,3 +39,4 @@ uploads/*
 # Testing
 coverage/
 .vercel
+.env*.local
