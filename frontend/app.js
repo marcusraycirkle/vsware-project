@@ -3547,7 +3547,151 @@ async function loadMyPersonalTimetable() {
     }
 }
 
-function displayPersonalTimetable(timetable, container) {
+function createTimetableModal() {
+    if (currentUser?.role !== 'teacher') {
+        showError('Only teachers can create timetables');
+        return;
+    }
+    
+    const days = ['Monday', 'Tuesday', 'Wednesday', 'Thursday', 'Friday'];
+    const periods = ['Class 1', 'Class 2', 'Class 3', 'Break', 'Class 4', 'Class 5', 'Class 6', 'Lunch', 'Class 7', 'Class 8', 'Class 9'];
+    
+    let timetableForm = `
+        <form id="create-timetable-form">
+            <div class="input-group">
+                <label><i class="fas fa-book"></i> Select Class *</label>
+                <select id="tt-class" class="select-input" required>
+                    <option value="">Choose a class...</option>
+                </select>
+            </div>
+            
+            <div class="input-group">
+                <label><i class="fas fa-user-graduation-cap"></i> Add Students to Class</label>
+                <div id="student-selection" style="max-height: 300px; overflow-y: auto; border: 1px solid var(--border); border-radius: 0.5rem; padding: 1rem;">
+                    <!-- Students load here -->
+                </div>
+            </div>
+            
+            <div style="margin-top: 1.5rem;">
+                <h4><i class="fas fa-calendar-grid"></i> Class Schedule</h4>
+                <div class="timetable-builder-grid" style="display: grid; grid-template-columns: 120px repeat(5, 1fr); gap: 1px; background: var(--border); border: 1px solid var(--border); margin-top: 1rem;">
+                    <div style="background: var(--bg-main); padding: 1rem; font-weight: 700;">Period</div>
+                    ${days.map(day => `<div style="background: var(--primary); color: white; padding: 1rem; font-weight: 700; text-align: center;">${day}</div>`).join('')}
+                    
+                    ${periods.map(period => {
+                        if (period === 'Break' || period === 'Lunch') {
+                            return `
+                                <div style="background: #FEF3C7; padding: 1rem; font-weight: 700;">${period}</div>
+                                <div style="background: #FEF3C7; grid-column: 2 / span 5; padding: 1rem; text-align: center;">
+                                    <i class="fas fa-${period === 'Break' ? 'coffee' : 'utensils'}"></i> ${period} Time
+                                </div>
+                            `;
+                        }
+                        return `
+                            <div style="background: var(--bg-main); padding: 1rem; font-weight: 600;">${period}</div>
+                            ${days.map(day => `
+                                <label style="display: flex; align-items: center; justify-content: center; padding: 1rem; background: white; cursor: pointer; border: 1px solid var(--border);">
+                                    <input type="checkbox" name="period_${period}_${day}" style="cursor: pointer;">
+                                </label>
+                            `).join('')}
+                        `;
+                    }).join('')}
+                </div>
+            </div>
+        </form>
+    `;
+    
+    showModal('Create Class Timetable', timetableForm, [
+        { text: 'Cancel', type: 'secondary', action: 'closeModal()' },
+        { text: 'Save Timetable', type: 'primary', action: 'submitCreateTimetable()', icon: 'fas fa-save' }
+    ]);
+    
+    // Load classes for selection
+    loadTimetableClasses();
+}
+
+async function loadTimetableClasses() {
+    try {
+        const classesData = await apiCall('/classes').catch(() => ({ classes: [] }));
+        const classes = classesData.classes || [];
+        
+        const select = document.getElementById('tt-class');
+        if (select) {
+            select.innerHTML = '<option value="">Choose a class...</option>' + 
+                classes.map(cls => `<option value="${cls._id}" data-class-name="${cls.name}">${cls.name}</option>`).join('');
+            select.onchange = () => loadClassStudents();
+        }
+    } catch (error) {
+        console.error('Error loading classes:', error);
+    }
+}
+
+async function loadClassStudents() {
+    const classId = document.getElementById('tt-class')?.value;
+    if (!classId) return;
+    
+    try {
+        const studentsData = await apiCall(`/students?class=${classId}`).catch(() => ({ students: [] }));
+        const students = studentsData.students || [];
+        
+        const container = document.getElementById('student-selection');
+        if (container) {
+            container.innerHTML = students.map(student => `
+                <label style="display: flex; align-items: center; gap: 0.75rem; padding: 0.75rem; cursor: pointer;">
+                    <input type="checkbox" name="student_${student._id}" value="${student._id}" style="cursor: pointer;">
+                    <span>${student.firstName} ${student.lastName}</span>
+                </label>
+            `).join('') || '<p class="text-muted">No students in this class</p>';
+        }
+    } catch (error) {
+        console.error('Error loading students:', error);
+    }
+}
+
+async function submitCreateTimetable() {
+    const classId = document.getElementById('tt-class')?.value;
+    if (!classId) {
+        showError('Please select a class');
+        return;
+    }
+    
+    // Get selected students
+    const selectedStudents = Array.from(document.querySelectorAll('input[name^="student_"]:checked')).map(cb => cb.value);
+    
+    // Get schedule
+    const periods = ['Class 1', 'Class 2', 'Class 3', 'Class 4', 'Class 5', 'Class 6', 'Class 7', 'Class 8', 'Class 9'];
+    const days = ['Monday', 'Tuesday', 'Wednesday', 'Thursday', 'Friday'];
+    const schedule = [];
+    
+    periods.forEach(period => {
+        days.forEach(day => {
+            const checkbox = document.querySelector(`input[name="period_${period}_${day}"]:checked`);
+            if (checkbox) {
+                schedule.push({ period, day });
+            }
+        });
+    });
+    
+    closeModal();
+    showLoading('Saving timetable...');
+    
+    try {
+        await apiCall('/timetable', 'POST', {
+            class: classId,
+            schedule,
+            students: selectedStudents,
+            academicYear: new Date().getFullYear() + '-' + (new Date().getFullYear() + 1),
+            term: 1
+        });
+        hideLoading();
+        showSuccess('Timetable created successfully!');
+        await loadMyPersonalTimetable();
+    } catch (error) {
+        hideLoading();
+        showError('Failed to create timetable');
+        console.error(error);
+    }
+}
     const periods = [
         { num: 1, time: '9:00 - 9:40' },
         { num: 2, time: '9:40 - 10:20' },
@@ -4165,4 +4309,308 @@ function showSamplePayroll() {
         </div>
     `;
 }
+
+// ========== TIMETABLE BUILDER ==========
+async function loadTimetableClasses() {
+    try {
+        const classesData = await apiCall('/classes').catch(() => ({ classes: [] }));
+        const classes = classesData.classes || [];
+        
+        const select = document.getElementById('tt-class');
+        if (select) {
+            select.innerHTML = '<option value="">Choose a class...</option>' + 
+                classes.map(cls => `<option value="${cls._id}" data-class-name="${cls.name}">${cls.name}</option>`).join('');
+            select.onchange = () => loadClassStudents();
+        }
+    } catch (error) {
+        console.error('Error loading classes:', error);
+    }
+}
+
+async function loadClassStudents() {
+    const classId = document.getElementById('tt-class')?.value;
+    if (!classId) return;
+    
+    try {
+        const studentsData = await apiCall(`/students?class=${classId}`).catch(() => ({ students: [] }));
+        const students = studentsData.students || [];
+        
+        const container = document.getElementById('student-selection');
+        if (container) {
+            container.innerHTML = students.map(student => `
+                <label style="display: flex; align-items: center; gap: 0.75rem; padding: 0.75rem; cursor: pointer;">
+                    <input type="checkbox" name="student_${student._id}" value="${student._id}" style="cursor: pointer;">
+                    <span>${student.firstName} ${student.lastName}</span>
+                </label>
+            `).join('') || '<p class="text-muted">No students in this class</p>';
+        }
+    } catch (error) {
+        console.error('Error loading students:', error);
+    }
+}
+
+async function submitCreateTimetable() {
+    const classId = document.getElementById('tt-class')?.value;
+    if (!classId) {
+        showError('Please select a class');
+        return;
+    }
+    
+    // Get selected students
+    const selectedStudents = Array.from(document.querySelectorAll('input[name^="student_"]:checked')).map(cb => cb.value);
+    
+    // Get schedule
+    const periods = ['Class 1', 'Class 2', 'Class 3', 'Class 4', 'Class 5', 'Class 6', 'Class 7', 'Class 8', 'Class 9'];
+    const days = ['Monday', 'Tuesday', 'Wednesday', 'Thursday', 'Friday'];
+    const schedule = [];
+    
+    periods.forEach(period => {
+        days.forEach(day => {
+            const checkbox = document.querySelector(`input[name="period_${period}_${day}"]:checked`);
+            if (checkbox) {
+                schedule.push({ period, day });
+            }
+        });
+    });
+    
+    closeModal();
+    showLoading('Saving timetable...');
+    
+    try {
+        await apiCall('/timetable', 'POST', {
+            class: classId,
+            schedule,
+            students: selectedStudents,
+            academicYear: new Date().getFullYear() + '-' + (new Date().getFullYear() + 1),
+            term: 1
+        });
+        hideLoading();
+        showSuccess('Timetable created successfully!');
+        await loadMyPersonalTimetable();
+    } catch (error) {
+        hideLoading();
+        showError('Failed to create timetable');
+        console.error(error);
+    }
+}
+
+// ========== ENHANCED ATTENDANCE ==========
+async function viewStudentAttendance(studentId) {
+    try {
+        showLoading('Loading attendance...');
+        const student = await apiCall(`/students/${studentId}`);
+        const today = new Date().toISOString().split('T')[0];
+        const attendanceData = await apiCall(`/attendance?student=${studentId}&startDate=${today}&limit=30`).catch(() => ({ attendance: [] }));
+        hideLoading();
+        
+        const records = attendanceData.attendance || [];
+        
+        const modalContent = `
+            <div class="attendance-view">
+                <h3>${student.firstName} ${student.lastName} - Attendance Record</h3>
+                <div class="attendance-stats">
+                    <div class="stat"><strong>${records.filter(r => r.status === 'Present').length}</strong><p>Present</p></div>
+                    <div class="stat"><strong>${records.filter(r => r.status === 'Absent').length}</strong><p>Absent</p></div>
+                    <div class="stat"><strong>${records.filter(r => r.status === 'Late').length}</strong><p>Late</p></div>
+                    <div class="stat"><strong>${records.filter(r => r.status === 'SA').length}</strong><p>School Activity</p></div>
+                </div>
+                <table class="data-table" style="margin-top: 1.5rem;">
+                    <thead>
+                        <tr>
+                            <th>Date</th>
+                            <th>Period</th>
+                            <th>Status</th>
+                            <th>Notes</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        ${records.map(record => `
+                            <tr>
+                                <td>${new Date(record.date).toLocaleDateString()}</td>
+                                <td>${record.period || '-'}</td>
+                                <td><span class="badge badge-${record.status.toLowerCase()}">${record.status}</span></td>
+                                <td>${record.notes || '-'}</td>
+                            </tr>
+                        `).join('')}
+                    </tbody>
+                </table>
+            </div>
+        `;
+        
+        showModal('Attendance Record', modalContent, [
+            { text: 'Close', type: 'secondary', action: 'closeModal()' }
+        ]);
+    } catch (error) {
+        hideLoading();
+        showError('Failed to load attendance');
+        console.error(error);
+    }
+}
+
+async function takeEnhancedAttendance() {
+    try {
+        showLoading('Loading...');
+        const classesData = await apiCall('/classes').catch(() => ({ classes: [] }));
+        hideLoading();
+        
+        const classes = classesData.classes || [];
+        
+        const modalContent = `
+            <form id="attendance-selection-form">
+                <div class="input-group">
+                    <label><i class="fas fa-book"></i> Select Class *</label>
+                    <select id="attendance-class" class="select-input" required onchange="loadAttendanceStudents()">
+                        <option value="">Choose a class...</option>
+                        ${classes.map(cls => `<option value="${cls._id}">${cls.name}</option>`).join('')}
+                    </select>
+                </div>
+                
+                <div class="input-group">
+                    <label><i class="fas fa-clock"></i> Select Period *</label>
+                    <select id="attendance-period" class="select-input" required>
+                        <option value="">Choose period...</option>
+                        <option value="Class 1">Class 1 (9:00-9:40)</option>
+                        <option value="Class 2">Class 2 (9:40-10:20)</option>
+                        <option value="Class 3">Class 3 (10:20-11:00)</option>
+                        <option value="Class 4">Class 4 (11:15-11:55)</option>
+                        <option value="Class 5">Class 5 (11:55-12:35)</option>
+                        <option value="Class 6">Class 6 (12:35-1:15)</option>
+                        <option value="Class 7">Class 7 (2:00-2:40)</option>
+                        <option value="Class 8">Class 8 (2:40-3:20)</option>
+                        <option value="Class 9">Class 9 (3:20-4:00)</option>
+                    </select>
+                </div>
+                
+                <div class="input-group">
+                    <label><i class="fas fa-calendar"></i> Date *</label>
+                    <input type="date" id="attendance-date" required value="${new Date().toISOString().split('T')[0]}">
+                </div>
+                
+                <div id="attendance-students-container" style="max-height: 400px; overflow-y: auto; margin-top: 1.5rem;">
+                    <!-- Students load here -->
+                </div>
+            </form>
+        `;
+        
+        showModal('Take Attendance', modalContent, [
+            { text: 'Cancel', type: 'secondary', action: 'closeModal()' },
+            { text: 'Submit Attendance', type: 'primary', action: 'submitEnhancedAttendance()', icon: 'fas fa-check' }
+        ]);
+    } catch (error) {
+        hideLoading();
+        showError('Failed to load classes');
+        console.error(error);
+    }
+}
+
+async function loadAttendanceStudents() {
+    const classId = document.getElementById('attendance-class')?.value;
+    if (!classId) return;
+    
+    try {
+        const studentsData = await apiCall(`/students?class=${classId}`).catch(() => ({ students: [] }));
+        const students = studentsData.students || [];
+        
+        const container = document.getElementById('attendance-students-container');
+        if (container) {
+            container.innerHTML = `
+                <div style="margin-bottom: 1rem;">
+                    <button type="button" class="btn-sm btn-secondary" onclick="quickMarkAllAttendance('present')">Mark All Present</button>
+                    <button type="button" class="btn-sm btn-secondary" onclick="quickMarkAllAttendance('absent')" style="margin-left: 0.5rem;">Mark All Absent</button>
+                </div>
+                <div class="attendance-students-list">
+                    ${students.map(student => `
+                        <div class="attendance-student-row" style="display: flex; align-items: center; gap: 1rem; padding: 1rem; background: white; border-radius: 0.5rem; margin-bottom: 0.75rem; border: 1px solid var(--border);">
+                            <div style="flex: 1;">
+                                <strong>${student.firstName} ${student.lastName}</strong>
+                                ${student.healthInfo || student.allergies ? `
+                                    <button type="button" class="btn-xs btn-info" onclick="showStudentHealthInfo('${student._id}', '${student.firstName}', '${student.lastName}', '${(student.healthInfo || '').replace(/'/g, "\\'")}', '${(student.allergies || '').replace(/'/g, "\\'")}')" style="margin-left: 0.5rem;">
+                                        <i class="fas fa-info-circle"></i> Health Info
+                                    </button>
+                                ` : ''}
+                            </div>
+                            <select name="attendance_${student._id}" class="select-input" style="width: 150px;" required>
+                                <option value="">Select...</option>
+                                <option value="Present">Present</option>
+                                <option value="Absent">Absent</option>
+                                <option value="Late">Late</option>
+                                <option value="SA">School Activity (SA)</option>
+                                <option value="Excused">Excused</option>
+                            </select>
+                        </div>
+                    `).join('')}
+                </div>
+            `;
+        }
+    } catch (error) {
+        console.error('Error loading students:', error);
+    }
+}
+
+function showStudentHealthInfo(studentId, firstName, lastName, healthInfo, allergies) {
+    const modalContent = `
+        <div class="health-info-view">
+            <h3>${firstName} ${lastName}</h3>
+            <div class="info-section">
+                <h4><i class="fas fa-heartbeat"></i> Health Information</h4>
+                <p>${healthInfo || 'No health information on file'}</p>
+            </div>
+            <div class="info-section">
+                <h4><i class="fas fa-exclamation-triangle"></i> Allergies</h4>
+                <p>${allergies || 'No known allergies'}</p>
+            </div>
+        </div>
+    `;
+    
+    showModal('Health & Safety Information', modalContent, [
+        { text: 'Close', type: 'secondary', action: 'closeModal()' }
+    ]);
+}
+
+function quickMarkAllAttendance(status) {
+    const selects = document.querySelectorAll('select[name^="attendance_"]');
+    selects.forEach(select => select.value = status.charAt(0).toUpperCase() + status.slice(1));
+}
+
+async function submitEnhancedAttendance() {
+    const classId = document.getElementById('attendance-class')?.value;
+    const period = document.getElementById('attendance-period')?.value;
+    const date = document.getElementById('attendance-date')?.value;
+    
+    if (!classId || !period || !date) {
+        showError('Please fill in all required fields');
+        return;
+    }
+    
+    const records = [];
+    document.querySelectorAll('select[name^="attendance_"]').forEach(select => {
+        const studentId = select.name.replace('attendance_', '');
+        const status = select.value;
+        if (status) {
+            records.push({ student: studentId, status, period, date });
+        }
+    });
+    
+    if (records.length === 0) {
+        showError('Please mark attendance for at least one student');
+        return;
+    }
+    
+    closeModal();
+    showLoading('Saving attendance...');
+    
+    try {
+        for (const record of records) {
+            await apiCall('/attendance', 'POST', record);
+        }
+        hideLoading();
+        showSuccess(`Attendance saved for ${records.length} student(s)`);
+    } catch (error) {
+        hideLoading();
+        showError('Failed to save attendance');
+        console.error(error);
+    }
+}
+
+
 
