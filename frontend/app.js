@@ -3692,6 +3692,8 @@ async function submitCreateTimetable() {
         console.error(error);
     }
 }
+
+function displayPersonalTimetable(timetable, container) {
     const periods = [
         { num: 1, time: '9:00 - 9:40' },
         { num: 2, time: '9:40 - 10:20' },
