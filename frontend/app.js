@@ -2158,7 +2158,7 @@ function loadMockNotifications() {
     if (notifications.length === 0) {
         addNotification({
             type: 'info',
-            title: 'Welcome to CompMIS!',
+            title: 'Welcome to MISpal!',
             message: 'Explore all the features of your new school management system.',
             timestamp: Date.now()
         });
@@ -4614,5 +4614,249 @@ async function submitEnhancedAttendance() {
     }
 }
 
+// ========== ENHANCED ATTENDANCE SYSTEM ==========
+async function openEnhancedAttendance() {
+    try {
+        showLoading('Loading attendance interface...');
+        
+        const now = new Date();
+        const days = ['Sunday', 'Monday', 'Tuesday', 'Wednesday', 'Thursday', 'Friday', 'Saturday'];
+        const currentDay = days[now.getDay()];
+        
+        // Get teacher's classes
+        const classesData = await apiCall('/classes?teacher=' + currentUser._id).catch(() => ({ classes: [] }));
+        const classes = classesData.classes || [];
+        
+        hideLoading();
+        
+        if (classes.length === 0) {
+            showError('No classes assigned to you');
+            return;
+        }
+        
+        // Show class selection first
+        const classOptions = classes.map(cls => 
+            `<option value="${cls._id}">${cls.name} (${cls.students?.length || 0} students)</option>`
+        ).join('');
+        
+        const selectModal = `
+            <div class="form-group">
+                <label>Select Class for Attendance:</label>
+                <select id="attendance-class-select" class="select-input">
+                    <option value="">Choose a class...</option>
+                    ${classOptions}
+                </select>
+                <label style="margin-top: 1rem;">Date:</label>
+                <input type="date" id="attendance-date-select" value="${now.toISOString().split('T')[0]}" class="select-input">
+            </div>
+        `;
+        
+        showModal('Take Attendance', selectModal, [
+            { text: 'Cancel', type: 'secondary', action: 'closeModal()' },
+            { text: 'Open Attendance', type: 'primary', action: 'proceedToFullAttendance()', icon: 'fas fa-arrow-right' }
+        ]);
+    } catch (error) {
+        hideLoading();
+        showError('Failed to load attendance interface');
+        console.error(error);
+    }
+}
 
+async function proceedToFullAttendance() {
+    const classId = document.getElementById('attendance-class-select')?.value;
+    const date = document.getElementById('attendance-date-select')?.value;
+    
+    if (!classId) {
+        showError('Please select a class');
+        return;
+    }
+    
+    try {
+        closeModal();
+        showLoading('Loading students...');
+        
+        const classData = await apiCall(`/classes/${classId}`);
+        const students = classData.students || [];
+        
+        hideLoading();
+        
+        if (students.length === 0) {
+            showError('No students in this class');
+            return;
+        }
+        
+        // Create full-screen attendance interface
+        const attendanceHTML = `
+            <div id="attendance-fullscreen" style="position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: linear-gradient(135deg, var(--primary) 0%, #667eea 100%); z-index: 9999; overflow-y: auto; padding: 2rem;">
+                <div style="max-width: 1200px; margin: 0 auto;">
+                    <div style="background: white; border-radius: 1rem; padding: 2rem; box-shadow: 0 20px 60px rgba(0,0,0,0.3);">
+                        
+                        <!-- Header -->
+                        <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 2rem; border-bottom: 2px solid var(--primary); padding-bottom: 1rem;">
+                            <div>
+                                <h1 style="margin: 0; color: var(--primary);"><i class="fas fa-check-circle"></i> Mark Attendance</h1>
+                                <p style="margin: 0.5rem 0 0 0; color: #666; font-size: 0.9rem;">
+                                    <strong>${classData.name}</strong> • ${new Date(date).toLocaleDateString()} 
+                                </p>
+                            </div>
+                            <button onclick="closeAttendanceFullscreen()" style="background: #e74c3c; color: white; border: none; padding: 0.75rem 1.5rem; border-radius: 0.5rem; cursor: pointer; font-size: 1rem;">
+                                <i class="fas fa-times"></i> Close
+                            </button>
+                        </div>
+                        
+                        <!-- Quick Actions -->
+                        <div style="display: flex; gap: 1rem; margin-bottom: 1.5rem; flex-wrap: wrap;">
+                            <button onclick="quickMarkAttendanceStatus('Present', '${classId}', '${date}')" style="flex: 1; min-width: 150px; padding: 0.75rem; background: #27ae60; color: white; border: none; border-radius: 0.5rem; cursor: pointer; font-weight: 600;">
+                                <i class="fas fa-check"></i> Mark All Present
+                            </button>
+                            <button onclick="quickMarkAttendanceStatus('Absent', '${classId}', '${date}')" style="flex: 1; min-width: 150px; padding: 0.75rem; background: #e74c3c; color: white; border: none; border-radius: 0.5rem; cursor: pointer; font-weight: 600;">
+                                <i class="fas fa-times"></i> Mark All Absent
+                            </button>
+                            <button onclick="clearAttendanceMarks()" style="flex: 1; min-width: 150px; padding: 0.75rem; background: #95a5a6; color: white; border: none; border-radius: 0.5rem; cursor: pointer; font-weight: 600;">
+                                <i class="fas fa-redo"></i> Clear All
+                            </button>
+                        </div>
+                        
+                        <!-- Student List -->
+                        <div style="overflow-x: auto;">
+                            <table style="width: 100%; border-collapse: collapse;">
+                                <thead>
+                                    <tr style="background: #f8f9fa; border-bottom: 2px solid var(--primary);">
+                                        <th style="padding: 1rem; text-align: left; font-weight: 600; color: var(--primary);">#</th>
+                                        <th style="padding: 1rem; text-align: left; font-weight: 600; color: var(--primary);">Student Name</th>
+                                        <th style="padding: 1rem; text-align: left; font-weight: 600; color: var(--primary);">ID</th>
+                                        <th style="padding: 1rem; text-align: center; font-weight: 600; color: var(--primary);">Status</th>
+                                        <th style="padding: 1rem; text-align: left; font-weight: 600; color: var(--primary);">Notes / Reason</th>
+                                    </tr>
+                                </thead>
+                                <tbody id="attendance-student-list" style="display: none;">
+                                </tbody>
+                            </table>
+                        </div>
+                        
+                        <!-- Submit Button -->
+                        <div style="margin-top: 2rem; display: flex; gap: 1rem; justify-content: flex-end;">
+                            <button onclick="closeAttendanceFullscreen()" style="padding: 0.75rem 1.5rem; background: #bdc3c7; color: white; border: none; border-radius: 0.5rem; cursor: pointer; font-weight: 600;">
+                                Cancel
+                            </button>
+                            <button onclick="submitEnhancedAttendanceMarking('${classId}', '${date}')" style="padding: 0.75rem 1.5rem; background: var(--primary); color: white; border: none; border-radius: 0.5rem; cursor: pointer; font-weight: 600; font-size: 1rem;">
+                                <i class="fas fa-save"></i> Submit Attendance
+                            </button>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        `;
+        
+        // Insert into DOM
+        const container = document.createElement('div');
+        container.innerHTML = attendanceHTML;
+        document.body.appendChild(container.firstElementChild);
+        
+        // Generate student rows
+        const studentList = document.getElementById('attendance-student-list');
+        students.forEach((student, index) => {
+            const row = document.createElement('tr');
+            row.style.cssText = 'border-bottom: 1px solid #ecf0f1; hover: background #f8f9fa;';
+            row.innerHTML = `
+                <td style="padding: 1rem; text-align: left;">${index + 1}</td>
+                <td style="padding: 1rem; text-align: left; font-weight: 500;">${student.firstName} ${student.lastName}</td>
+                <td style="padding: 1rem; text-align: left; color: #7f8c8d;">${student.studentId || 'N/A'}</td>
+                <td style="padding: 1rem; text-align: center;">
+                    <select class="enhanced-attendance-status" data-student-id="${student._id}" style="padding: 0.5rem; border: 2px solid #ecf0f1; border-radius: 0.25rem; font-weight: 600;">
+                        <option value="" style="color: #7f8c8d;">—</option>
+                        <option value="Present" style="color: #27ae60;">✓ Present</option>
+                        <option value="Absent" style="color: #e74c3c;">✗ Absent</option>
+                        <option value="Late" style="color: #f39c12;">⌚ Late</option>
+                        <option value="SchoolActivity" style="color: #3498db;">📋 S.A. (School Activity)</option>
+                        <option value="Medical" style="color: #9b59b6;">⚕️ Medical</option>
+                    </select>
+                </td>
+                <td style="padding: 1rem;">
+                    <input type="text" class="enhanced-attendance-notes" data-student-id="${student._id}" placeholder="e.g., Dental appointment..." style="width: 100%; padding: 0.5rem; border: 1px solid #ecf0f1; border-radius: 0.25rem;">
+                </td>
+            `;
+            studentList.appendChild(row);
+        });
+        
+        studentList.style.display = 'table-body';
+    } catch (error) {
+        hideLoading();
+        showError('Failed to open attendance interface');
+        console.error(error);
+    }
+}
 
+function quickMarkAttendanceStatus(status) {
+    document.querySelectorAll('.enhanced-attendance-status').forEach(select => {
+        select.value = status;
+        select.style.borderColor = status === 'Present' ? '#27ae60' : status === 'Absent' ? '#e74c3c' : '#f39c12';
+    });
+}
+
+function clearAttendanceMarks() {
+    document.querySelectorAll('.enhanced-attendance-status').forEach(select => {
+        select.value = '';
+        select.style.borderColor = '#ecf0f1';
+    });
+    document.querySelectorAll('.enhanced-attendance-notes').forEach(input => {
+        input.value = '';
+    });
+}
+
+function closeAttendanceFullscreen() {
+    const fullscreen = document.getElementById('attendance-fullscreen');
+    if (fullscreen) {
+        fullscreen.parentElement.removeChild(fullscreen);
+    }
+}
+
+async function submitEnhancedAttendanceMarking(classId, date) {
+    const statuses = document.querySelectorAll('.enhanced-attendance-status');
+    const attendanceRecords = [];
+    
+    let hasErrors = false;
+    statuses.forEach(select => {
+        if (!select.value) {
+            hasErrors = true;
+            select.style.borderColor = '#e74c3c';
+        } else {
+            const studentId = select.getAttribute('data-student-id');
+            const notes = document.querySelector(`.enhanced-attendance-notes[data-student-id="${studentId}"]`)?.value || '';
+            
+            attendanceRecords.push({
+                student: studentId,
+                status: select.value,
+                date: date,
+                notes: notes,
+                teacher: currentUser._id
+            });
+        }
+    });
+    
+    if (hasErrors) {
+        showError('Please mark attendance for all students');
+        return;
+    }
+    
+    try {
+        closeAttendanceFullscreen();
+        showLoading('Saving attendance...');
+        
+        await apiCall('/attendance/bulk', {
+            method: 'POST',
+            body: JSON.stringify({
+                class: classId,
+                date: date,
+                records: attendanceRecords
+            })
+        });
+        
+        hideLoading();
+        showSuccess(`Attendance submitted for ${attendanceRecords.length} students!`);
+    } catch (error) {
+        hideLoading();
+        showError('Failed to save attendance: ' + error.message);
+        console.error(error);
+    }
+}

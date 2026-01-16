@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>CompMIS - St Patrick's Comprehensive School</title>
+    <title>MISpal - St Patrick's Comprehensive School</title>
     <link rel="icon" href="data:image/svg+xml,<svg xmlns=%22http://www.w3.org/2000/svg%22 viewBox=%220 0 100 100%22><text y=%22.9em%22 font-size=%2290%22>🎓</text></svg>">
     <link rel="stylesheet" href="styles.css">
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
@@ -16,7 +16,7 @@
             <div class="nav-container">
                 <div class="logo-brand">
                     <i class="fas fa-graduation-cap"></i>
-                    <span>CompMIS</span>
+                    <span>MISpal</span>
                 </div>
                 <div class="nav-menu">
                     <a href="#features">Features</a>
@@ -35,10 +35,10 @@
             </div>
             <div class="hero-content">
                 <h1 class="hero-title animate-fade-in">
-                    Welcome to <span class="gradient-text">CompMIS</span>
+                    Welcome to <span class="gradient-text">MISpal</span>
                 </h1>
                 <p class="hero-subtitle animate-fade-in-delay">
-                    Complete School Management Information System for St Patrick's Comprehensive
+                    Modern School Management Platform for St Patrick's Comprehensive
                 </p>
                 <p class="hero-description animate-fade-in-delay-2">
                     Manage students, teachers, attendance, behavior, assessments, timetables, communications, 
@@ -261,7 +261,7 @@
         <nav class="top-navbar">
             <div class="navbar-brand">
                 <img src="https://www.stpatrickscomprehensive.ie/uploads/2/3/2/0/23206024/editor/st-patrick-s-comp-logo-layout-2-1.png?1564671961" alt="St Patrick's Logo" class="school-logo">
-                <span>CompMIS</span>
+                <span>MISpal</span>
             </div>
             
             <div class="navbar-menu">
@@ -334,7 +334,7 @@
                     </div>
                 </div>
                 
-                <div class="nav-item dropdown">
+                <div class="nav-item dropdown" data-admin-only="true">
                     <div class="dropdown-trigger">
                         <i class="fas fa-chart-bar"></i><span>Reports</span><i class="fas fa-chevron-down"></i>
                     </div>
@@ -458,7 +458,9 @@
                         <div class="card">
                             <div class="card-header">
                                 <h2><i class="fas fa-calendar-check"></i> Today's Attendance</h2>
-                                <button class="btn-sm" onclick="showSection('students', 'attendance')">Take Attendance</button>
+                                <button class="btn-sm" onclick="openEnhancedAttendance()" style="background: var(--primary); color: white; padding: 0.5rem 1rem; border: none; border-radius: 0.25rem; cursor: pointer; font-weight: 600;">
+                                    <i class="fas fa-edit"></i> Take Attendance
+                                </button>
                             </div>
                             <div class="attendance-summary">
                                 <div class="attendance-stat present">
