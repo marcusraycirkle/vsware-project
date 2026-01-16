@@ -653,24 +653,31 @@ function displayStudents(students) {
     const tbody = document.getElementById('students-table-body');
     if (!tbody) return;
     
+    if (!students || students.length === 0) {
+        tbody.innerHTML = `<tr><td colspan="7" style="text-align: center; padding: 2rem; color: #999;">No students found</td></tr>`;
+        return;
+    }
+    
     tbody.innerHTML = students.map(student => `
-        <tr>
+        <tr style="border-bottom: 1px solid var(--border); transition: var(--transition);" onmouseover="this.style.backgroundColor='rgba(255, 107, 107, 0.05)'" onmouseout="this.style.backgroundColor='transparent'">
+            <td style="text-align: center;">
+                <div style="width: 40px; height: 40px; border-radius: 50%; overflow: hidden; margin: 0 auto; background: var(--gradient-primary); display: flex; align-items: center; justify-content: center; color: white; font-weight: bold;">
+                    ${student.photoUrl ? `<img src="${student.photoUrl}" alt="${student.firstName}" style="width: 100%; height: 100%; object-fit: cover;">` : (student.firstName[0] + student.lastName[0]).toUpperCase()}
+                </div>
+            </td>
             <td>${student.studentId || 'N/A'}</td>
             <td>
-                <strong>${student.firstName} ${student.lastName}</strong>
+                <strong style="color: var(--primary);">${student.firstName} ${student.lastName}</strong>
             </td>
             <td>${student.email}</td>
             <td>Year ${student.yearGroup}</td>
             <td>
-                <span class="badge ${getHouseBadgeClass(student.house)}">
+                <span class="badge ${getHouseBadgeClass(student.house)}" style="border-radius: 2rem; padding: 0.25rem 0.75rem;">
                     ${student.house || 'N/A'}
                 </span>
             </td>
             <td>
-                <span class="badge success">Active</span>
-            </td>
-            <td>
-                <button class="btn-sm btn-primary" onclick="viewStudentProfile('${student._id}')">
+                <button class="btn-sm btn-primary" style="background: var(--primary); border: none; padding: 0.4rem 0.8rem; border-radius: 0.3rem; cursor: pointer; color: white; font-weight: 600;" onclick="viewStudentProfile('${student._id}')">
                     <i class="fas fa-eye"></i> View
                 </button>
             </td>
@@ -717,11 +724,11 @@ async function loadStudentProfile(studentId) {
         const modalContent = `
             <div class="profile-view">
                 <div class="profile-header">
-                    <div class="profile-avatar">
-                        <i class="fas fa-user-circle"></i>
+                    <div class="profile-avatar" style="width: 100px; height: 100px; border-radius: 50%; overflow: hidden; background: var(--gradient-primary); display: flex; align-items: center; justify-content: center; color: white; font-size: 2rem; font-weight: bold;">
+                        ${student.photoUrl ? `<img src="${student.photoUrl}" alt="${student.firstName}" style="width: 100%; height: 100%; object-fit: cover;">` : (student.firstName[0] + student.lastName[0]).toUpperCase()}
                     </div>
                     <div>
-                        <h2>${student.firstName} ${student.lastName}</h2>
+                        <h2 style="color: var(--primary);">${student.firstName} ${student.lastName}</h2>
                         <p class="text-muted">Student ID: ${student.studentId || 'N/A'}</p>
                     </div>
                 </div>
@@ -1099,23 +1106,27 @@ function displayTeachers(teachers) {
     if (!tbody) return;
     
     if (!teachers || teachers.length === 0) {
-        tbody.innerHTML = '<tr><td colspan="5" style="text-align:center;padding:2rem;color:var(--text-secondary)"><i class="fas fa-chalkboard-teacher" style="font-size:2rem;display:block;margin-bottom:0.5rem;opacity:0.5"></i>No teachers found</td></tr>';
+        tbody.innerHTML = '<tr><td colspan="6" style="text-align:center;padding:2rem;color:var(--text-secondary)"><i class="fas fa-chalkboard-teacher" style="font-size:2rem;display:block;margin-bottom:0.5rem;opacity:0.5"></i>No teachers found</td></tr>';
         return;
     }
     
     tbody.innerHTML = teachers.map(teacher => `
-        <tr>
-            <td><strong>${teacher.firstName || ''} ${teacher.lastName || ''}</strong></td>
+        <tr style="border-bottom: 1px solid var(--border); transition: var(--transition);" onmouseover="this.style.backgroundColor='rgba(255, 107, 107, 0.05)'" onmouseout="this.style.backgroundColor='transparent'">
+            <td style="text-align: center;">
+                <div style="width: 40px; height: 40px; border-radius: 50%; overflow: hidden; margin: 0 auto; background: var(--gradient-primary); display: flex; align-items: center; justify-content: center; color: white; font-weight: bold;">
+                    ${teacher.photoUrl ? `<img src="${teacher.photoUrl}" alt="${teacher.firstName}" style="width: 100%; height: 100%; object-fit: cover;">` : (teacher.firstName[0] + teacher.lastName[0]).toUpperCase()}
+                </div>
+            </td>
+            <td><strong style="color: var(--primary);">${teacher.firstName || ''} ${teacher.lastName || ''}</strong></td>
             <td>${teacher.email || 'N/A'}</td>
             <td>${teacher.subject || 'N/A'}</td>
             <td>
-                <span class="badge ${getPermissionBadgeClass(teacher.permissionLevel)}">
+                <span class="badge ${getPermissionBadgeClass(teacher.permissionLevel)}" style="border-radius: 2rem; padding: 0.25rem 0.75rem;">
                     ${teacher.permissionLevel || 'General'}
                 </span>
             </td>
-            <td><span class="badge success">Active</span></td>
             <td>
-                <button class="btn-sm btn-primary" onclick="viewTeacherProfile('${teacher._id}')">
+                <button class="btn-sm btn-primary" style="background: var(--primary); border: none; padding: 0.4rem 0.8rem; border-radius: 0.3rem; cursor: pointer; color: white; font-weight: 600;" onclick="viewTeacherProfile('${teacher._id}')">
                     <i class="fas fa-eye"></i> View
                 </button>
             </td>
@@ -1136,11 +1147,11 @@ async function loadTeacherProfile(teacherId) {
         const modalContent = `
             <div class="profile-view">
                 <div class="profile-header">
-                    <div class="profile-avatar">
-                        <i class="fas fa-chalkboard-teacher"></i>
+                    <div class="profile-avatar" style="width: 100px; height: 100px; border-radius: 50%; overflow: hidden; background: var(--gradient-primary); display: flex; align-items: center; justify-content: center; color: white; font-size: 2rem; font-weight: bold;">
+                        ${teacher.photoUrl ? `<img src="${teacher.photoUrl}" alt="${teacher.firstName}" style="width: 100%; height: 100%; object-fit: cover;">` : (teacher.firstName[0] + teacher.lastName[0]).toUpperCase()}
                     </div>
                     <div>
-                        <h2>${teacher.firstName} ${teacher.lastName}</h2>
+                        <h2 style="color: var(--primary);">${teacher.firstName} ${teacher.lastName}</h2>
                         <p class="text-muted">${teacher.subject || 'Teacher'}</p>
                     </div>
                 </div>
