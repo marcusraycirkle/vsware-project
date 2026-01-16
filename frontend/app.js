@@ -3699,93 +3699,169 @@ async function submitCreateTimetable() {
 
 function displayPersonalTimetable(timetable, container) {
     const periods = [
-        { num: 1, time: '9:00 - 9:40' },
-        { num: 2, time: '9:40 - 10:20' },
-        { num: 3, time: '10:20 - 11:00' },
-        { num: 'break', time: '11:00 - 11:15', label: 'Break' },
-        { num: 4, time: '11:15 - 11:55' },
-        { num: 5, time: '11:55 - 12:35' },
-        { num: 6, time: '12:35 - 1:15' },
-        { num: 'lunch', time: '1:15 - 2:00', label: 'Lunch' },
-        { num: 7, time: '2:00 - 2:40' },
-        { num: 8, time: '2:40 - 3:20' },
-        { num: 9, time: '3:20 - 4:00' }
+        { num: 1, time: '09:00', endTime: '09:40', duration: '40min' },
+        { num: 2, time: '09:40', endTime: '10:20', duration: '40min' },
+        { num: 3, time: '10:20', endTime: '11:00', duration: '40min' },
+        { num: 'break', time: '11:00', endTime: '11:15', label: 'Break', duration: '15min' },
+        { num: 4, time: '11:15', endTime: '11:55', duration: '40min' },
+        { num: 5, time: '11:55', endTime: '12:35', duration: '40min' },
+        { num: 6, time: '12:35', endTime: '13:15', duration: '40min' },
+        { num: 'lunch', time: '13:15', endTime: '14:00', label: 'Lunch', duration: '45min' },
+        { num: 7, time: '14:00', endTime: '14:40', duration: '40min' },
+        { num: 8, time: '14:40', endTime: '15:20', duration: '40min' },
+        { num: 9, time: '15:20', endTime: '16:00', duration: '40min' }
     ];
     const days = ['Monday', 'Tuesday', 'Wednesday', 'Thursday', 'Friday'];
     
     let html = `
-        <div class=\"timetable-container\">
-            <div class=\"timetable-header\">
-                <h2><i class=\"fas fa-calendar-week\"></i> My Weekly Timetable</h2>
-                <p class=\"text-muted\">Academic Year: ${timetable.academicYear || '2024-2025'} | Term: ${timetable.term || '1'}</p>
+        <div class=\"timetable-container\" style="padding: 1.5rem;">
+            <div class=\"timetable-header\" style="margin-bottom: 2rem;">
+                <h2 style="font-size: 1.75rem; font-weight: 700; margin-bottom: 0.5rem;">
+                    <i class=\"fas fa-calendar-week\" style="color: var(--primary); margin-right: 0.5rem;\"></i> My Weekly Timetable
+                </h2>
+                <p style="color: var(--text-secondary); font-size: 0.95rem;">
+                    Academic Year: <strong>${timetable.academicYear || '2024-2025'}</strong> | Term: <strong>${timetable.term || '1'}</strong>
+                </p>
             </div>
-            <div class=\"timetable-scroll\">
-                <table class=\"timetable-grid-personal\">
-                    <thead>
-                        <tr>
-                            <th class=\"period-col\">Period</th>
-                            <th class=\"time-col\">Time</th>
-                            ${days.map(day => `<th class=\"day-col\">${day}</th>`).join('')}
-                        </tr>
-                    </thead>
-                    <tbody>
+            
+            <!-- Days Tabs -->
+            <div style="display: flex; gap: 0.5rem; margin-bottom: 1.5rem; flex-wrap: wrap; border-bottom: 2px solid var(--border); padding-bottom: 1rem;">
     `;
     
-    periods.forEach(period => {
-        if (period.label) {
-            // Break or Lunch row
-            html += `
-                <tr class=\"break-row\">
-                    <td class=\"period-col\">${period.label}</td>
-                    <td class=\"time-col\">${period.time}</td>
-                    <td colspan=\"5\" class=\"break-cell\">
-                        <i class=\"fas fa-${period.label === 'Break' ? 'coffee' : 'utensils'}\"></i> ${period.label}
-                    </td>
-                </tr>
-            `;
-        } else {
-            html += `<tr><td class=\"period-col\">Period ${period.num}</td><td class=\"time-col\">${period.time}</td>`;
-            
-            days.forEach(day => {
-                const daySchedule = timetable.schedule?.find(s => s.day === day);
-                const periodData = daySchedule?.periods?.find(p => p.periodNumber === period.num);
-                
-                if (periodData) {
-                    const subjectName = periodData.subject?.name || 'Class';
-                    const room = periodData.room || '';
-                    const teacher = periodData.teacher ? `${periodData.teacher.firstName} ${periodData.teacher.lastName}` : '';
-                    
-                    html += `
-                        <td class=\"period-cell filled\">
-                            <div class=\"period-subject\">${subjectName}</div>
-                            ${room ? `<div class=\"period-room\"><i class=\"fas fa-door-open\"></i> ${room}</div>` : ''}
-                            ${teacher && currentUser?.role !== 'teacher' ? `<div class=\"period-teacher\"><i class=\"fas fa-user\"></i> ${teacher}</div>` : ''}
-                        </td>
-                    `;
-                } else {
-                    html += '<td class=\"period-cell empty\"><span class=\"text-muted\">—</span></td>';
-                }
-            });
-            html += '</tr>';
-        }
+    days.forEach((day, idx) => {
+        const isToday = new Date().toLocaleDateString('en-US', { weekday: 'long' }) === day;
+        html += `
+            <button onclick="switchTimetableDay('${day}')" 
+                    id="day-tab-${day}"
+                    style="padding: 0.75rem 1.25rem; border: none; border-radius: 0.5rem; cursor: pointer; font-weight: 600; 
+                           background: ${isToday ? 'var(--primary)' : 'var(--bg-hover)'}; 
+                           color: ${isToday ? 'white' : 'var(--text-primary)'}; 
+                           transition: var(--transition);"
+                    class="day-tab-btn">
+                ${day}
+            </button>
+        `;
     });
     
     html += `
-                    </tbody>
-                </table>
             </div>
-            <div class=\"timetable-footer\">
-                <button class=\"btn-primary\" onclick=\"printTimetable()\">
-                    <i class=\"fas fa-print\"></i> Print Timetable
+            
+            <!-- Day Schedule -->
+            <div class="timetable-day-view">
+    `;
+    
+    days.forEach(day => {
+        const isToday = new Date().toLocaleDateString('en-US', { weekday: 'long' }) === day;
+        html += `
+            <div id="day-view-${day}" style="display: ${isToday ? 'block' : 'none'};">
+        `;
+        
+        periods.forEach((period, idx) => {
+            const daySchedule = timetable.schedule?.find(s => s.day === day);
+            const periodData = daySchedule?.periods?.find(p => p.periodNumber === period.num);
+            
+            if (period.label) {
+                // Break or Lunch
+                const bgColor = period.label === 'Break' ? '#FEF3C7' : '#F0F9FF';
+                const icon = period.label === 'Break' ? 'coffee' : 'utensils';
+                html += `
+                    <div style="background: ${bgColor}; border-left: 4px solid ${period.label === 'Break' ? '#F59E0B' : '#3B82F6'}; 
+                               padding: 1.25rem; border-radius: 0.5rem; margin-bottom: 1rem; text-align: center;">
+                        <i class="fas fa-${icon}" style="font-size: 1.5rem; margin-bottom: 0.5rem; display: block;"></i>
+                        <strong style="font-size: 1.1rem;">${period.label}</strong>
+                        <p style="color: var(--text-secondary); margin: 0.25rem 0 0 0; font-size: 0.9rem;">
+                            ${period.time} - ${period.endTime} (${period.duration})
+                        </p>
+                    </div>
+                `;
+            } else {
+                const subjectName = periodData?.subject?.name || 'Free Period';
+                const room = periodData?.room || '';
+                const teacher = periodData?.teacher ? \`\${periodData.teacher.firstName} \${periodData.teacher.lastName}\` : '';
+                const hasPeriod = !!periodData;
+                const bgColor = hasPeriod ? '#DBEAFE' : '#F3F4F6';
+                const borderColor = hasPeriod ? '#3B82F6' : '#E5E7EB';
+                
+                html += \`
+                    <div style="background: \${bgColor}; border-left: 4px solid \${borderColor}; padding: 1.25rem; border-radius: 0.5rem; margin-bottom: 1rem;">
+                        <div style="display: flex; justify-content: space-between; align-items: flex-start; margin-bottom: 0.75rem;">
+                            <div>
+                                <strong style="font-size: 1.1rem; color: var(--text-primary);">Period \${period.num}</strong>
+                                <p style="color: var(--text-secondary); margin: 0.25rem 0 0 0; font-size: 0.9rem;">
+                                    \${period.time} - \${period.endTime}
+                                </p>
+                            </div>
+                            <span style="background: var(--primary); color: white; padding: 0.25rem 0.75rem; border-radius: 0.25rem; font-size: 0.85rem; font-weight: 600;">
+                                \${period.duration}
+                            </span>
+                        </div>
+                        
+                        \${hasPeriod ? \`
+                            <div style="background: white; padding: 0.75rem; border-radius: 0.5rem; border-left: 3px solid var(--primary);">
+                                <div style="font-weight: 600; color: var(--primary); margin-bottom: 0.5rem;">
+                                    <i class="fas fa-book"></i> \${subjectName}
+                                </div>
+                                \${room ? \`<div style="color: var(--text-secondary); font-size: 0.9rem; margin-bottom: 0.25rem;">
+                                    <i class="fas fa-door-open"></i> Room \${room}
+                                </div>\` : ''}
+                                \${teacher && currentUser?.role !== 'teacher' ? \`<div style="color: var(--text-secondary); font-size: 0.9rem;">
+                                    <i class="fas fa-chalkboard-user"></i> \${teacher}
+                                </div>\` : ''}
+                            </div>
+                        \` : \`
+                            <div style="text-align: center; padding: 1rem; color: var(--text-secondary); font-style: italic;">
+                                <i class="fas fa-moon" style="margin-right: 0.5rem;"></i> Free Period
+                            </div>
+                        \`}
+                    </div>
+                \`;
+            }
+        });
+        
+        html += `
+            </div>
+        `;
+    });
+    
+    html += `
+            </div>
+            
+            <div class=\"timetable-footer\" style="margin-top: 2rem; display: flex; gap: 1rem; padding-top: 1.5rem; border-top: 2px solid var(--border);">
+                <button onclick="printTimetable()" style="flex: 1; background: var(--primary); color: white; padding: 0.75rem 1rem; border: none; border-radius: 0.5rem; cursor: pointer; font-weight: 600;">
+                    <i class="fas fa-print"></i> Print Timetable
                 </button>
-                <button class=\"btn-secondary\" onclick=\"exportTimetable()\">
-                    <i class=\"fas fa-download\"></i> Export PDF
+                <button onclick="exportTimetable()" style="flex: 1; background: var(--info); color: white; padding: 0.75rem 1rem; border: none; border-radius: 0.5rem; cursor: pointer; font-weight: 600;">
+                    <i class="fas fa-download"></i> Export PDF
                 </button>
             </div>
         </div>
     `;
     
     container.innerHTML = html;
+}
+
+function switchTimetableDay(day) {
+    // Hide all day views
+    document.querySelectorAll('[id^="day-view-"]').forEach(el => {
+        el.style.display = 'none';
+    });
+    
+    // Remove active state from all tabs
+    document.querySelectorAll('.day-tab-btn').forEach(btn => {
+        btn.style.background = 'var(--bg-hover)';
+        btn.style.color = 'var(--text-primary)';
+    });
+    
+    // Show selected day
+    const dayView = document.getElementById(\`day-view-\${day}\`);
+    if (dayView) dayView.style.display = 'block';
+    
+    // Highlight selected tab
+    const dayTab = document.getElementById(\`day-tab-\${day}\`);
+    if (dayTab) {
+        dayTab.style.background = 'var(--primary)';
+        dayTab.style.color = 'white';
+    }
 }
 
 // ========== UTILITY FUNCTIONS ==========
