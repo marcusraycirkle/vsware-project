@@ -5,42 +5,33 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>MISpal - School Management System</title>
     <link rel="icon" href="data:image/svg+xml,<svg xmlns=%22http://www.w3.org/2000/svg%22 viewBox=%220 0 100 100%22><text y=%22.9em%22 font-size=%2290%22>🎓</text></svg>">
-    <link rel="stylesheet" href="styles.css">
-    <link rel="stylesheet" href="modern-components.css">
+    <link rel="stylesheet" href="/styles.css">
+    <link rel="stylesheet" href="/modern-components.css">
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
     <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800;900&display=swap" rel="stylesheet">
 </head>
 <body>
-    <!-- SCHOOL SELECTION PAGE -->
-    <div id="school-selection-page" class="hidden">
-        <div class="school-selection-container">
-            <div class="school-selection-header">
-                <h1><i class="fas fa-graduation-cap"></i> MISpal</h1>
-                <p>Select your school to continue</p>
-            </div>
-            <div id="schools-grid"></div>
-        </div>
-    </div>
-
-    <!-- LANDING PAGE (kept for fallback) -->
-    <div id="landing-page" class="landing-page hidden">
+    <!-- LANDING PAGE -->
+    <div id="landing-page" class="landing-page">
         <!-- Navigation -->
         <nav class="landing-nav">
             <div class="nav-container">
                 <div class="logo-brand">
-                    <div class="mispal-logo">
+                    <img src="/mispal-logo.png" alt="MISpal" class="nav-logo-img" onerror="this.nextElementSibling.style.display='inline-block'">
+                    <div class="mispal-logo" style="display: none;">
                         <i class="fas fa-graduation-cap"></i>
                     </div>
                     <span class="mispal-brand-text">MISpal</span>
                 </div>
                 <button class="btn-primary" onclick="router.navigate('school-select')">
-                    <i class="fas fa-sign-in-alt"></i> Get Started
+                    <i class="fas fa-sign-in-alt"></i> Log In
                 </button>
             </div>
         </nav>
 
         <!-- Hero Section -->
         <section style="max-width: 1200px; margin: 0 auto; padding: 5rem 2rem 4rem; text-align: center;">
+            <img src="/mispal-logo.png" alt="MISpal Logo" style="max-width: 200px; margin-bottom: 2rem;" onerror="this.style.display='none'">
             <h1 style="font-size: 3rem; font-weight: 700; margin-bottom: 1.25rem; color: var(--text-primary);">
                 Welcome to MISpal
             </h1>
@@ -48,7 +39,7 @@
                 The modern school management platform designed for seamless administration and enhanced learning experiences.
             </p>
             <button class="btn-primary" onclick="router.navigate('school-select')" style="padding: 0.875rem 2rem; font-size: 1rem;">
-                Get Started <i class="fas fa-arrow-right" style="margin-left: 0.5rem;"></i>
+                Log In <i class="fas fa-arrow-right" style="margin-left: 0.5rem;"></i>
             </button>
         </section>
 
@@ -148,6 +139,17 @@
         }
     </style>
 
+    <!-- SCHOOL SELECTION PAGE -->
+    <div id="school-selection-page" class="hidden">
+        <div class="school-selection-container">
+            <div class="school-selection-header">
+                <img src="/mispal-logo.png" alt="MISpal" class="school-selection-logo" onerror="this.style.display='none'">
+                <h1><i class="fas fa-graduation-cap"></i> MISpal</h1>
+                <p>Select your school to continue</p>
+            </div>
+            <div id="schools-grid"></div>
+        </div>
+    </div>
 
     <!-- LOGIN PAGE -->
     <div id="login-page" class="login-page hidden">
