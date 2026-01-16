@@ -133,7 +133,7 @@ class MISpalRouter {
     
     const schoolPage = document.getElementById('school-selection-page');
     const loginPage = document.getElementById('login-page');
-    const dashboardContainer = document.getElementById('dashboard-container');
+    const dashboardContainer = document.getElementById('dashboard');
     const landingPage = document.getElementById('landing-page');
     
     if (schoolPage) schoolPage.classList.remove('hidden');
@@ -172,7 +172,7 @@ class MISpalRouter {
     
     const schoolPage = document.getElementById('school-selection-page');
     const loginPage = document.getElementById('login-page');
-    const dashboardContainer = document.getElementById('dashboard-container');
+    const dashboardContainer = document.getElementById('dashboard');
     const landingPage = document.getElementById('landing-page');
     
     if (schoolPage) schoolPage.classList.add('hidden');
@@ -198,7 +198,7 @@ class MISpalRouter {
     
     const schoolPage = document.getElementById('school-selection-page');
     const loginPage = document.getElementById('login-page');
-    const dashboardContainer = document.getElementById('dashboard-container');
+    const dashboardContainer = document.getElementById('dashboard');
     const landingPage = document.getElementById('landing-page');
     
     if (schoolPage) schoolPage.classList.add('hidden');

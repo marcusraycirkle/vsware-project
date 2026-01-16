@@ -109,15 +109,17 @@ async function login(email, pin) {
             showSuccess('Welcome back!');
             
             setTimeout(() => {
+                hideLoading();
                 router.navigate('dashboard');
                 applyRoleBasedNavigation();
                 loadDashboardData();
+            }, 500);
         } else {
-            hideAnimatedLogin();
+            hideLoading();
             showError(data.message || 'Login failed');
         }
     } catch (error) {
-        hideAnimatedLogin();
+        hideLoading();
         showError('Connection error. Please check if the backend is running.');
         console.error('Login error:', error);
     }
