@@ -59,8 +59,8 @@ class MISpalRouter {
     const parts = path.split('/').filter(p => p);
     
     if (parts.length === 0) {
-      // No school selected, show school selection
-      this.navigate('school-select');
+      // No school selected, show landing page
+      this.showLandingPage();
       return;
     }
     
@@ -68,8 +68,8 @@ class MISpalRouter {
     const school = this.schools.find(s => s.id === schoolId);
     
     if (!school) {
-      // Invalid school, redirect to selection
-      this.navigate('school-select');
+      // Invalid school, show landing page
+      this.showLandingPage();
       return;
     }
     
@@ -126,6 +126,20 @@ class MISpalRouter {
     } else {
       this.showDashboard();
     }
+  }
+  
+  showLandingPage() {
+    if (typeof hideLoading === 'function') hideLoading();
+    
+    const schoolPage = document.getElementById('school-selection-page');
+    const loginPage = document.getElementById('login-page');
+    const dashboardContainer = document.getElementById('dashboard');
+    const landingPage = document.getElementById('landing-page');
+    
+    if (schoolPage) schoolPage.classList.add('hidden');
+    if (loginPage) loginPage.classList.add('hidden');
+    if (dashboardContainer) dashboardContainer.classList.add('hidden');
+    if (landingPage) landingPage.classList.remove('hidden');
   }
   
   showSchoolSelection() {
