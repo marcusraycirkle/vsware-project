@@ -1,33 +1,37 @@
 /* ========== VARIABLES & RESET ========== */
 :root {
-    --primary: #4F46E5;
-    --primary-dark: #4338CA;
-    --secondary: #10B981;
+    --primary: #FF6B6B;
+    --primary-dark: #FF5252;
+    --primary-light: #FFB3B3;
+    --secondary: #FF8C42;
     --danger: #EF4444;
     --warning: #F59E0B;
     --info: #3B82F6;
     --success: #10B981;
     
-    --bg-main: #F9FAFB;
+    --gradient-primary: linear-gradient(135deg, #FFB3B3 0%, #FF6B6B 50%, #FF5252 100%);
+    --gradient-warm: linear-gradient(135deg, #FFCC99 0%, #FF8C42 100%);
+    
+    --bg-main: #FAFAFA;
     --bg-card: #FFFFFF;
-    --bg-hover: #F3F4F6;
+    --bg-hover: #F5F5F5;
     
-    --text-primary: #111827;
-    --text-secondary: #6B7280;
-    --text-muted: #9CA3AF;
+    --text-primary: #1A1A1A;
+    --text-secondary: #666666;
+    --text-muted: #999999;
     
-    --border: #E5E7EB;
-    --shadow-sm: 0 1px 3px rgba(0,0,0,0.1);
-    --shadow-md: 0 4px 6px rgba(0,0,0,0.1);
-    --shadow-lg: 0 10px 15px rgba(0,0,0,0.1);
-    --shadow-xl: 0 20px 25px rgba(0,0,0,0.15);
+    --border: #E0E0E0;
+    --shadow-sm: 0 2px 4px rgba(255, 107, 107, 0.08);
+    --shadow-md: 0 4px 12px rgba(255, 107, 107, 0.12);
+    --shadow-lg: 0 10px 30px rgba(255, 107, 107, 0.15);
+    --shadow-xl: 0 20px 50px rgba(255, 107, 107, 0.2);
     
-    --house-bride: #EF4444;
+    --house-bride: #FF6B6B;
     --house-ide: #3B82F6;
     --house-tola: #10B981;
-    --house-seanan: #F59E0B;
+    --house-seanan: #FF8C42;
     --house-padraig: #8B5CF6;
-    --house-conaire: #EC4899;
+    --house-conaire: #FF6B9D;
     
     --transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
 }
@@ -351,7 +355,7 @@ textarea {
 .feature-icon.cyan { background: linear-gradient(135deg, #06B6D4, #0891B2); }
 .feature-icon.pink { background: linear-gradient(135deg, #EC4899, #DB2777); }
 .feature-icon.yellow { background: linear-gradient(135deg, #EAB308, #CA8A04); }
-.feature-icon.indigo { background: linear-gradient(135deg, #6366F1, #4F46E5); }
+.feature-icon.indigo { background: var(--gradient-primary); }
 .feature-icon.teal { background: linear-gradient(135deg, #14B8A6, #0D9488); }
 .feature-icon.lime { background: linear-gradient(135deg, #84CC16, #65A30D); }
 .feature-icon.amber { background: linear-gradient(135deg, #F59E0B, #D97706); }
@@ -407,7 +411,7 @@ textarea {
     align-items: center;
     justify-content: center;
     position: relative;
-    background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+    background: var(--gradient-primary);
 }
 
 .login-background {
@@ -1126,7 +1130,10 @@ textarea {
 .page-header h1 {
     font-size: 2.25rem;
     font-weight: 800;
-    color: var(--text-primary);
+    background: var(--gradient-primary);
+    -webkit-background-clip: text;
+    -webkit-text-fill-color: transparent;
+    background-clip: text;
     display: flex;
     align-items: center;
     gap: 1rem;
@@ -1225,10 +1232,11 @@ textarea {
 
 .card-header {
     padding: 1.5rem;
-    border-bottom: 1px solid var(--border);
+    border-bottom: 2px solid var(--primary);
     display: flex;
     justify-content: space-between;
     align-items: center;
+    background: linear-gradient(to right, rgba(255, 107, 107, 0.05), transparent);
 }
 
 .card-header h2 {
@@ -1237,6 +1245,7 @@ textarea {
     display: flex;
     align-items: center;
     gap: 0.75rem;
+    color: var(--primary);
 }
 
 /* Houses Grid */
@@ -1261,7 +1270,7 @@ textarea {
     box-shadow: var(--shadow-lg);
 }
 
-.house-card.bride { background: linear-gradient(135deg, #EF4444, #DC2626); }
+.house-card.bride { background: var(--gradient-primary); }
 .house-card.ide { background: linear-gradient(135deg, #3B82F6, #2563EB); }
 .house-card.tola { background: linear-gradient(135deg, #10B981, #059669); }
 .house-card.seanan { background: linear-gradient(135deg, #F59E0B, #D97706); }
@@ -2797,7 +2806,7 @@ textarea {
 
 .child-header {
     padding: 1.5rem;
-    background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+    background: var(--gradient-primary);
     color: white;
     display: flex;
     align-items: center;
@@ -3027,7 +3036,7 @@ textarea {
 }
 
 .schedule-info {
-    background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+    background: var(--gradient-primary);
     color: white;
     padding: 1.5rem;
     border-radius: 0.75rem;
@@ -3398,6 +3407,35 @@ html, body {
     .nav-item:hover span {
         display: inline;
     }
+}
+
+/* ========== MISPAL BRANDING ========== */
+.mispal-logo {
+    width: 50px;
+    height: 50px;
+    background: var(--gradient-primary);
+    border-radius: 0.75rem;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    color: white;
+    font-weight: 700;
+    font-size: 1.5rem;
+    box-shadow: 0 4px 15px rgba(255, 107, 107, 0.3);
+}
+
+.mispal-brand-text {
+    font-size: 1.5rem;
+    font-weight: 800;
+    background: var(--gradient-primary);
+    -webkit-background-clip: text;
+    -webkit-text-fill-color: transparent;
+    background-clip: text;
+}
+
+.mispal-logo-small {
+    background: var(--gradient-primary);
+    box-shadow: 0 2px 8px rgba(255, 107, 107, 0.25);
 }
 
 /* Container max-width for very large screens */

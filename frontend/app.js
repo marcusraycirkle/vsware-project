@@ -173,10 +173,31 @@ async function apiCall(endpoint, options = {}) {
             throw new Error('Unauthorized');
         }
         
-        const data = await response.json();
+        // Handle 429 Too Many Requests
+        if (response.status === 429) {
+            console.warn('Rate limited, retrying in 2 seconds...');
+            // Wait 2 seconds and retry
+            await new Promise(resolve => setTimeout(resolve, 2000));
+            return apiCall(endpoint, options);
+        }
+        
+        // Handle 503 Service Unavailable
+        if (response.status === 503) {
+            showError('Server temporarily unavailable. Please try again.');
+            throw new Error('Service Unavailable');
+        }
+        
+        let data;
+        const contentType = response.headers.get('content-type');
+        if (contentType && contentType.includes('application/json')) {
+            data = await response.json();
+        } else {
+            // If not JSON, return as text
+            data = { message: await response.text() };
+        }
         
         if (!response.ok) {
-            throw new Error(data.message || 'API request failed');
+            throw new Error(data.message || `API request failed with status ${response.status}`);
         }
         
         return data;
@@ -2809,7 +2830,7 @@ function showAnimatedLogin() {
         left: 0;
         right: 0;
         bottom: 0;
-        background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+        background: linear-gradient(135deg, #FFB3B3 0%, #FF6B6B 50%, #FF5252 100%);
         display: flex;
         align-items: center;
         justify-content: center;
@@ -2899,7 +2920,7 @@ async function showGoodbyeAnimation() {
             left: 0;
             right: 0;
             bottom: 0;
-            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            background: linear-gradient(135deg, #FFB3B3 0%, #FF6B6B 50%, #FF5252 100%);
             display: flex;
             align-items: center;
             justify-content: center;
@@ -4816,7 +4837,7 @@ async function proceedToFullAttendance() {
         
         // Create full-screen attendance interface
         const attendanceHTML = `
-            <div id="attendance-fullscreen" style="position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: linear-gradient(135deg, var(--primary) 0%, #667eea 100%); z-index: 9999; overflow-y: auto; padding: 2rem;">
+            <div id="attendance-fullscreen" style="position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: linear-gradient(135deg, #FFB3B3 0%, #FF6B6B 50%, #FF5252 100%); z-index: 9999; overflow-y: auto; padding: 2rem;">
                 <div style="max-width: 1200px; margin: 0 auto;">
                     <div style="background: white; border-radius: 1rem; padding: 2rem; box-shadow: 0 20px 60px rgba(0,0,0,0.3);">
                         

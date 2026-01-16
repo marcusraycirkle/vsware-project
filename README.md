@@ -1,4 +1,4 @@
-# SchoolWare - Comprehensive School Management System
+# MISpal SchoolWare - Comprehensive School Management System
 
 A full-featured school management and student information system inspired by VSware.ie, built with Node.js, Express, MongoDB, and React.
 
