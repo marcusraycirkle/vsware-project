@@ -129,13 +129,22 @@ class MISpalRouter {
   }
   
   showSchoolSelection() {
-    hideLoading();
-    document.getElementById('school-selection-page').classList.remove('hidden');
-    document.getElementById('login-page').classList.add('hidden');
-    document.getElementById('dashboard-container').classList.add('hidden');
+    if (typeof hideLoading === 'function') hideLoading();
+    
+    const schoolPage = document.getElementById('school-selection-page');
+    const loginPage = document.getElementById('login-page');
+    const dashboardContainer = document.getElementById('dashboard-container');
+    const landingPage = document.getElementById('landing-page');
+    
+    if (schoolPage) schoolPage.classList.remove('hidden');
+    if (loginPage) loginPage.classList.add('hidden');
+    if (dashboardContainer) dashboardContainer.classList.add('hidden');
+    if (landingPage) landingPage.classList.add('hidden');
     
     // Render school cards
     const container = document.getElementById('schools-grid');
+    if (!container) return;
+    
     container.innerHTML = this.schools.map(school => `
       <div class="school-card" onclick="router.selectSchool('${school.id}')" style="border-color: ${school.color}">
         <div class="school-logo" style="background: ${school.color}">${school.logo}</div>
@@ -151,7 +160,7 @@ class MISpalRouter {
     if (!school) return;
     
     this.currentSchool = school;
-    showLoading();
+    if (typeof showLoading === 'function') showLoading();
     
     setTimeout(() => {
       this.navigate('login', schoolId);
@@ -159,25 +168,43 @@ class MISpalRouter {
   }
   
   showLogin() {
-    hideLoading();
-    document.getElementById('school-selection-page').classList.add('hidden');
-    document.getElementById('login-page').classList.remove('hidden');
-    document.getElementById('dashboard-container').classList.add('hidden');
+    if (typeof hideLoading === 'function') hideLoading();
+    
+    const schoolPage = document.getElementById('school-selection-page');
+    const loginPage = document.getElementById('login-page');
+    const dashboardContainer = document.getElementById('dashboard-container');
+    const landingPage = document.getElementById('landing-page');
+    
+    if (schoolPage) schoolPage.classList.add('hidden');
+    if (loginPage) loginPage.classList.remove('hidden');
+    if (dashboardContainer) dashboardContainer.classList.add('hidden');
+    if (landingPage) landingPage.classList.add('hidden');
     
     // Update login page with school branding
     if (this.currentSchool) {
-      document.querySelector('.login-school-name').textContent = this.currentSchool.name;
-      document.querySelector('.login-school-logo').textContent = this.currentSchool.logo;
-      document.querySelector('.login-school-logo').style.background = this.currentSchool.color;
+      const nameEl = document.querySelector('.login-school-name');
+      const logoEl = document.querySelector('.login-school-logo');
+      if (nameEl) nameEl.textContent = this.currentSchool.name;
+      if (logoEl) {
+        logoEl.textContent = this.currentSchool.logo;
+        logoEl.style.background = this.currentSchool.color;
+      }
       document.documentElement.style.setProperty('--primary', this.currentSchool.color);
     }
   }
   
   showDashboard() {
-    hideLoading();
-    document.getElementById('school-selection-page').classList.add('hidden');
-    document.getElementById('login-page').classList.add('hidden');
-    document.getElementById('dashboard-container').classList.remove('hidden');
+    if (typeof hideLoading === 'function') hideLoading();
+    
+    const schoolPage = document.getElementById('school-selection-page');
+    const loginPage = document.getElementById('login-page');
+    const dashboardContainer = document.getElementById('dashboard-container');
+    const landingPage = document.getElementById('landing-page');
+    
+    if (schoolPage) schoolPage.classList.add('hidden');
+    if (loginPage) loginPage.classList.add('hidden');
+    if (dashboardContainer) dashboardContainer.classList.remove('hidden');
+    if (landingPage) landingPage.classList.add('hidden');
     
     // Load dashboard data
     if (window.loadDashboardData) {

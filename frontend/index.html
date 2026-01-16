@@ -21,6 +21,9 @@
             <div id="schools-grid"></div>
         </div>
     </div>
+
+    <!-- LANDING PAGE (kept for fallback) -->
+    <div id="landing-page" class="landing-page hidden">
         <!-- Navigation -->
         <nav class="landing-nav">
             <div class="nav-container">
@@ -30,8 +33,8 @@
                     </div>
                     <span class="mispal-brand-text">MISpal</span>
                 </div>
-                <button class="btn-primary" onclick="showLoginPage()">
-                    <i class="fas fa-sign-in-alt"></i> Log In
+                <button class="btn-primary" onclick="router.navigate('school-select')">
+                    <i class="fas fa-sign-in-alt"></i> Get Started
                 </button>
             </div>
         </nav>
@@ -44,7 +47,7 @@
             <p style="font-size: 1.125rem; color: var(--text-secondary); margin-bottom: 2.5rem; max-width: 640px; margin-left: auto; margin-right: auto;">
                 The modern school management platform designed for seamless administration and enhanced learning experiences.
             </p>
-            <button class="btn-primary" onclick="showLoginPage()" style="padding: 0.875rem 2rem; font-size: 1rem;">
+            <button class="btn-primary" onclick="router.navigate('school-select')" style="padding: 0.875rem 2rem; font-size: 1rem;">
                 Get Started <i class="fas fa-arrow-right" style="margin-left: 0.5rem;"></i>
             </button>
         </section>
