@@ -17,7 +17,7 @@ const attendanceSchema = new mongoose.Schema({
   },
   status: {
     type: String,
-    enum: ['Present', 'Absent', 'Late', 'Excused', 'Half Day'],
+    enum: ['Present', 'Absent', 'Late', 'Excused', 'Half Day', 'SchoolActivity', 'Medical', 'AbsentExplained'],
     required: true
   },
   period: {
@@ -50,6 +50,18 @@ const attendanceSchema = new mongoose.Schema({
   },
   notes: {
     type: String
+  },
+  absenceExplanation: {
+    type: String,
+    default: null
+  },
+  absenceExplained: {
+    type: Boolean,
+    default: false
+  },
+  explainedAt: {
+    type: Date,
+    default: null
   }
 }, {
   timestamps: true

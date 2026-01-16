@@ -590,9 +590,13 @@ function displayAttendanceRecords(records) {
             'Present': 'success',
             'Absent': 'danger',
             'Late': 'warning',
-            'Excused': 'info'
+            'Excused': 'info',
+            'SchoolActivity': 'info',
+            'Medical': 'warning',
+            'AbsentExplained': 'primary'
         };
         const statusColor = statusColors[record.status] || 'info';
+        const abexBadge = record.absenceExplained ? '<span style="margin-left: 0.5rem; background: #3498db; color: white; padding: 0.25rem 0.5rem; border-radius: 0.25rem; font-size: 0.75rem; font-weight: 600;">AbEx</span>' : '';
         
         return `
             <tr>
@@ -600,7 +604,7 @@ function displayAttendanceRecords(records) {
                 <td>${record.period || 'All Day'}</td>
                 <td><strong>${user.firstName || ''} ${user.lastName || ''}</strong></td>
                 <td>${student.studentId || 'N/A'}</td>
-                <td><span class="badge-${statusColor}">${record.status}</span></td>
+                <td><span class="badge-${statusColor}">${record.status}</span> ${abexBadge}</td>
                 <td>${record.notes || '-'}</td>
             </tr>
         `;
