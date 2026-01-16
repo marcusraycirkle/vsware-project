@@ -2,6 +2,7 @@
 const API_URL = '/api'; // Relative URL for same domain
 let currentUser = null;
 let authToken = null;
+let currentSchoolId = null;
 
 // Sound Effects
 const sounds = {
@@ -17,7 +18,7 @@ let notificationCount = 0;
 
 // ========== INITIALIZATION ==========
 document.addEventListener('DOMContentLoaded', () => {
-    checkAuth();
+    // Router will handle initial navigation
     setupEventListeners();
     initializeNotifications();
     loadMockNotifications();
@@ -40,26 +41,33 @@ function setupEventListeners() {
         }
     });
 }
+
 // ========== AUTHENTICATION ==========
 function checkAuth() {
-    const token = localStorage.getItem('auth_token');
-    const user = localStorage.getItem('current_user');
+    if (!router || !router.currentSchool) {
+        return false;
+    }
+    
+    const schoolId = router.currentSchool.id;
+    currentSchoolId = schoolId;
+    
+    const token = localStorage.getItem(`token_${schoolId}`);
+    const user = localStorage.getItem(`user_${schoolId}`);
     
     if (token && user) {
         authToken = token;
         try {
             currentUser = JSON.parse(user);
-            showDashboard();
-            loadDashboardData();
+            return true;
         } catch (e) {
             console.error('Invalid user data:', e);
-            localStorage.removeItem('auth_token');
-            localStorage.removeItem('current_user');
-            showLandingPage();
+            localStorage.removeItem(`token_${schoolId}`);
+            localStorage.removeItem(`user_${schoolId}`);
+            return false;
         }
-    } else {
-        showLandingPage();
     }
+    
+    return false;
 }
 
 async function handleLogin(e) {
@@ -73,7 +81,7 @@ async function handleLogin(e) {
 
 async function login(email, pin) {
     try {
-        showAnimatedLogin();
+        showLoading();
         
         const response = await fetch(`${API_URL}/auth/login`, {
             method: 'POST',
@@ -89,15 +97,21 @@ async function login(email, pin) {
             authToken = data.token;
             currentUser = data.user;
             
-            localStorage.setItem('auth_token', authToken);
-            localStorage.setItem('current_user', JSON.stringify(currentUser));
+            if (router && router.currentSchool) {
+                const schoolId = router.currentSchool.id;
+                localStorage.setItem(`token_${schoolId}`, authToken);
+                localStorage.setItem(`user_${schoolId}`, JSON.stringify(currentUser));
+            }
+            
             localStorage.setItem('userRole', currentUser.role);
             localStorage.setItem('permissionLevel', currentUser.permissionLevel || 'General');
             
-            await showWelcomeAnimation();
-            showDashboard();
-            applyRoleBasedNavigation();
-            loadDashboardData();
+            showSuccess('Welcome back!');
+            
+            setTimeout(() => {
+                router.navigate('dashboard');
+                applyRoleBasedNavigation();
+                loadDashboardData();
         } else {
             hideAnimatedLogin();
             showError(data.message || 'Login failed');

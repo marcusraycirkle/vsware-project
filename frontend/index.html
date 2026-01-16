@@ -3,15 +3,24 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>MISpal - St Patrick's Comprehensive School</title>
+    <title>MISpal - School Management System</title>
     <link rel="icon" href="data:image/svg+xml,<svg xmlns=%22http://www.w3.org/2000/svg%22 viewBox=%220 0 100 100%22><text y=%22.9em%22 font-size=%2290%22>🎓</text></svg>">
     <link rel="stylesheet" href="styles.css">
+    <link rel="stylesheet" href="modern-components.css">
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
     <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800;900&display=swap" rel="stylesheet">
 </head>
 <body>
-    <!-- LANDING PAGE -->
-    <div id="landing-page" class="landing-page">
+    <!-- SCHOOL SELECTION PAGE -->
+    <div id="school-selection-page" class="hidden">
+        <div class="school-selection-container">
+            <div class="school-selection-header">
+                <h1><i class="fas fa-graduation-cap"></i> MISpal</h1>
+                <p>Select your school to continue</p>
+            </div>
+            <div id="schools-grid"></div>
+        </div>
+    </div>
         <!-- Navigation -->
         <nav class="landing-nav">
             <div class="nav-container">
@@ -136,29 +145,29 @@
         }
     </style>
 
+
     <!-- LOGIN PAGE -->
     <div id="login-page" class="login-page hidden">
-        <div class="login-background">
-            <div class="login-particles"></div>
-        </div>
+        <a class="login-back-btn" onclick="router.navigate('school-select')">
+            <i class="fas fa-arrow-left"></i> Back to Schools
+        </a>
+        
         <div class="login-container">
-            <button class="btn-back-landing" onclick="showLandingPage()">
-                <i class="fas fa-arrow-left"></i> Back to Home
-            </button>
-            
             <div class="login-card">
+                <div class="login-school-info">
+                    <div class="login-school-logo">🎓</div>
+                    <div class="login-school-name">School Name</div>
+                </div>
+                
                 <div class="login-header">
-                    <div class="login-icon">
-                        <i class="fas fa-shield-alt"></i>
-                    </div>
-                    <h2>Secure Login</h2>
-                    <p>Access your CompMIS account</p>
+                    <h2>Sign In</h2>
+                    <p>Access your MISpal account</p>
                 </div>
                 
                 <form id="login-form" class="login-form" onsubmit="handleLogin(event)">
                     <div class="input-group">
                         <label><i class="fas fa-envelope"></i> Email Address</label>
-                        <input type="email" id="login-email" placeholder="your.email@shannoncomp.ie" required autocomplete="username">
+                        <input type="email" id="login-email" placeholder="your.email@school.ie" required autocomplete="username">
                     </div>
                     
                     <div class="input-group">
@@ -855,6 +864,8 @@
         </main>
     </div>
 
+    <script src="loading.js"></script>
+    <script src="router.js"></script>
     <script src="app.js"></script>
 </body>
 </html>

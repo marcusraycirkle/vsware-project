@@ -49,6 +49,200 @@ body {
 
 .hidden { display: none !important; }
 
+/* ========== LOADING ANIMATION ========== */
+.mispal-loading-overlay {
+    position: fixed;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    z-index: 10000;
+    opacity: 0;
+    pointer-events: none;
+    transition: opacity 0.3s ease;
+}
+
+.mispal-loading-overlay.visible {
+    opacity: 1;
+    pointer-events: all;
+}
+
+.loading-content {
+    text-align: center;
+}
+
+#mispal-logo-svg {
+    filter: drop-shadow(0 10px 30px rgba(0, 0, 0, 0.3));
+}
+
+.loading-text {
+    margin-top: 2rem;
+    font-size: 2rem;
+    color: white;
+    font-weight: 600;
+}
+
+.loading-dot {
+    animation: loadingDots 1.4s infinite;
+    opacity: 0;
+}
+
+.loading-dot:nth-child(2) {
+    animation-delay: 0.2s;
+}
+
+.loading-dot:nth-child(3) {
+    animation-delay: 0.4s;
+}
+
+@keyframes loadingDots {
+    0%, 60%, 100% {
+        opacity: 0;
+        transform: translateY(0);
+    }
+    30% {
+        opacity: 1;
+        transform: translateY(-10px);
+    }
+}
+
+/* ========== SCHOOL SELECTION PAGE ========== */
+#school-selection-page {
+    min-height: 100vh;
+    background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    padding: 2rem;
+}
+
+.school-selection-container {
+    max-width: 1200px;
+    width: 100%;
+}
+
+.school-selection-header {
+    text-align: center;
+    color: white;
+    margin-bottom: 3rem;
+}
+
+.school-selection-header h1 {
+    font-size: 3rem;
+    font-weight: 700;
+    margin-bottom: 0.5rem;
+    text-shadow: 0 4px 12px rgba(0, 0, 0, 0.2);
+}
+
+.school-selection-header p {
+    font-size: 1.25rem;
+    opacity: 0.9;
+}
+
+#schools-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
+    gap: 2rem;
+    margin-bottom: 2rem;
+}
+
+.school-card {
+    background: white;
+    border-radius: 1rem;
+    padding: 2rem;
+    text-align: center;
+    cursor: pointer;
+    transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+    box-shadow: 0 10px 40px rgba(0, 0, 0, 0.1);
+    border: 3px solid transparent;
+}
+
+.school-card:hover {
+    transform: translateY(-8px);
+    box-shadow: 0 20px 60px rgba(0, 0, 0, 0.15);
+}
+
+.school-logo {
+    width: 80px;
+    height: 80px;
+    border-radius: 50%;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 2.5rem;
+    margin: 0 auto 1rem;
+    box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
+}
+
+.school-card h3 {
+    font-size: 1.25rem;
+    margin-bottom: 0.5rem;
+    color: var(--text-primary);
+}
+
+.school-card p {
+    color: var(--text-secondary);
+    margin-bottom: 1.5rem;
+}
+
+.school-card .btn {
+    width: 100%;
+    border-radius: 0.5rem;
+    padding: 0.75rem;
+    font-weight: 600;
+}
+
+/* ========== LOGIN PAGE UPDATES ========== */
+.login-school-info {
+    text-align: center;
+    margin-bottom: 2rem;
+}
+
+.login-school-logo {
+    width: 60px;
+    height: 60px;
+    border-radius: 50%;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 2rem;
+    margin: 0 auto 1rem;
+    box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
+}
+
+.login-school-name {
+    font-size: 1.5rem;
+    font-weight: 600;
+    color: var(--text-primary);
+    margin-bottom: 0.5rem;
+}
+
+.login-back-btn {
+    position: absolute;
+    top: 2rem;
+    left: 2rem;
+    background: white;
+    padding: 0.75rem 1.25rem;
+    border-radius: 0.5rem;
+    font-weight: 600;
+    color: var(--text-primary);
+    text-decoration: none;
+    display: inline-flex;
+    align-items: center;
+    gap: 0.5rem;
+    transition: all 0.2s ease;
+    box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
+}
+
+.login-back-btn:hover {
+    transform: translateX(-4px);
+    box-shadow: 0 4px 12px rgba(0, 0, 0, 0.15);
+}
+
 /* ========== GLOBAL FORM ELEMENTS ========== */
 button, input, textarea, select {
     font-family: inherit;
