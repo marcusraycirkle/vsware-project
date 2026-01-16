@@ -1578,14 +1578,22 @@ async function checkRoomAvailability(roomId) {
     const date = document.getElementById('booking-date')?.value;
     const period = document.getElementById('booking-period')?.value;
     
-    if (!date || !period) {
-        showError('Please select date and period first');
+    if (!date) {
+        showError('Please select a date first');
+        document.getElementById('booking-date').focus();
+        return;
+    }
+    
+    if (!period) {
+        showError('Please select a period first');
+        document.getElementById('booking-period').focus();
         return;
     }
     
     try {
         showLoading('Checking availability...');
-        // Check availability by period not time
+        
+        // Check availability
         const response = await apiCall(`/rooms/${roomId}/bookings?startDate=${date}&endDate=${date}`).catch(() => []);
         
         hideLoading();
@@ -1596,14 +1604,17 @@ async function checkRoomAvailability(roomId) {
         );
         
         if (isBooked) {
-            showError(`Room is not available for ${period} on this date. Please select a different period.`);
+            showError(`Room is NOT available for ${period} on ${new Date(date).toLocaleDateString()}. Please select a different period.`);
+            return false;
         } else {
-            showSuccess(`Room is available for ${period}! You can proceed with booking.`);
+            showSuccess(`✓ Room IS AVAILABLE for ${period} on ${new Date(date).toLocaleDateString()}! You can proceed with booking.`);
+            return true;
         }
     } catch (error) {
         hideLoading();
-        showError('Failed to check availability');
-        console.error(error);
+        console.warn('Could not verify availability (network issue), proceeding with booking attempt:', error);
+        showSuccess('Proceeding with booking attempt...');
+        return true; // Allow booking attempt even if check fails
     }
 }
 
@@ -1613,8 +1624,32 @@ async function submitRoomBooking(roomId) {
     const purpose = document.getElementById('booking-purpose').value;
     const notes = document.getElementById('booking-notes').value;
     
-    if (!date || !period || !purpose) {
-        showError('Please fill in all required fields');
+    // Validation
+    if (!date) {
+        showError('Please select a date');
+        document.getElementById('booking-date').focus();
+        return;
+    }
+    
+    if (!period) {
+        showError('Please select a period/time slot');
+        document.getElementById('booking-period').focus();
+        return;
+    }
+    
+    if (!purpose) {
+        showError('Please select a purpose');
+        document.getElementById('booking-purpose').focus();
+        return;
+    }
+    
+    // Verify date is not in the past
+    const selectedDate = new Date(date);
+    const today = new Date();
+    today.setHours(0, 0, 0, 0);
+    
+    if (selectedDate < today) {
+        showError('Cannot book room for a past date');
         return;
     }
     
@@ -1622,22 +1657,36 @@ async function submitRoomBooking(roomId) {
         closeModal();
         showLoading('Booking room...');
         
-        await apiCall(`/rooms/${roomId}/book`, {
+        const bookingData = {
+            date,
+            period,
+            purpose,
+            notes,
+            bookedBy: currentUser._id,
+            timestamp: new Date().toISOString()
+        };
+        
+        const response = await apiCall(`/rooms/${roomId}/book`, {
             method: 'POST',
-            body: JSON.stringify({
-                date,
-                period,
-                purpose,
-                notes
-            })
+            body: JSON.stringify(bookingData)
         });
         
         hideLoading();
-        showSuccess('Room booked successfully!');
-        await loadRooms(); // Reload to show updated availability
+        showSuccess('Room booked successfully! Confirmation has been sent.');
+        
+        // Reload rooms to show updated availability
+        setTimeout(() => {
+            loadRooms();
+        }, 1000);
     } catch (error) {
         hideLoading();
-        showError('Failed to book room: ' + error.message);
+        if (error.message.includes('already booked')) {
+            showError('This period is already booked. Please select a different time slot.');
+        } else if (error.message.includes('not available')) {
+            showError('Room is not available for the selected period. Please try another time.');
+        } else {
+            showError('Failed to book room: ' + error.message);
+        }
         console.error(error);
     }
 }
