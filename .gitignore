@@ -4,11 +4,21 @@ client/node_modules/
 
 # Environment variables
 .env
+.env.*
+!.env.example
 .env.local
 .env.production
 .env.atlas
 .env.atlas.template
 *.env.backup
+
+# Secrets and sensitive files
+secrets/
+*.pem
+*.key
+*.cert
+config/secrets.js
+wrangler.toml
 
 # Vercel
 .vercel
