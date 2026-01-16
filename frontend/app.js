@@ -3826,44 +3826,44 @@ function displayPersonalTimetable(timetable, container) {
             } else {
                 const subjectName = periodData?.subject?.name || 'Free Period';
                 const room = periodData?.room || '';
-                const teacher = periodData?.teacher ? \`\${periodData.teacher.firstName} \${periodData.teacher.lastName}\` : '';
+                const teacher = periodData?.teacher ? `${periodData.teacher.firstName} ${periodData.teacher.lastName}` : '';
                 const hasPeriod = !!periodData;
                 const bgColor = hasPeriod ? '#DBEAFE' : '#F3F4F6';
                 const borderColor = hasPeriod ? '#3B82F6' : '#E5E7EB';
                 
-                html += \`
-                    <div style="background: \${bgColor}; border-left: 4px solid \${borderColor}; padding: 1.25rem; border-radius: 0.5rem; margin-bottom: 1rem;">
+                html += `
+                    <div style="background: ${bgColor}; border-left: 4px solid ${borderColor}; padding: 1.25rem; border-radius: 0.5rem; margin-bottom: 1rem;">
                         <div style="display: flex; justify-content: space-between; align-items: flex-start; margin-bottom: 0.75rem;">
                             <div>
-                                <strong style="font-size: 1.1rem; color: var(--text-primary);">Period \${period.num}</strong>
+                                <strong style="font-size: 1.1rem; color: var(--text-primary);">Period ${period.num}</strong>
                                 <p style="color: var(--text-secondary); margin: 0.25rem 0 0 0; font-size: 0.9rem;">
-                                    \${period.time} - \${period.endTime}
+                                    ${period.time} - ${period.endTime}
                                 </p>
                             </div>
                             <span style="background: var(--primary); color: white; padding: 0.25rem 0.75rem; border-radius: 0.25rem; font-size: 0.85rem; font-weight: 600;">
-                                \${period.duration}
+                                ${period.duration}
                             </span>
                         </div>
                         
-                        \${hasPeriod ? \`
+                        ${hasPeriod ? `
                             <div style="background: white; padding: 0.75rem; border-radius: 0.5rem; border-left: 3px solid var(--primary);">
                                 <div style="font-weight: 600; color: var(--primary); margin-bottom: 0.5rem;">
-                                    <i class="fas fa-book"></i> \${subjectName}
+                                    <i class="fas fa-book"></i> ${subjectName}
                                 </div>
-                                \${room ? \`<div style="color: var(--text-secondary); font-size: 0.9rem; margin-bottom: 0.25rem;">
-                                    <i class="fas fa-door-open"></i> Room \${room}
-                                </div>\` : ''}
-                                \${teacher && currentUser?.role !== 'teacher' ? \`<div style="color: var(--text-secondary); font-size: 0.9rem;">
-                                    <i class="fas fa-chalkboard-user"></i> \${teacher}
-                                </div>\` : ''}
+                                ${room ? `<div style="color: var(--text-secondary); font-size: 0.9rem; margin-bottom: 0.25rem;">
+                                    <i class="fas fa-door-open"></i> Room ${room}
+                                </div>` : ''}
+                                ${teacher && currentUser?.role !== 'teacher' ? `<div style="color: var(--text-secondary); font-size: 0.9rem;">
+                                    <i class="fas fa-chalkboard-user"></i> ${teacher}
+                                </div>` : ''}
                             </div>
-                        \` : \`
+                        ` : `
                             <div style="text-align: center; padding: 1rem; color: var(--text-secondary); font-style: italic;">
                                 <i class="fas fa-moon" style="margin-right: 0.5rem;"></i> Free Period
                             </div>
-                        \`}
+                        `}
                     </div>
-                \`;
+                `;
             }
         });
         
@@ -3875,7 +3875,7 @@ function displayPersonalTimetable(timetable, container) {
     html += `
             </div>
             
-            <div class=\"timetable-footer\" style="margin-top: 2rem; display: flex; gap: 1rem; padding-top: 1.5rem; border-top: 2px solid var(--border);">
+            <div class="timetable-footer" style="margin-top: 2rem; display: flex; gap: 1rem; padding-top: 1.5rem; border-top: 2px solid var(--border);">
                 <button onclick="printTimetable()" style="flex: 1; background: var(--primary); color: white; padding: 0.75rem 1rem; border: none; border-radius: 0.5rem; cursor: pointer; font-weight: 600;">
                     <i class="fas fa-print"></i> Print Timetable
                 </button>
@@ -3902,11 +3902,11 @@ function switchTimetableDay(day) {
     });
     
     // Show selected day
-    const dayView = document.getElementById(\`day-view-\${day}\`);
+    const dayView = document.getElementById(`day-view-${day}`);
     if (dayView) dayView.style.display = 'block';
     
     // Highlight selected tab
-    const dayTab = document.getElementById(\`day-tab-\${day}\`);
+    const dayTab = document.getElementById(`day-tab-${day}`);
     if (dayTab) {
         dayTab.style.background = 'var(--primary)';
         dayTab.style.color = 'white';

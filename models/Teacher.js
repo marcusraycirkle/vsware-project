@@ -130,7 +130,15 @@ const teacherSchema = new mongoose.Schema({
       ref: 'User'
     },
     createdAt: { type: Date, default: Date.now }
-  }]
+  }],
+  profilePhoto: {
+    type: String,
+    default: null
+  },
+  photoUrl: {
+    type: String,
+    default: null
+  }
 }, {
   timestamps: true
 });
