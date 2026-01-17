@@ -14,7 +14,16 @@ const schoolInfo = {
 
 const emailSender = 'enrolments@mispal.cirkledevelopment.co.uk';
 const schoolLogoUrl = 'https://www.stpatrickscomprehensive.ie/uploads/2/3/2/0/23206024/editor/st-patrick-s-comp-logo-layout-2-1.png?1564671961';
-const mispalLogoUrl = 'https://shannoncomp-my.sharepoint.com/:i:/g/personal/24corykilmartin_shannoncomp_ie/IQCjJrJLBOGERJm2YFQVAgpUARv0HbQf_NuzGCxgirbSlws?e=o3eZVF';
+// MISpal logo as inline SVG (no external dependency issues)
+const mispalLogoSvg = `<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 200 60" width="130" height="39">
+  <defs>
+    <linearGradient id="mispalGradient" x1="0%" y1="0%" x2="100%" y2="0%">
+      <stop offset="0%" style="stop-color:#ff6b9d;stop-opacity:1" />
+      <stop offset="100%" style="stop-color:#ff1744;stop-opacity:1" />
+    </linearGradient>
+  </defs>
+  <text x="10" y="45" font-family="Arial, sans-serif" font-size="42" font-weight="bold" fill="url(#mispalGradient)" letter-spacing="2">MISpal</text>
+</svg>`;
 const welcomeImageUrl = 'https://via.placeholder.com/600x300?text=Welcome+to+St.+Patrick%27s';
 
 /**
@@ -173,7 +182,7 @@ function generateAcceptanceEmailHTML(firstName, yearGroup) {
 
             <!-- MISpal Logo -->
             <div class="mispal-logo">
-                <img src="${mispalLogoUrl}" alt="MISpal Logo">
+                ${mispalLogoSvg}
             </div>
 
             <!-- Main Content -->
@@ -394,7 +403,7 @@ function generateRejectionEmailHTML(firstName, declineReason) {
 
             <!-- MISpal Logo -->
             <div class="mispal-logo">
-                <img src="${mispalLogoUrl}" alt="MISpal Logo">
+                ${mispalLogoSvg}
             </div>
 
             <!-- Main Content -->
@@ -461,5 +470,6 @@ module.exports = {
   generateAcceptanceEmailHTML,
   generateRejectionEmailHTML,
   schoolInfo,
-  emailSender
+  emailSender,
+  mispalLogoSvg
 };

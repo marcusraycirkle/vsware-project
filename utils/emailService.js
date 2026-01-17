@@ -20,7 +20,14 @@ async function sendAcceptanceEmail(studentEmail, firstName, yearGroup) {
       from: emailSender,
       to: studentEmail,
       subject: 'Welcome to St. Patrick\'s Comprehensive School - Enrollment Approved!',
-      html: html
+      html: html,
+      // Headers to prevent junk folder
+      headers: {
+        'X-Priority': '1',
+        'Importance': 'high',
+        'List-Unsubscribe': '<mailto:unsubscribe@mispal.cirkledevelopment.co.uk>',
+        'X-MSMail-Priority': 'High'
+      }
     });
 
     // Handle Resend response
@@ -54,7 +61,14 @@ async function sendRejectionEmail(studentEmail, firstName, declineReason) {
       from: emailSender,
       to: studentEmail,
       subject: 'Enrollment Application Status - St. Patrick\'s Comprehensive School',
-      html: html
+      html: html,
+      // Headers to prevent junk folder
+      headers: {
+        'X-Priority': '1',
+        'Importance': 'high',
+        'List-Unsubscribe': '<mailto:unsubscribe@mispal.cirkledevelopment.co.uk>',
+        'X-MSMail-Priority': 'High'
+      }
     });
 
     // Handle Resend response
