@@ -21,8 +21,32 @@
       "dest": "frontend/$1"
     },
     {
+      "src": "/selector",
+      "dest": "server.js"
+    },
+    {
+      "src": "/shannoncomp/enrolment",
+      "dest": "server.js"
+    },
+    {
+      "src": "/shannoncomp/login",
+      "dest": "server.js"
+    },
+    {
+      "src": "/shannoncomp/(.*)",
+      "dest": "server.js"
+    },
+    {
+      "src": "/home",
+      "dest": "server.js"
+    },
+    {
+      "src": "/",
+      "dest": "server.js"
+    },
+    {
       "src": "/(.*)",
-      "dest": "frontend/index.html"
+      "dest": "server.js"
     }
   ],
   "env": {
