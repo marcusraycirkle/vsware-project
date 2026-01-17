@@ -1,5 +1,5 @@
 // ========== CONFIGURATION ==========
-const API_URL = '/api'; // Relative URL for same domain
+const API_URL = 'https://vsware-project.vercel.app/api'; // Vercel backend
 let currentUser = null;
 let authToken = null;
 let currentSchoolId = null;
