@@ -640,6 +640,9 @@ async function loadSectionData(section, subsection) {
         case 'students':
             await loadStudents();
             break;
+        case 'enrollments':
+            await loadEnrollments();
+            break;
         case 'teachers':
             await loadTeachers();
             break;
@@ -5707,3 +5710,260 @@ async function submitEnhancedAttendanceMarking(classId, date) {
         console.error(error);
     }
 }
+
+// ========== ENROLLMENTS ==========
+let allEnrollments = [];
+
+async function loadEnrollments() {
+    try {
+        showLoading('Loading enrollment applications...');
+        const data = await apiCall('/enrollments?status=Pending&limit=200');
+        allEnrollments = data.enrollments || [];
+        displayEnrollments(allEnrollments);
+        updateEnrollmentStats();
+        hideLoading();
+    } catch (error) {
+        hideLoading();
+        showError('Failed to load enrollments');
+        console.error('Error loading enrollments:', error);
+    }
+}
+
+function displayEnrollments(enrollments) {
+    const tbody = document.getElementById('enrollments-table-body');
+    if (!tbody) return;
+    
+    if (!enrollments || enrollments.length === 0) {
+        tbody.innerHTML = `<tr><td colspan="8" style="text-align: center; padding: 2rem; color: #999;"><i class="fas fa-inbox" style="font-size: 2rem; display: block; margin-bottom: 0.5rem; opacity: 0.5;"></i>No pending enrollment applications</td></tr>`;
+        return;
+    }
+    
+    tbody.innerHTML = enrollments.map(enrollment => {
+        const submitDate = new Date(enrollment.submittedAt).toLocaleDateString('en-IE');
+        const statusBadge = enrollment.status === 'Pending' ? 'badge-warning' : enrollment.status === 'Approved' ? 'badge-success' : 'badge-danger';
+        
+        return `
+        <tr style="border-bottom: 1px solid var(--border);">
+            <td><strong>${enrollment.firstName} ${enrollment.lastName}</strong></td>
+            <td>${enrollment.email}</td>
+            <td>${enrollment.phone || 'N/A'}</td>
+            <td>${submitDate}</td>
+            <td><span class="badge ${statusBadge}">${enrollment.status}</span></td>
+            <td>
+                <div style="display: flex; gap: 0.5rem;">
+                    <button class="btn-sm" style="background: var(--primary); border: none; padding: 0.4rem 0.8rem; border-radius: 0.3rem; cursor: pointer; color: white; font-weight: 600;" onclick="viewEnrollmentDetails('${enrollment._id}')" title="View Details">
+                        <i class="fas fa-eye"></i> View
+                    </button>
+                    ${enrollment.status === 'Pending' ? `
+                    <button class="btn-sm" style="background: #28a745; border: none; padding: 0.4rem 0.8rem; border-radius: 0.3rem; cursor: pointer; color: white; font-weight: 600;" onclick="approveEnrollment('${enrollment._id}')" title="Approve">
+                        <i class="fas fa-check"></i> Approve
+                    </button>
+                    <button class="btn-sm" style="background: #dc3545; border: none; padding: 0.4rem 0.8rem; border-radius: 0.3rem; cursor: pointer; color: white; font-weight: 600;" onclick="showDeclineModal('${enrollment._id}')" title="Decline">
+                        <i class="fas fa-times"></i> Decline
+                    </button>
+                    ` : ''}
+                </div>
+            </td>
+        </tr>
+    `;
+    }).join('');
+}
+
+async function viewEnrollmentDetails(enrollmentId) {
+    try {
+        showLoading('Loading enrollment details...');
+        const enrollment = await apiCall(`/enrollments/${enrollmentId}`);
+        displayEnrollmentDetailsModal(enrollment.enrollment);
+        hideLoading();
+    } catch (error) {
+        hideLoading();
+        showError('Failed to load enrollment details');
+        console.error(error);
+    }
+}
+
+function displayEnrollmentDetailsModal(enrollment) {
+    const modal = document.createElement('div');
+    modal.id = 'enrollment-details-modal';
+    modal.style.cssText = `
+        position: fixed;
+        top: 0;
+        left: 0;
+        width: 100%;
+        height: 100%;
+        background: rgba(0,0,0,0.5);
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        z-index: 1000;
+    `;
+    
+    const dob = new Date(enrollment.dateOfBirth).toLocaleDateString('en-IE');
+    const submitDate = new Date(enrollment.submittedAt).toLocaleDateString('en-IE');
+    
+    modal.innerHTML = `
+        <div style="background: white; border-radius: 1rem; padding: 2rem; max-width: 600px; width: 90%; max-height: 80vh; overflow-y: auto;">
+            <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 1.5rem; padding-bottom: 1rem; border-bottom: 2px solid var(--border);">
+                <h2 style="margin: 0; color: var(--primary);">Enrollment Application</h2>
+                <button onclick="closeModal('enrollment-details-modal')" style="background: none; border: none; font-size: 1.5rem; cursor: pointer;">×</button>
+            </div>
+            
+            <div style="display: grid; gap: 1rem;">
+                <div>
+                    <h4 style="color: var(--primary); margin-bottom: 0.5rem;">Personal Information</h4>
+                    <p><strong>Name:</strong> ${enrollment.firstName} ${enrollment.lastName}</p>
+                    <p><strong>Email:</strong> ${enrollment.email}</p>
+                    <p><strong>Phone:</strong> ${enrollment.phone || 'N/A'}</p>
+                    <p><strong>Date of Birth:</strong> ${dob}</p>
+                    <p><strong>Gender:</strong> ${enrollment.gender}</p>
+                    <p><strong>PPS:</strong> ${enrollment.pps || 'N/A'}</p>
+                </div>
+                
+                <div>
+                    <h4 style="color: var(--primary); margin-bottom: 0.5rem;">Address</h4>
+                    <p><strong>Street:</strong> ${enrollment.address?.street || 'N/A'}</p>
+                    <p><strong>City:</strong> ${enrollment.address?.city || 'N/A'}</p>
+                    <p><strong>County:</strong> ${enrollment.address?.county || 'N/A'}</p>
+                    <p><strong>Eircode:</strong> ${enrollment.address?.eircode || 'N/A'}</p>
+                </div>
+                
+                <div>
+                    <h4 style="color: var(--primary); margin-bottom: 0.5rem;">Previous School</h4>
+                    <p><strong>School Name:</strong> ${enrollment.previousSchool?.name || 'N/A'}</p>
+                    <p><strong>Roll Number:</strong> ${enrollment.previousSchool?.rollNumber || 'N/A'}</p>
+                </div>
+                
+                <div>
+                    <h4 style="color: var(--primary); margin-bottom: 0.5rem;">Medical Information</h4>
+                    <p><strong>Allergies:</strong> ${enrollment.medicalInfo?.allergies?.join(', ') || 'None'}</p>
+                    <p><strong>Conditions:</strong> ${enrollment.medicalInfo?.conditions?.join(', ') || 'None'}</p>
+                </div>
+                
+                ${enrollment.notes ? `
+                <div>
+                    <h4 style="color: var(--primary); margin-bottom: 0.5rem;">Additional Notes</h4>
+                    <p>${enrollment.notes}</p>
+                </div>
+                ` : ''}
+                
+                <div>
+                    <h4 style="color: var(--primary); margin-bottom: 0.5rem;">Application Status</h4>
+                    <p><strong>Status:</strong> <span class="badge ${enrollment.status === 'Pending' ? 'badge-warning' : enrollment.status === 'Approved' ? 'badge-success' : 'badge-danger'}">${enrollment.status}</span></p>
+                    <p><strong>Submitted:</strong> ${submitDate}</p>
+                    ${enrollment.status === 'Declined' ? `<p><strong>Decline Reason:</strong> ${enrollment.declineReason}</p>` : ''}
+                </div>
+            </div>
+            
+            <div style="display: flex; gap: 1rem; margin-top: 2rem; border-top: 2px solid var(--border); padding-top: 1.5rem;">
+                <button onclick="closeModal('enrollment-details-modal')" style="flex: 1; padding: 0.75rem; background: #f0f0f0; border: none; border-radius: 0.5rem; cursor: pointer; font-weight: 600;">Close</button>
+            </div>
+        </div>
+    `;
+    
+    document.body.appendChild(modal);
+}
+
+async function approveEnrollment(enrollmentId) {
+    if (!confirm('Approve this enrollment application? A student account will be created.')) return;
+    
+    try {
+        showLoading('Approving enrollment...');
+        await apiCall(`/enrollments/${enrollmentId}/approve`, {
+            method: 'PUT',
+            body: JSON.stringify({})
+        });
+        
+        hideLoading();
+        showSuccess('Enrollment approved! Student account created.');
+        closeModal('enrollment-details-modal');
+        await loadEnrollments();
+    } catch (error) {
+        hideLoading();
+        showError('Failed to approve enrollment: ' + error.message);
+        console.error(error);
+    }
+}
+
+function showDeclineModal(enrollmentId) {
+    const modal = document.createElement('div');
+    modal.id = 'decline-modal';
+    modal.style.cssText = `
+        position: fixed;
+        top: 0;
+        left: 0;
+        width: 100%;
+        height: 100%;
+        background: rgba(0,0,0,0.5);
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        z-index: 1000;
+    `;
+    
+    modal.innerHTML = `
+        <div style="background: white; border-radius: 1rem; padding: 2rem; max-width: 500px; width: 90%;">
+            <h2 style="color: var(--primary); margin-bottom: 1rem;">Decline Enrollment</h2>
+            <p style="color: #666; margin-bottom: 1.5rem;">Please provide a reason for declining this application:</p>
+            
+            <textarea id="decline-reason" placeholder="Enter decline reason..." style="width: 100%; min-height: 100px; padding: 0.75rem; border: 2px solid var(--border); border-radius: 0.5rem; font-size: 1rem; font-family: inherit; resize: vertical;"></textarea>
+            
+            <div style="display: flex; gap: 1rem; margin-top: 1.5rem;">
+                <button onclick="closeModal('decline-modal')" style="flex: 1; padding: 0.75rem; background: #f0f0f0; border: none; border-radius: 0.5rem; cursor: pointer; font-weight: 600;">Cancel</button>
+                <button onclick="confirmDeclineEnrollment('${enrollmentId}')" style="flex: 1; padding: 0.75rem; background: #dc3545; color: white; border: none; border-radius: 0.5rem; cursor: pointer; font-weight: 600;">Decline</button>
+            </div>
+        </div>
+    `;
+    
+    document.body.appendChild(modal);
+}
+
+async function confirmDeclineEnrollment(enrollmentId) {
+    const reason = document.getElementById('decline-reason').value.trim();
+    
+    if (!reason) {
+        alert('Please provide a reason for declining this application');
+        return;
+    }
+    
+    try {
+        showLoading('Declining enrollment...');
+        await apiCall(`/enrollments/${enrollmentId}/decline`, {
+            method: 'PUT',
+            body: JSON.stringify({ reason })
+        });
+        
+        hideLoading();
+        showSuccess('Enrollment declined.');
+        closeModal('decline-modal');
+        closeModal('enrollment-details-modal');
+        await loadEnrollments();
+    } catch (error) {
+        hideLoading();
+        showError('Failed to decline enrollment: ' + error.message);
+        console.error(error);
+    }
+}
+
+async function updateEnrollmentStats() {
+    try {
+        const stats = await apiCall('/enrollments/stats/summary');
+        if (stats && stats.stats) {
+            // Update stats display if elements exist
+            const pendingElement = document.getElementById('enrollment-pending-count');
+            const approvedElement = document.getElementById('enrollment-approved-count');
+            const declinedElement = document.getElementById('enrollment-declined-count');
+            
+            if (pendingElement) pendingElement.textContent = stats.stats.pending || 0;
+            if (approvedElement) approvedElement.textContent = stats.stats.approved || 0;
+            if (declinedElement) declinedElement.textContent = stats.stats.declined || 0;
+        }
+    } catch (error) {
+        console.error('Error loading enrollment stats:', error);
+    }
+}
+
+function closeModal(modalId) {
+    const modal = document.getElementById(modalId);
+    if (modal) modal.remove();
+}
+

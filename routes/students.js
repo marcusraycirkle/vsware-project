@@ -5,6 +5,84 @@ const Student = require('../models/Student');
 const User = require('../models/User');
 const Class = require('../models/Class');
 
+// @route   GET /api/students/public/lookup
+// @desc    Get students for enrollment lookup (public)
+// @access  Public (for enrollment forms)
+router.get('/public/lookup', async (req, res) => {
+  try {
+    const { search, limit = 50 } = req.query;
+    
+    let query = {};
+    let students = [];
+    
+    if (search && search.length > 0) {
+      // Search by first name, last name, email, or student ID
+      const searchRegex = { $regex: search, $options: 'i' };
+      
+      const users = await User.find({
+        $or: [
+          { firstName: searchRegex },
+          { lastName: searchRegex },
+          { email: searchRegex }
+        ]
+      }).limit(limit);
+      
+      const userIds = users.map(u => u._id);
+      
+      if (userIds.length > 0) {
+        query.user = { $in: userIds };
+      }
+      
+      // Also search by student ID directly
+      students = await Student.find({
+        $or: [
+          query,
+          { studentId: searchRegex }
+        ]
+      })
+        .populate('user', 'firstName lastName email phoneNumber address')
+        .limit(limit)
+        .lean();
+    } else {
+      students = await Student.find()
+        .populate('user', 'firstName lastName email phoneNumber address')
+        .limit(limit)
+        .lean();
+    }
+    
+    // Format for enrollment form
+    const formattedStudents = students.map(student => ({
+      _id: student._id,
+      studentId: student.studentId,
+      firstName: student.user?.firstName || '',
+      lastName: student.user?.lastName || '',
+      email: student.user?.email || '',
+      phone: student.user?.phoneNumber || '',
+      dateOfBirth: student.dateOfBirth,
+      gender: student.gender,
+      pps: student.pps || '',
+      yearGroup: student.yearGroup,
+      house: student.house,
+      address: student.user?.address || {},
+      medicalInfo: student.medicalInfo || {},
+      previousSchool: student.previousSchool || {}
+    }));
+    
+    res.json({
+      success: true,
+      count: formattedStudents.length,
+      students: formattedStudents
+    });
+  } catch (error) {
+    console.error('Error fetching students for enrollment:', error);
+    res.status(500).json({ 
+      success: false,
+      message: 'Server error', 
+      error: error.message 
+    });
+  }
+});
+
 // @route   GET /api/students
 // @desc    Get all students
 // @access  Private (Admin/Principal/Teacher)

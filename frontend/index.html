@@ -249,7 +249,7 @@
                     </div>
                     <div class="dropdown-content">
                         <a onclick="showSection('students', 'list')"><i class="fas fa-list"></i> Student Directory</a>
-                        <a onclick="showSection('students', 'enrollment')"><i class="fas fa-user-plus"></i> Enrollment</a>
+                        <a onclick="showSection('enrollments')"><i class="fas fa-user-plus"></i> Enrollment Applications</a>
                         <a onclick="showSection('students', 'profiles')"><i class="fas fa-id-card"></i> Student Profiles</a>
                         <a onclick="showSection('students', 'attendance')"><i class="fas fa-calendar-check"></i> Attendance</a>
                         <a onclick="showSection('students', 'behavior')"><i class="fas fa-star"></i> Behavior</a>
@@ -685,6 +685,50 @@
                         <div class="reports-list">
                             <!-- Report cards load here -->
                         </div>
+                    </div>
+                </div>
+            </section>
+
+            <!-- ENROLLMENTS SECTION -->
+            <section id="section-enrollments" class="content-section">
+                <div class="page-header">
+                    <h1><i class="fas fa-file-alt"></i> Enrollment Applications</h1>
+                </div>
+                
+                <div class="content-card">
+                    <div class="card-toolbar">
+                        <div class="toolbar-filters" style="gap: 1rem;">
+                            <div style="display: flex; gap: 1rem; align-items: center;">
+                                <span style="font-weight: 600;">Quick Stats:</span>
+                                <span style="background: #fff3cd; padding: 0.5rem 1rem; border-radius: 0.5rem; border-left: 4px solid #ffc107;">
+                                    <i class="fas fa-hourglass-half"></i> Pending: <strong id="enrollment-pending-count">0</strong>
+                                </span>
+                                <span style="background: #d1ecf1; padding: 0.5rem 1rem; border-radius: 0.5rem; border-left: 4px solid #17a2b8;">
+                                    <i class="fas fa-check-circle"></i> Approved: <strong id="enrollment-approved-count">0</strong>
+                                </span>
+                                <span style="background: #f8d7da; padding: 0.5rem 1rem; border-radius: 0.5rem; border-left: 4px solid #dc3545;">
+                                    <i class="fas fa-times-circle"></i> Declined: <strong id="enrollment-declined-count">0</strong>
+                                </span>
+                            </div>
+                        </div>
+                    </div>
+
+                    <div id="enrollments-table-container" class="table-container">
+                        <table class="data-table">
+                            <thead>
+                                <tr>
+                                    <th>Student Name</th>
+                                    <th>Email</th>
+                                    <th>Phone</th>
+                                    <th>Submitted Date</th>
+                                    <th>Status</th>
+                                    <th>Actions</th>
+                                </tr>
+                            </thead>
+                            <tbody id="enrollments-table-body">
+                                <!-- Enrollments load here -->
+                            </tbody>
+                        </table>
                     </div>
                 </div>
             </section>

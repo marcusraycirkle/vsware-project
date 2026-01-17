@@ -50,6 +50,7 @@ const messageRoutes = require('./routes/messages');
 const reportRoutes = require('./routes/reports');
 const paymentRoutes = require('./routes/payments');
 const roomRoutes = require('./routes/rooms');
+const enrollmentRoutes = require('./routes/enrollments');
 
 // Initialize express app
 const app = express();
@@ -161,6 +162,7 @@ app.use('/api/messages', messageRoutes);
 app.use('/api/reports', reportRoutes);
 app.use('/api/payments', paymentRoutes);
 app.use('/api/rooms', roomRoutes);
+app.use('/api/enrollments', enrollmentRoutes);
 
 // Health check route
 app.get('/api/health', (req, res) => {

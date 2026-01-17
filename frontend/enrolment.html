@@ -248,6 +248,197 @@
             color: #742a2a;
         }
 
+        /* Student Lookup Section */
+        .student-lookup-section {
+            background: #f7fafc;
+            border: 2px solid #e2e8f0;
+            border-radius: 0.5rem;
+            padding: 1.5rem;
+            margin-bottom: 2rem;
+        }
+
+        .student-lookup-section h3 {
+            color: #667eea;
+            margin-bottom: 1rem;
+            display: flex;
+            align-items: center;
+            gap: 0.5rem;
+        }
+
+        .lookup-actions {
+            display: flex;
+            gap: 1rem;
+            flex-wrap: wrap;
+        }
+
+        .lookup-search-group {
+            flex: 1;
+            min-width: 200px;
+            display: flex;
+            gap: 0.5rem;
+        }
+
+        .lookup-search-group input {
+            flex: 1;
+            padding: 0.75rem;
+            border: 2px solid #e2e8f0;
+            border-radius: 0.5rem;
+            font-size: 1rem;
+        }
+
+        .lookup-search-group input:focus {
+            outline: none;
+            border-color: #667eea;
+            box-shadow: 0 0 0 3px rgba(102, 126, 234, 0.1);
+        }
+
+        .btn-small {
+            padding: 0.75rem 1rem;
+            font-size: 0.875rem;
+        }
+
+        .student-results {
+            margin-top: 1rem;
+            display: none;
+        }
+
+        .student-results.show {
+            display: block;
+        }
+
+        .results-list {
+            max-height: 300px;
+            overflow-y: auto;
+            border: 1px solid #e2e8f0;
+            border-radius: 0.5rem;
+        }
+
+        .result-item {
+            padding: 1rem;
+            border-bottom: 1px solid #e2e8f0;
+            cursor: pointer;
+            transition: all 0.2s ease;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+
+        .result-item:last-child {
+            border-bottom: none;
+        }
+
+        .result-item:hover {
+            background: #edf2f7;
+        }
+
+        .result-item-info {
+            flex: 1;
+        }
+
+        .result-item-name {
+            font-weight: 600;
+            color: #2d3748;
+        }
+
+        .result-item-details {
+            font-size: 0.875rem;
+            color: #718096;
+            margin-top: 0.25rem;
+        }
+
+        .result-item-btn {
+            padding: 0.5rem 1rem;
+            background: #667eea;
+            color: white;
+            border: none;
+            border-radius: 0.25rem;
+            cursor: pointer;
+            font-size: 0.875rem;
+            transition: all 0.2s ease;
+        }
+
+        .result-item-btn:hover {
+            background: #764ba2;
+        }
+
+        /* Modal Styles */
+        .modal {
+            display: none;
+            position: fixed;
+            z-index: 1000;
+            left: 0;
+            top: 0;
+            width: 100%;
+            height: 100%;
+            background-color: rgba(0, 0, 0, 0.5);
+            animation: fadeIn 0.3s ease;
+        }
+
+        .modal.show {
+            display: flex;
+            align-items: center;
+            justify-content: center;
+        }
+
+        @keyframes fadeIn {
+            from { opacity: 0; }
+            to { opacity: 1; }
+        }
+
+        .modal-content {
+            background-color: white;
+            padding: 2rem;
+            border-radius: 1rem;
+            box-shadow: 0 20px 60px rgba(0, 0, 0, 0.3);
+            max-width: 600px;
+            width: 90%;
+            max-height: 80vh;
+            overflow-y: auto;
+            animation: slideUp 0.3s ease;
+        }
+
+        @keyframes slideUp {
+            from {
+                transform: translateY(50px);
+                opacity: 0;
+            }
+            to {
+                transform: translateY(0);
+                opacity: 1;
+            }
+        }
+
+        .modal-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 1.5rem;
+            padding-bottom: 1rem;
+            border-bottom: 2px solid #e2e8f0;
+        }
+
+        .modal-header h2 {
+            color: #667eea;
+            margin: 0;
+        }
+
+        .close-btn {
+            background: none;
+            border: none;
+            font-size: 1.5rem;
+            cursor: pointer;
+            color: #718096;
+            transition: color 0.2s ease;
+        }
+
+        .close-btn:hover {
+            color: #2d3748;
+        }
+
+        .modal-body {
+            margin-bottom: 1.5rem;
+        }
+
         @media (max-width: 768px) {
             .form-grid {
                 grid-template-columns: 1fr;
@@ -264,6 +455,14 @@
 
             .progress-bar::before {
                 display: none;
+            }
+
+            .lookup-actions {
+                flex-direction: column;
+            }
+
+            .lookup-search-group {
+                min-width: 100%;
             }
         }
     </style>
@@ -297,6 +496,27 @@
                 <div id="error-message" class="alert alert-error" style="display: none;">
                     <i class="fas fa-exclamation-circle"></i>
                     <span id="error-text"></span>
+                </div>
+
+                <!-- Student Lookup Section -->
+                <div class="student-lookup-section">
+                    <h3>
+                        <i class="fas fa-search"></i> Load Existing Student Data (Optional)
+                    </h3>
+                    <p style="color: #718096; margin-bottom: 1rem; font-size: 0.95rem;">
+                        If this student already has a profile in our system, search and select them to automatically populate their information.
+                    </p>
+                    <div class="lookup-actions">
+                        <div class="lookup-search-group">
+                            <input type="text" id="studentSearch" placeholder="Search by name, email, or student ID...">
+                            <button type="button" class="btn btn-primary btn-small" id="searchBtn">
+                                <i class="fas fa-search"></i> Search
+                            </button>
+                        </div>
+                    </div>
+                    <div id="studentResults" class="student-results">
+                        <div id="resultsList" class="results-list"></div>
+                    </div>
                 </div>
 
                 <form id="enrolment-form">
@@ -447,6 +667,158 @@
     <script>
         const API_URL = window.location.hostname === 'localhost' ? 'http://localhost:5000/api' : '/api';
 
+        // Initialize search event listeners
+        document.getElementById('searchBtn').addEventListener('click', async () => {
+            await searchStudents();
+        });
+
+        document.getElementById('studentSearch').addEventListener('keypress', (e) => {
+            if (e.key === 'Enter') {
+                e.preventDefault();
+                searchStudents();
+            }
+        });
+
+        async function searchStudents() {
+            const searchTerm = document.getElementById('studentSearch').value.trim();
+            
+            if (searchTerm.length < 2) {
+                alert('Please enter at least 2 characters to search');
+                return;
+            }
+
+            try {
+                const response = await fetch(`${API_URL}/students/public/lookup?search=${encodeURIComponent(searchTerm)}&limit=20`);
+                const data = await response.json();
+                
+                if (data.success && data.students.length > 0) {
+                    displaySearchResults(data.students);
+                } else {
+                    document.getElementById('resultsList').innerHTML = '<div style="padding: 1rem; color: #718096;"><i class="fas fa-info-circle"></i> No students found matching your search.</div>';
+                    document.getElementById('studentResults').classList.add('show');
+                }
+            } catch (error) {
+                console.error('Error searching students:', error);
+                alert('Error searching students. Please try again.');
+            }
+        }
+
+        function displaySearchResults(students) {
+            const resultsList = document.getElementById('resultsList');
+            resultsList.innerHTML = '';
+
+            students.forEach(student => {
+                const resultItem = document.createElement('div');
+                resultItem.className = 'result-item';
+                
+                const fullName = `${student.firstName} ${student.lastName}`;
+                const studentIdText = student.studentId ? ` (ID: ${student.studentId})` : '';
+                
+                resultItem.innerHTML = `
+                    <div class="result-item-info">
+                        <div class="result-item-name">${fullName}${studentIdText}</div>
+                        <div class="result-item-details">
+                            ${student.email || 'No email'} • DOB: ${formatDate(student.dateOfBirth)}
+                        </div>
+                    </div>
+                    <button type="button" class="result-item-btn" onclick="loadStudentData('${student._id}')">
+                        Load Data
+                    </button>
+                `;
+                
+                resultsList.appendChild(resultItem);
+            });
+
+            document.getElementById('studentResults').classList.add('show');
+        }
+
+        async function loadStudentData(studentId) {
+            try {
+                // Fetch full student data
+                const response = await fetch(`${API_URL}/students/public/lookup?search=${encodeURIComponent(studentId)}&limit=1`);
+                const data = await response.json();
+                
+                if (data.students && data.students.length > 0) {
+                    const student = data.students[0];
+                    
+                    // Populate the form with student data
+                    document.getElementById('firstName').value = student.firstName || '';
+                    document.getElementById('lastName').value = student.lastName || '';
+                    document.getElementById('email').value = student.email || '';
+                    document.getElementById('phone').value = student.phone || '';
+                    document.getElementById('dateOfBirth').value = formatDateForInput(student.dateOfBirth) || '';
+                    document.getElementById('gender').value = student.gender || '';
+                    document.getElementById('pps').value = student.pps || '';
+                    
+                    // Address information
+                    if (student.address) {
+                        document.getElementById('address').value = student.address.street || '';
+                        document.getElementById('city').value = student.address.city || '';
+                        document.getElementById('county').value = student.address.county || '';
+                        document.getElementById('eircode').value = student.address.eircode || '';
+                    }
+                    
+                    // Medical information
+                    if (student.medicalInfo) {
+                        const allergies = student.medicalInfo.allergies ? student.medicalInfo.allergies.join(', ') : '';
+                        document.getElementById('allergies').value = allergies;
+                        
+                        const conditions = student.medicalInfo.conditions ? student.medicalInfo.conditions.join(', ') : '';
+                        document.getElementById('conditions').value = conditions;
+                    }
+                    
+                    // Previous school information
+                    if (student.previousSchool) {
+                        document.getElementById('previousSchool').value = student.previousSchool.name || '';
+                    }
+                    
+                    // Hide search results
+                    document.getElementById('studentResults').classList.remove('show');
+                    document.getElementById('studentSearch').value = '';
+                    
+                    // Scroll to the top of the form
+                    document.getElementById('enrolment-form').scrollIntoView({ behavior: 'smooth', block: 'start' });
+                    
+                    // Show confirmation message
+                    showMessage('Student data loaded successfully!', 'success');
+                } else {
+                    alert('Could not load full student details. Please try again.');
+                }
+            } catch (error) {
+                console.error('Error loading student data:', error);
+                alert('Error loading student data. Please try again.');
+            }
+        }
+
+        function formatDate(dateString) {
+            if (!dateString) return 'N/A';
+            const date = new Date(dateString);
+            return date.toLocaleDateString('en-IE');
+        }
+
+        function formatDateForInput(dateString) {
+            if (!dateString) return '';
+            const date = new Date(dateString);
+            const year = date.getFullYear();
+            const month = String(date.getMonth() + 1).padStart(2, '0');
+            const day = String(date.getDate()).padStart(2, '0');
+            return `${year}-${month}-${day}`;
+        }
+
+        function showMessage(message, type) {
+            const messageDiv = document.createElement('div');
+            messageDiv.className = `alert alert-${type}`;
+            messageDiv.innerHTML = `<i class="fas fa-${type === 'success' ? 'check-circle' : 'info-circle'}"></i><span>${message}</span>`;
+            
+            const formBody = document.querySelector('.enrolment-body');
+            formBody.insertBefore(messageDiv, formBody.firstChild);
+            
+            setTimeout(() => {
+                messageDiv.remove();
+            }, 3000);
+        }
+
+        // Form submission handler
         document.getElementById('enrolment-form').addEventListener('submit', async (e) => {
             e.preventDefault();
             
@@ -458,9 +830,8 @@
             document.getElementById('error-message').style.display = 'none';
             
             try {
-                // Prepare enrolment data
-                const enrolmentData = {
-                    studentId: `SPC${Date.now().toString().slice(-6)}`,
+                // Prepare enrollment data
+                const enrollmentData = {
                     firstName: data.firstName,
                     lastName: data.lastName,
                     email: data.email,
@@ -483,23 +854,38 @@
                         allergies: data.allergies ? data.allergies.split(',').map(a => a.trim()) : [],
                         conditions: data.conditions ? [data.conditions] : []
                     },
-                    notes: data.notes,
-                    status: 'Pending'
+                    notes: data.notes
                 };
 
-                // Submit to API (this would go to a public enrolment endpoint)
-                console.log('Enrolment Data:', enrolmentData);
-                
-                // Show success message
-                document.getElementById('success-message').style.display = 'flex';
-                e.target.reset();
-                
-                // Scroll to top
-                window.scrollTo({ top: 0, behavior: 'smooth' });
+                // Submit to API
+                const response = await fetch(`${API_URL}/enrollments`, {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json'
+                    },
+                    body: JSON.stringify(enrollmentData)
+                });
+
+                const result = await response.json();
+
+                if (result.success) {
+                    // Show success message
+                    document.getElementById('success-message').style.display = 'flex';
+                    e.target.reset();
+                    document.getElementById('studentResults').classList.remove('show');
+                    document.getElementById('studentSearch').value = '';
+                    
+                    // Scroll to top
+                    setTimeout(() => {
+                        window.scrollTo({ top: 0, behavior: 'smooth' });
+                    }, 100);
+                } else {
+                    throw new Error(result.message || 'Failed to submit enrollment');
+                }
                 
             } catch (error) {
-                console.error('Enrolment error:', error);
-                document.getElementById('error-text').textContent = 'Failed to submit enrolment. Please try again.';
+                console.error('Enrollment error:', error);
+                document.getElementById('error-text').textContent = error.message || 'Failed to submit enrollment. Please try again.';
                 document.getElementById('error-message').style.display = 'flex';
             }
         });
