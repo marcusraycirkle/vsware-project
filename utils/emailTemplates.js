@@ -12,6 +12,7 @@ const schoolInfo = {
   email: 'info@shannoncomp.ie'
 };
 
+const emailSender = 'enrolments@mispal.cirkledevelopment.co.uk';
 const schoolLogoUrl = 'https://www.stpatrickscomprehensive.ie/uploads/2/3/2/0/23206024/editor/st-patrick-s-comp-logo-layout-2-1.png?1564671961';
 const mispalLogoUrl = 'https://shannoncomp-my.sharepoint.com/:i:/g/personal/24corykilmartin_shannoncomp_ie/IQCjJrJLBOGERJm2YFQVAgpUARv0HbQf_NuzGCxgirbSlws?e=o3eZVF';
 const welcomeImageUrl = 'https://via.placeholder.com/600x300?text=Welcome+to+St.+Patrick%27s';
@@ -459,5 +460,6 @@ function generateRejectionEmailHTML(firstName, declineReason) {
 module.exports = {
   generateAcceptanceEmailHTML,
   generateRejectionEmailHTML,
-  schoolInfo
+  schoolInfo,
+  emailSender
 };

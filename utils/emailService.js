@@ -3,6 +3,7 @@
  */
 
 const { Resend } = require('resend');
+const { emailSender } = require('./emailTemplates');
 
 const resend = new Resend(process.env.RESEND_API_KEY);
 
@@ -16,7 +17,7 @@ async function sendAcceptanceEmail(studentEmail, firstName, yearGroup) {
     const html = generateAcceptanceEmailHTML(firstName, yearGroup);
 
     const response = await resend.emails.send({
-      from: 'noreply@st-patricks-school.com',
+      from: emailSender,
       to: studentEmail,
       subject: 'Welcome to St. Patrick\'s Comprehensive School - Enrollment Approved!',
       html: html
@@ -50,7 +51,7 @@ async function sendRejectionEmail(studentEmail, firstName, declineReason) {
     const html = generateRejectionEmailHTML(firstName, declineReason);
 
     const response = await resend.emails.send({
-      from: 'noreply@st-patricks-school.com',
+      from: emailSender,
       to: studentEmail,
       subject: 'Enrollment Application Status - St. Patrick\'s Comprehensive School',
       html: html
