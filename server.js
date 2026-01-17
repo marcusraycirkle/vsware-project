@@ -78,13 +78,14 @@ app.use(async (req, res, next) => {
 
 // CORS configuration for production
 const corsOptions = {
-  origin: [
-    'http://localhost:3000',
-    'http://localhost:8000',
-    'https://marcusraycirkle.github.io'  // GitHub Pages
-  ],
+  origin: function (origin, callback) {
+    // Allow all origins for now since frontend can be anywhere
+    callback(null, true);
+  },
   credentials: true,
-  optionsSuccessStatus: 200
+  optionsSuccessStatus: 200,
+  methods: ['GET', 'POST', 'PUT', 'DELETE', 'PATCH', 'OPTIONS'],
+  allowedHeaders: ['Content-Type', 'Authorization']
 };
 app.use(cors(corsOptions));
 
