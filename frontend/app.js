@@ -18,11 +18,99 @@ let notificationCount = 0;
 
 // ========== INITIALIZATION ==========
 document.addEventListener('DOMContentLoaded', () => {
-    // Router will handle initial navigation
+    // Initialize hash-based routing
+    initializeHashRouting();
     setupEventListeners();
     initializeNotifications();
     loadMockNotifications();
 });
+
+function initializeHashRouting() {
+    // Handle hash changes for navigation
+    window.addEventListener('hashchange', handleHashRoute);
+    window.addEventListener('load', handleHashRoute);
+    
+    // Set default hash if none exists
+    if (!window.location.hash) {
+        // Check if user is already logged in
+        const token = localStorage.getItem('token');
+        const selectedSchool = localStorage.getItem('selectedSchool') || 'shannoncomp';
+        
+        if (token) {
+            window.location.hash = `#/${selectedSchool}/overview`;
+        } else {
+            // Show landing page
+            showLandingPage();
+        }
+    } else {
+        handleHashRoute();
+    }
+}
+
+function handleHashRoute() {
+    const hash = window.location.hash.slice(1) || '';
+    const parts = hash.split('/').filter(p => p);
+    
+    console.log('Hash route:', hash, 'Parts:', parts);
+    
+    // Route patterns:
+    // #/selector - school selector
+    // #/shannoncomp/login - school login
+    // #/shannoncomp/enrolment - public enrollment
+    // #/shannoncomp/overview - dashboard (requires auth)
+    // #/shannoncomp/students - dashboard pages (requires auth)
+    
+    if (parts.length === 0 || parts[0] === 'selector') {
+        // Show school selector or landing
+        window.location.href = 'school-selector.html';
+    } else if (parts.length >= 2) {
+        const schoolId = parts[0];
+        const page = parts[1];
+        
+        // Store selected school
+        localStorage.setItem('selectedSchool', schoolId);
+        
+        if (page === 'enrolment') {
+            // Show enrollment page
+            window.location.href = `enrolment.html#/${schoolId}/enrolment`;
+        } else if (page === 'login') {
+            // Show login page
+            showLoginPage();
+        } else {
+            // Dashboard pages - check auth
+            const token = localStorage.getItem('token');
+            if (token) {
+                showDashboard();
+                showSection(page);
+            } else {
+                window.location.hash = `#/${schoolId}/login`;
+            }
+        }
+    } else {
+        // Invalid route - go to selector
+        window.location.hash = '#/selector';
+    }
+}
+
+function showLandingPage() {
+    const landingPage = document.getElementById('landing-page');
+    const loginSection = document.getElementById('login-section');
+    const dashboard = document.getElementById('dashboard');
+    
+    if (landingPage) landingPage.style.display = 'block';
+    if (loginSection) loginSection.style.display = 'none';
+    if (dashboard) dashboard.classList.add('hidden');
+}
+
+function showLoginPage() {
+    const landingPage = document.getElementById('landing-page');
+    const loginSection = document.getElementById('login-section');
+    const dashboard = document.getElementById('dashboard');
+    
+    if (landingPage) landingPage.style.display = 'none';
+    if (loginSection) loginSection.style.display = 'flex';
+    if (dashboard) dashboard.classList.add('hidden');
+}
 
 function setupEventListeners() {
     const loginForm = document.getElementById('login-form');
@@ -97,12 +185,9 @@ async function login(email, pin) {
             authToken = data.token;
             currentUser = data.user;
             
-            if (router && router.currentSchool) {
-                const schoolId = router.currentSchool.id;
-                localStorage.setItem(`token_${schoolId}`, authToken);
-                localStorage.setItem(`user_${schoolId}`, JSON.stringify(currentUser));
-            }
-            
+            // Store auth data
+            localStorage.setItem('token', authToken);
+            localStorage.setItem('user', JSON.stringify(currentUser));
             localStorage.setItem('userRole', currentUser.role);
             localStorage.setItem('permissionLevel', currentUser.permissionLevel || 'General');
             
@@ -110,7 +195,11 @@ async function login(email, pin) {
             
             setTimeout(() => {
                 hideLoading();
-                router.navigate('dashboard');
+                
+                // Navigate to dashboard with school context
+                const selectedSchool = localStorage.getItem('selectedSchool') || 'shannoncomp';
+                window.location.hash = `#/${selectedSchool}/overview`;
+                
                 applyRoleBasedNavigation();
                 loadDashboardData();
             }, 500);
@@ -133,13 +222,19 @@ function quickLogin(email, pin) {
 
 async function logout() {
     await showGoodbyeAnimation();
-    localStorage.removeItem('auth_token');
-    localStorage.removeItem('current_user');
+    
+    // Clear all auth data
+    localStorage.removeItem('token');
+    localStorage.removeItem('user');
     localStorage.removeItem('userRole');
     localStorage.removeItem('permissionLevel');
+    
     authToken = null;
     currentUser = null;
-    showLandingPage();
+    
+    // Redirect to landing page
+    const selectedSchool = localStorage.getItem('selectedSchool') || 'shannoncomp';
+    window.location.hash = `#/${selectedSchool}/login`;
 }
 
 function applyRoleBasedNavigation() {
@@ -670,35 +765,76 @@ function displayStudents(students) {
     if (!tbody) return;
     
     if (!students || students.length === 0) {
-        tbody.innerHTML = `<tr><td colspan="7" style="text-align: center; padding: 2rem; color: #999;">No students found</td></tr>`;
+        tbody.innerHTML = `<tr><td colspan="11" style="text-align: center; padding: 2rem; color: #999;">No students found</td></tr>`;
         return;
     }
     
-    tbody.innerHTML = students.map(student => `
+    tbody.innerHTML = students.map(student => {
+        const dob = student.dateOfBirth ? new Date(student.dateOfBirth).toLocaleDateString('en-IE', { year: 'numeric', month: 'short', day: 'numeric' }) : 'N/A';
+        const className = student.currentClass?.name || student.currentClass?.className || 'Not Assigned';
+        const statusBadge = getStatusBadgeClass(student.status || 'Active');
+        
+        return `
         <tr style="border-bottom: 1px solid var(--border); transition: var(--transition);" onmouseover="this.style.backgroundColor='rgba(255, 107, 107, 0.05)'" onmouseout="this.style.backgroundColor='transparent'">
             <td style="text-align: center;">
                 <div style="width: 40px; height: 40px; border-radius: 50%; overflow: hidden; margin: 0 auto; background: var(--gradient-primary); display: flex; align-items: center; justify-content: center; color: white; font-weight: bold;">
-                    ${student.photoUrl ? `<img src="${student.photoUrl}" alt="${student.firstName}" style="width: 100%; height: 100%; object-fit: cover;">` : (student.firstName[0] + student.lastName[0]).toUpperCase()}
+                    ${student.photoUrl ? `<img src="${student.photoUrl}" alt="${student.firstName}" style="width: 100%; height: 100%; object-fit: cover;">` : (student.firstName && student.lastName ? (student.firstName[0] + student.lastName[0]).toUpperCase() : 'N/A')}
                 </div>
             </td>
-            <td>${student.studentId || 'N/A'}</td>
+            <td><strong>${student.studentId || 'N/A'}</strong></td>
             <td>
                 <strong style="color: var(--primary);">${student.firstName} ${student.lastName}</strong>
             </td>
             <td>${student.email}</td>
-            <td>Year ${student.yearGroup}</td>
+            <td>${dob}</td>
+            <td>
+                ${student.gender ? `<span style="padding: 0.25rem 0.5rem; border-radius: 0.25rem; font-size: 0.85rem; background: ${student.gender === 'Male' ? '#e3f2fd' : student.gender === 'Female' ? '#fce4ec' : '#f3e5f5'}; color: ${student.gender === 'Male' ? '#1976d2' : student.gender === 'Female' ? '#c2185b' : '#7b1fa2'};">
+                    ${student.gender}
+                </span>` : 'N/A'}
+            </td>
+            <td>
+                <span style="padding: 0.25rem 0.75rem; border-radius: 0.25rem; font-weight: 600; background: var(--primary-light); color: var(--primary);">
+                    ${student.yearGroup || 'N/A'}
+                </span>
+            </td>
             <td>
                 <span class="badge ${getHouseBadgeClass(student.house)}" style="border-radius: 2rem; padding: 0.25rem 0.75rem;">
                     ${student.house || 'N/A'}
                 </span>
             </td>
+            <td>${className}</td>
             <td>
-                <button class="btn-sm btn-primary" style="background: var(--primary); border: none; padding: 0.4rem 0.8rem; border-radius: 0.3rem; cursor: pointer; color: white; font-weight: 600;" onclick="viewStudentProfile('${student._id}')">
-                    <i class="fas fa-eye"></i> View
-                </button>
+                <span class="badge ${statusBadge}" style="border-radius: 0.25rem; padding: 0.25rem 0.75rem; font-size: 0.85rem;">
+                    ${student.status || 'Active'}
+                </span>
+            </td>
+            <td>
+                <div style="display: flex; gap: 0.5rem;">
+                    <button class="btn-sm btn-primary" style="background: var(--primary); border: none; padding: 0.4rem 0.8rem; border-radius: 0.3rem; cursor: pointer; color: white; font-weight: 600;" onclick="viewStudentProfile('${student._id}')" title="View Details">
+                        <i class="fas fa-eye"></i>
+                    </button>
+                    <button class="btn-sm btn-info" style="background: #17a2b8; border: none; padding: 0.4rem 0.8rem; border-radius: 0.3rem; cursor: pointer; color: white; font-weight: 600;" onclick="editStudent('${student._id}')" title="Edit Student">
+                        <i class="fas fa-edit"></i>
+                    </button>
+                    <button class="btn-sm btn-danger" style="background: #dc3545; border: none; padding: 0.4rem 0.8rem; border-radius: 0.3rem; cursor: pointer; color: white; font-weight: 600;" onclick="deleteStudent('${student._id}')" title="Delete Student">
+                        <i class="fas fa-trash"></i>
+                    </button>
+                </div>
             </td>
         </tr>
-    `).join('');
+    `;
+    }).join('');
+}
+
+function getStatusBadgeClass(status) {
+    const statusClasses = {
+        'Active': 'badge-success',
+        'Inactive': 'badge-secondary',
+        'Graduated': 'badge-primary',
+        'Transferred': 'badge-warning',
+        'Expelled': 'badge-danger'
+    };
+    return statusClasses[status] || 'badge-secondary';
 }
 
 function filterStudents() {
@@ -811,8 +947,302 @@ async function loadStudentProfile(studentId) {
     }
 }
 
-function editStudent(studentId) {
-    showSuccess('Edit student feature coming soon!');
+async function editStudent(studentId) {
+    try {
+        showLoading('Loading student data...');
+        const student = await apiCall(`/students/${studentId}`);
+        hideLoading();
+        
+        // Populate the edit form with existing data
+        const dob = student.dateOfBirth ? new Date(student.dateOfBirth).toISOString().split('T')[0] : '';
+        const admissionDate = student.admissionDate ? new Date(student.admissionDate).toISOString().split('T')[0] : '';
+        
+        const modalContent = `
+            <form id="edit-student-form" style="max-height: 70vh; overflow-y: auto; padding-right: 1rem;">
+                
+                <!-- Basic Information Section -->
+                <div class="form-section">
+                    <h3 style="color: var(--primary); margin-bottom: 1rem; padding-bottom: 0.5rem; border-bottom: 2px solid var(--border);">
+                        <i class="fas fa-user-circle"></i> Basic Information
+                    </h3>
+                    <div class="form-grid">
+                        <div class="input-group">
+                            <label><i class="fas fa-id-card"></i> Student ID</label>
+                            <input type="text" id="edit-student-id" value="${student.studentId || ''}" readonly style="background: #f5f5f5;">
+                            <small style="color: var(--text-secondary);">Student ID cannot be changed</small>
+                        </div>
+                        <div class="input-group">
+                            <label><i class="fas fa-user"></i> First Name *</label>
+                            <input type="text" id="edit-student-firstname" value="${student.user?.firstName || student.firstName || ''}" required>
+                        </div>
+                        <div class="input-group">
+                            <label><i class="fas fa-user"></i> Last Name *</label>
+                            <input type="text" id="edit-student-lastname" value="${student.user?.lastName || student.lastName || ''}" required>
+                        </div>
+                        <div class="input-group">
+                            <label><i class="fas fa-envelope"></i> Email *</label>
+                            <input type="email" id="edit-student-email" value="${student.user?.email || student.email || ''}" required>
+                        </div>
+                        <div class="input-group">
+                            <label><i class="fas fa-phone"></i> Phone</label>
+                            <input type="tel" id="edit-student-phone" value="${student.user?.phoneNumber || student.phone || ''}" placeholder="+353 XX XXX XXXX">
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Personal Details Section -->
+                <div class="form-section" style="margin-top: 1.5rem;">
+                    <h3 style="color: var(--primary); margin-bottom: 1rem; padding-bottom: 0.5rem; border-bottom: 2px solid var(--border);">
+                        <i class="fas fa-id-card-alt"></i> Personal Details
+                    </h3>
+                    <div class="form-grid">
+                        <div class="input-group">
+                            <label><i class="fas fa-calendar"></i> Date of Birth *</label>
+                            <input type="date" id="edit-student-dob" value="${dob}" required>
+                        </div>
+                        <div class="input-group">
+                            <label><i class="fas fa-venus-mars"></i> Gender *</label>
+                            <select id="edit-student-gender" class="select-input" required>
+                                <option value="">Select...</option>
+                                <option value="Male" ${student.gender === 'Male' ? 'selected' : ''}>Male</option>
+                                <option value="Female" ${student.gender === 'Female' ? 'selected' : ''}>Female</option>
+                                <option value="Other" ${student.gender === 'Other' ? 'selected' : ''}>Other</option>
+                            </select>
+                        </div>
+                        <div class="input-group">
+                            <label><i class="fas fa-fingerprint"></i> PPS Number</label>
+                            <input type="text" id="edit-student-pps" value="${student.pps || ''}" placeholder="XXXXXXXA">
+                        </div>
+                        <div class="input-group full-width">
+                            <label><i class="fas fa-map-marker-alt"></i> Address</label>
+                            <input type="text" id="edit-student-address" value="${student.user?.address?.street || student.address?.street || ''}" placeholder="Street address, City, County, Eircode">
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Academic Information Section -->
+                <div class="form-section" style="margin-top: 1.5rem;">
+                    <h3 style="color: var(--primary); margin-bottom: 1rem; padding-bottom: 0.5rem; border-bottom: 2px solid var(--border);">
+                        <i class="fas fa-graduation-cap"></i> Academic Information
+                    </h3>
+                    <div class="form-grid">
+                        <div class="input-group">
+                            <label><i class="fas fa-school"></i> Year Group *</label>
+                            <select id="edit-student-year" required class="select-input">
+                                <option value="">Select year...</option>
+                                <option value="1" ${student.currentYear === 1 ? 'selected' : ''}>First Year</option>
+                                <option value="2" ${student.currentYear === 2 ? 'selected' : ''}>Second Year</option>
+                                <option value="3" ${student.currentYear === 3 ? 'selected' : ''}>Third Year</option>
+                                <option value="4" ${student.currentYear === 4 ? 'selected' : ''}>Transition Year (TY)</option>
+                                <option value="5" ${student.currentYear === 5 ? 'selected' : ''}>Fifth Year</option>
+                                <option value="6" ${student.currentYear === 6 ? 'selected' : ''}>Sixth Year</option>
+                            </select>
+                        </div>
+                        <div class="input-group">
+                            <label><i class="fas fa-flag"></i> Theaghlach *</label>
+                            <select id="edit-student-house" required class="select-input">
+                                <option value="">Select theaghlach...</option>
+                                <option value="Seanan" ${student.house === 'Seanan' ? 'selected' : ''}>Seanan</option>
+                                <option value="Bride" ${student.house === 'Bride' ? 'selected' : ''}>Bride</option>
+                                <option value="Ide" ${student.house === 'Ide' ? 'selected' : ''}>Ide</option>
+                                <option value="Conaire" ${student.house === 'Conaire' ? 'selected' : ''}>Conaire</option>
+                                <option value="Padraig" ${student.house === 'Padraig' ? 'selected' : ''}>Padraig</option>
+                                <option value="Tola" ${student.house === 'Tola' ? 'selected' : ''}>Tola</option>
+                            </select>
+                        </div>
+                        <div class="input-group">
+                            <label><i class="fas fa-key"></i> Locker Number</label>
+                            <input type="text" id="edit-student-locker" value="${student.lockerNumber || ''}" placeholder="e.g., L-101">
+                        </div>
+                        <div class="input-group">
+                            <label><i class="fas fa-toggle-on"></i> Status</label>
+                            <select id="edit-student-status" class="select-input">
+                                <option value="Active" ${student.status === 'Active' ? 'selected' : ''}>Active</option>
+                                <option value="Inactive" ${student.status === 'Inactive' ? 'selected' : ''}>Inactive</option>
+                                <option value="Graduated" ${student.status === 'Graduated' ? 'selected' : ''}>Graduated</option>
+                                <option value="Transferred" ${student.status === 'Transferred' ? 'selected' : ''}>Transferred</option>
+                                <option value="Expelled" ${student.status === 'Expelled' ? 'selected' : ''}>Expelled</option>
+                            </select>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Medical Information Section -->
+                <div class="form-section" style="margin-top: 1.5rem;">
+                    <h3 style="color: var(--primary); margin-bottom: 1rem; padding-bottom: 0.5rem; border-bottom: 2px solid var(--border);">
+                        <i class="fas fa-heartbeat"></i> Medical Information
+                    </h3>
+                    <div class="form-grid">
+                        <div class="input-group">
+                            <label><i class="fas fa-tint"></i> Blood Group</label>
+                            <select id="edit-student-blood" class="select-input">
+                                <option value="">Select...</option>
+                                <option value="A+" ${student.medicalInfo?.bloodGroup === 'A+' ? 'selected' : ''}>A+</option>
+                                <option value="A-" ${student.medicalInfo?.bloodGroup === 'A-' ? 'selected' : ''}>A-</option>
+                                <option value="B+" ${student.medicalInfo?.bloodGroup === 'B+' ? 'selected' : ''}>B+</option>
+                                <option value="B-" ${student.medicalInfo?.bloodGroup === 'B-' ? 'selected' : ''}>B-</option>
+                                <option value="AB+" ${student.medicalInfo?.bloodGroup === 'AB+' ? 'selected' : ''}>AB+</option>
+                                <option value="AB-" ${student.medicalInfo?.bloodGroup === 'AB-' ? 'selected' : ''}>AB-</option>
+                                <option value="O+" ${student.medicalInfo?.bloodGroup === 'O+' ? 'selected' : ''}>O+</option>
+                                <option value="O-" ${student.medicalInfo?.bloodGroup === 'O-' ? 'selected' : ''}>O-</option>
+                            </select>
+                        </div>
+                        <div class="input-group full-width">
+                            <label><i class="fas fa-allergies"></i> Allergies</label>
+                            <input type="text" id="edit-student-allergies" value="${student.medicalInfo?.allergies?.join(', ') || ''}" placeholder="Separate multiple allergies with commas">
+                        </div>
+                        <div class="input-group full-width">
+                            <label><i class="fas fa-notes-medical"></i> Medical Conditions</label>
+                            <input type="text" id="edit-student-conditions" value="${student.medicalInfo?.conditions?.join(', ') || ''}" placeholder="Separate multiple conditions with commas">
+                        </div>
+                        <div class="input-group full-width">
+                            <label><i class="fas fa-pills"></i> Medications</label>
+                            <input type="text" id="edit-student-medications" value="${student.medicalInfo?.medications?.join(', ') || ''}" placeholder="Separate multiple medications with commas">
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Emergency Contact Section -->
+                <div class="form-section" style="margin-top: 1.5rem;">
+                    <h3 style="color: var(--primary); margin-bottom: 1rem; padding-bottom: 0.5rem; border-bottom: 2px solid var(--border);">
+                        <i class="fas fa-phone-square"></i> Emergency Contact
+                    </h3>
+                    <div class="form-grid">
+                        <div class="input-group">
+                            <label><i class="fas fa-user-shield"></i> Contact Name</label>
+                            <input type="text" id="edit-student-emergency-name" value="${student.medicalInfo?.emergencyContact?.name || ''}" placeholder="Full name">
+                        </div>
+                        <div class="input-group">
+                            <label><i class="fas fa-users"></i> Relationship</label>
+                            <input type="text" id="edit-student-emergency-relation" value="${student.medicalInfo?.emergencyContact?.relationship || ''}" placeholder="e.g., Mother, Father, Guardian">
+                        </div>
+                        <div class="input-group">
+                            <label><i class="fas fa-mobile-alt"></i> Emergency Phone</label>
+                            <input type="tel" id="edit-student-emergency-phone" value="${student.medicalInfo?.emergencyContact?.phone || ''}" placeholder="+353 XX XXX XXXX">
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Photo Upload Section -->
+                <div class="form-section" style="margin-top: 1.5rem;">
+                    <h3 style="color: var(--primary); margin-bottom: 1rem; padding-bottom: 0.5rem; border-bottom: 2px solid var(--border);">
+                        <i class="fas fa-camera"></i> Profile Photo
+                    </h3>
+                    <div class="input-group full-width">
+                        <label><i class="fas fa-image"></i> Photo URL</label>
+                        <input type="url" id="edit-student-photo" value="${student.photoUrl || student.profilePhoto || ''}" placeholder="https://example.com/photo.jpg">
+                    </div>
+                </div>
+            </form>
+        `;
+        
+        showModal('Edit Student Information', modalContent, [
+            { text: 'Cancel', type: 'secondary', action: 'closeModal()' },
+            { text: 'Save Changes', type: 'success', action: `updateStudent('${studentId}')`, icon: 'fas fa-save' }
+        ], 'large');
+        
+    } catch (error) {
+        hideLoading();
+        showError('Failed to load student data: ' + error.message);
+        console.error('Edit student error:', error);
+    }
+}
+
+async function updateStudent(studentId) {
+    // Get all form values
+    const firstName = document.getElementById('edit-student-firstname').value.trim();
+    const lastName = document.getElementById('edit-student-lastname').value.trim();
+    const email = document.getElementById('edit-student-email').value.trim();
+    const dateOfBirth = document.getElementById('edit-student-dob').value;
+    const gender = document.getElementById('edit-student-gender').value;
+    const yearGroup = parseInt(document.getElementById('edit-student-year').value);
+    const house = document.getElementById('edit-student-house').value;
+    
+    // Validate required fields
+    if (!firstName || !lastName || !email || !dateOfBirth || !gender || !yearGroup || !house) {
+        showError('Please fill in all required fields');
+        return;
+    }
+    
+    // Compile update data
+    const updateData = {
+        firstName: firstName,
+        lastName: lastName,
+        email: email,
+        phone: document.getElementById('edit-student-phone').value.trim() || undefined,
+        dateOfBirth: dateOfBirth,
+        gender: gender,
+        pps: document.getElementById('edit-student-pps').value.trim() || undefined,
+        address: {
+            street: document.getElementById('edit-student-address').value.trim() || ''
+        },
+        yearGroup: yearGroup,
+        house: house,
+        lockerNumber: document.getElementById('edit-student-locker').value.trim() || undefined,
+        status: document.getElementById('edit-student-status').value,
+        medicalInfo: {
+            bloodGroup: document.getElementById('edit-student-blood').value || undefined,
+            allergies: document.getElementById('edit-student-allergies').value.trim() 
+                ? document.getElementById('edit-student-allergies').value.split(',').map(a => a.trim()).filter(a => a) 
+                : [],
+            conditions: document.getElementById('edit-student-conditions').value.trim()
+                ? document.getElementById('edit-student-conditions').value.split(',').map(c => c.trim()).filter(c => c)
+                : [],
+            medications: document.getElementById('edit-student-medications').value.trim()
+                ? document.getElementById('edit-student-medications').value.split(',').map(m => m.trim()).filter(m => m)
+                : [],
+            emergencyContact: {
+                name: document.getElementById('edit-student-emergency-name').value.trim() || undefined,
+                relationship: document.getElementById('edit-student-emergency-relation').value.trim() || undefined,
+                phone: document.getElementById('edit-student-emergency-phone').value.trim() || undefined
+            }
+        },
+        photoUrl: document.getElementById('edit-student-photo').value.trim() || undefined
+    };
+    
+    try {
+        closeModal();
+        showLoading('Updating student information...');
+        
+        await apiCall(`/students/${studentId}`, {
+            method: 'PUT',
+            body: JSON.stringify(updateData)
+        });
+        
+        hideLoading();
+        showSuccess('Student information updated successfully!');
+        
+        // Reload students list
+        await loadStudents();
+    } catch (error) {
+        hideLoading();
+        showError('Failed to update student: ' + error.message);
+        console.error('Update error:', error);
+    }
+}
+
+async function deleteStudent(studentId) {
+    const confirmed = confirm('Are you sure you want to delete this student? This action cannot be undone.');
+    
+    if (!confirmed) return;
+    
+    try {
+        showLoading('Deleting student...');
+        
+        await apiCall(`/students/${studentId}`, {
+            method: 'DELETE'
+        });
+        
+        hideLoading();
+        showSuccess('Student deleted successfully');
+        
+        // Reload students list
+        await loadStudents();
+    } catch (error) {
+        hideLoading();
+        showError('Failed to delete student: ' + error.message);
+        console.error('Delete error:', error);
+    }
 }
 
 function viewStudentAttendance(studentId) {
@@ -934,118 +1364,355 @@ function displayTimetableModal(userName, timetable, userType) {
 
 async function addStudent() {
     const modalContent = `
-        <form id="add-student-form">
-            <div class="form-grid">
-                <div class="input-group">
-                    <label><i class="fas fa-id-card"></i> Student ID</label>
-                    <input type="text" id="new-student-id" placeholder="e.g., 24001" required>
+        <form id="add-student-form" style="max-height: 70vh; overflow-y: auto; padding-right: 1rem;">
+            
+            <!-- Basic Information Section -->
+            <div class="form-section">
+                <h3 style="color: var(--primary); margin-bottom: 1rem; padding-bottom: 0.5rem; border-bottom: 2px solid var(--border);">
+                    <i class="fas fa-user-circle"></i> Basic Information
+                </h3>
+                <div class="form-grid">
+                    <div class="input-group">
+                        <label><i class="fas fa-id-card"></i> Student ID *</label>
+                        <input type="text" id="new-student-id" placeholder="e.g., 24001" required>
+                        <small style="color: var(--text-secondary);">Unique identifier for the student</small>
+                    </div>
+                    <div class="input-group">
+                        <label><i class="fas fa-id-badge"></i> Admission Number</label>
+                        <input type="text" id="new-student-admission" placeholder="Auto-generated if empty">
+                        <small style="color: var(--text-secondary);">Leave blank to auto-generate</small>
+                    </div>
+                    <div class="input-group">
+                        <label><i class="fas fa-user"></i> First Name *</label>
+                        <input type="text" id="new-student-firstname" required>
+                    </div>
+                    <div class="input-group">
+                        <label><i class="fas fa-user"></i> Last Name *</label>
+                        <input type="text" id="new-student-lastname" required>
+                    </div>
+                    <div class="input-group">
+                        <label><i class="fas fa-envelope"></i> Email *</label>
+                        <input type="email" id="new-student-email" required>
+                    </div>
+                    <div class="input-group">
+                        <label><i class="fas fa-phone"></i> Phone</label>
+                        <input type="tel" id="new-student-phone" placeholder="+353 XX XXX XXXX">
+                    </div>
                 </div>
-                <div class="input-group">
-                    <label><i class="fas fa-user"></i> First Name *</label>
-                    <input type="text" id="new-student-firstname" required>
+            </div>
+
+            <!-- Personal Details Section -->
+            <div class="form-section" style="margin-top: 1.5rem;">
+                <h3 style="color: var(--primary); margin-bottom: 1rem; padding-bottom: 0.5rem; border-bottom: 2px solid var(--border);">
+                    <i class="fas fa-id-card-alt"></i> Personal Details
+                </h3>
+                <div class="form-grid">
+                    <div class="input-group">
+                        <label><i class="fas fa-calendar"></i> Date of Birth *</label>
+                        <input type="date" id="new-student-dob" required>
+                    </div>
+                    <div class="input-group">
+                        <label><i class="fas fa-venus-mars"></i> Gender *</label>
+                        <select id="new-student-gender" class="select-input" required>
+                            <option value="">Select...</option>
+                            <option value="Male">Male</option>
+                            <option value="Female">Female</option>
+                            <option value="Other">Other</option>
+                        </select>
+                    </div>
+                    <div class="input-group">
+                        <label><i class="fas fa-fingerprint"></i> PPS Number</label>
+                        <input type="text" id="new-student-pps" placeholder="XXXXXXXA">
+                    </div>
+                    <div class="input-group full-width">
+                        <label><i class="fas fa-map-marker-alt"></i> Address</label>
+                        <input type="text" id="new-student-address" placeholder="Street address, City, County, Eircode">
+                    </div>
                 </div>
-                <div class="input-group">
-                    <label><i class="fas fa-user"></i> Last Name *</label>
-                    <input type="text" id="new-student-lastname" required>
+            </div>
+
+            <!-- Academic Information Section -->
+            <div class="form-section" style="margin-top: 1.5rem;">
+                <h3 style="color: var(--primary); margin-bottom: 1rem; padding-bottom: 0.5rem; border-bottom: 2px solid var(--border);">
+                    <i class="fas fa-graduation-cap"></i> Academic Information
+                </h3>
+                <div class="form-grid">
+                    <div class="input-group">
+                        <label><i class="fas fa-school"></i> Year Group *</label>
+                        <select id="new-student-year" required class="select-input">
+                            <option value="">Select year...</option>
+                            <option value="1">First Year</option>
+                            <option value="2">Second Year</option>
+                            <option value="3">Third Year</option>
+                            <option value="4">Transition Year (TY)</option>
+                            <option value="5">Fifth Year</option>
+                            <option value="6">Sixth Year</option>
+                        </select>
+                    </div>
+                    <div class="input-group">
+                        <label><i class="fas fa-flag"></i> Theaghlach *</label>
+                        <select id="new-student-house" required class="select-input">
+                            <option value="">Select theaghlach...</option>
+                            <option value="Seanan">Seanan</option>
+                            <option value="Bride">Bride</option>
+                            <option value="Ide">Ide</option>
+                            <option value="Conaire">Conaire</option>
+                            <option value="Padraig">Padraig</option>
+                            <option value="Tola">Tola</option>
+                        </select>
+                    </div>
+                    <div class="input-group">
+                        <label><i class="fas fa-calendar-plus"></i> Admission Date</label>
+                        <input type="date" id="new-student-admission-date" value="${new Date().toISOString().split('T')[0]}">
+                    </div>
+                    <div class="input-group">
+                        <label><i class="fas fa-key"></i> Locker Number</label>
+                        <input type="text" id="new-student-locker" placeholder="e.g., L-101">
+                    </div>
                 </div>
-                <div class="input-group">
-                    <label><i class="fas fa-envelope"></i> Email *</label>
-                    <input type="email" id="new-student-email" required>
+            </div>
+
+            <!-- Medical Information Section -->
+            <div class="form-section" style="margin-top: 1.5rem;">
+                <h3 style="color: var(--primary); margin-bottom: 1rem; padding-bottom: 0.5rem; border-bottom: 2px solid var(--border);">
+                    <i class="fas fa-heartbeat"></i> Medical Information
+                </h3>
+                <div class="form-grid">
+                    <div class="input-group">
+                        <label><i class="fas fa-tint"></i> Blood Group</label>
+                        <select id="new-student-blood" class="select-input">
+                            <option value="">Select...</option>
+                            <option value="A+">A+</option>
+                            <option value="A-">A-</option>
+                            <option value="B+">B+</option>
+                            <option value="B-">B-</option>
+                            <option value="AB+">AB+</option>
+                            <option value="AB-">AB-</option>
+                            <option value="O+">O+</option>
+                            <option value="O-">O-</option>
+                        </select>
+                    </div>
+                    <div class="input-group full-width">
+                        <label><i class="fas fa-allergies"></i> Allergies</label>
+                        <input type="text" id="new-student-allergies" placeholder="Separate multiple allergies with commas">
+                        <small style="color: var(--text-secondary);">e.g., Peanuts, Dairy, Penicillin</small>
+                    </div>
+                    <div class="input-group full-width">
+                        <label><i class="fas fa-notes-medical"></i> Medical Conditions</label>
+                        <input type="text" id="new-student-conditions" placeholder="Separate multiple conditions with commas">
+                        <small style="color: var(--text-secondary);">e.g., Asthma, Diabetes</small>
+                    </div>
+                    <div class="input-group full-width">
+                        <label><i class="fas fa-pills"></i> Medications</label>
+                        <input type="text" id="new-student-medications" placeholder="Separate multiple medications with commas">
+                        <small style="color: var(--text-secondary);">e.g., Inhaler, Insulin</small>
+                    </div>
                 </div>
-                <div class="input-group">
-                    <label><i class="fas fa-calendar"></i> Date of Birth</label>
-                    <input type="date" id="new-student-dob">
+            </div>
+
+            <!-- Emergency Contact Section -->
+            <div class="form-section" style="margin-top: 1.5rem;">
+                <h3 style="color: var(--primary); margin-bottom: 1rem; padding-bottom: 0.5rem; border-bottom: 2px solid var(--border);">
+                    <i class="fas fa-phone-square"></i> Emergency Contact
+                </h3>
+                <div class="form-grid">
+                    <div class="input-group">
+                        <label><i class="fas fa-user-shield"></i> Contact Name</label>
+                        <input type="text" id="new-student-emergency-name" placeholder="Full name">
+                    </div>
+                    <div class="input-group">
+                        <label><i class="fas fa-users"></i> Relationship</label>
+                        <input type="text" id="new-student-emergency-relation" placeholder="e.g., Mother, Father, Guardian">
+                    </div>
+                    <div class="input-group">
+                        <label><i class="fas fa-mobile-alt"></i> Emergency Phone</label>
+                        <input type="tel" id="new-student-emergency-phone" placeholder="+353 XX XXX XXXX">
+                    </div>
                 </div>
-                <div class="input-group">
-                    <label><i class="fas fa-venus-mars"></i> Gender</label>
-                    <select id="new-student-gender" class="select-input">
-                        <option value="">Select...</option>
-                        <option value="Male">Male</option>
-                        <option value="Female">Female</option>
-                        <option value="Other">Other</option>
-                    </select>
+            </div>
+
+            <!-- Previous School Section -->
+            <div class="form-section" style="margin-top: 1.5rem;">
+                <h3 style="color: var(--primary); margin-bottom: 1rem; padding-bottom: 0.5rem; border-bottom: 2px solid var(--border);">
+                    <i class="fas fa-school"></i> Previous School Information
+                </h3>
+                <div class="form-grid">
+                    <div class="input-group">
+                        <label><i class="fas fa-building"></i> Previous School Name</label>
+                        <input type="text" id="new-student-prev-school" placeholder="School name">
+                    </div>
+                    <div class="input-group">
+                        <label><i class="fas fa-map-pin"></i> Previous School Address</label>
+                        <input type="text" id="new-student-prev-address" placeholder="School address">
+                    </div>
+                    <div class="input-group">
+                        <label><i class="fas fa-calendar-check"></i> Last Year Attended</label>
+                        <input type="number" id="new-student-prev-year" placeholder="e.g., 2023" min="2000" max="2030">
+                    </div>
                 </div>
-                <div class="input-group">
-                    <label><i class="fas fa-graduation-cap"></i> Year Group *</label>
-                    <select id="new-student-year" required class="select-input">
-                        <option value="">Select year...</option>
-                        <option value="1">Year 1</option>
-                        <option value="2">Year 2</option>
-                        <option value="3">Year 3</option>
-                        <option value="4">Year 4</option>
-                        <option value="5">Year 5</option>
-                        <option value="6">Year 6</option>
-                    </select>
-                </div>
-                <div class="input-group">
-                    <label><i class="fas fa-flag"></i> House</label>
-                    <select id="new-student-house" class="select-input">
-                        <option value="">Select house...</option>
-                        <option value="Bride">Bride</option>
-                        <option value="Ide">Ide</option>
-                        <option value="Tola">Tola</option>
-                        <option value="Seanan">Seanan</option>
-                        <option value="Padraig">Padraig</option>
-                        <option value="Conaire">Conaire</option>
-                    </select>
-                </div>
-                <div class="input-group">
-                    <label><i class="fas fa-phone"></i> Phone</label>
-                    <input type="tel" id="new-student-phone">
-                </div>
+            </div>
+
+            <!-- Additional Notes Section -->
+            <div class="form-section" style="margin-top: 1.5rem;">
+                <h3 style="color: var(--primary); margin-bottom: 1rem; padding-bottom: 0.5rem; border-bottom: 2px solid var(--border);">
+                    <i class="fas fa-sticky-note"></i> Additional Notes
+                </h3>
                 <div class="input-group full-width">
-                    <label><i class="fas fa-map-marker-alt"></i> Address</label>
-                    <input type="text" id="new-student-address" placeholder="Street address">
+                    <label><i class="fas fa-comment-alt"></i> Notes</label>
+                    <textarea id="new-student-notes" rows="3" placeholder="Any additional information about the student..." style="width: 100%; padding: 0.5rem; border: 1px solid var(--border); border-radius: 0.3rem; font-family: inherit;"></textarea>
                 </div>
+            </div>
+
+            <!-- Photo Upload Section -->
+            <div class="form-section" style="margin-top: 1.5rem;">
+                <h3 style="color: var(--primary); margin-bottom: 1rem; padding-bottom: 0.5rem; border-bottom: 2px solid var(--border);">
+                    <i class="fas fa-camera"></i> Profile Photo
+                </h3>
+                <div class="input-group full-width">
+                    <label><i class="fas fa-image"></i> Photo URL</label>
+                    <input type="url" id="new-student-photo" placeholder="https://example.com/photo.jpg">
+                    <small style="color: var(--text-secondary);">Provide a URL to the student's profile photo</small>
+                </div>
+            </div>
+
+            <div style="margin-top: 1.5rem; padding: 1rem; background: #fff3cd; border-left: 4px solid #ffc107; border-radius: 0.3rem;">
+                <p style="margin: 0; color: #856404;"><i class="fas fa-info-circle"></i> <strong>Note:</strong> Fields marked with * are required. The student will receive login credentials via email after enrollment.</p>
             </div>
         </form>
     `;
     
-    showModal('Add New Student', modalContent, [
+    showModal('Student Enrollment Form', modalContent, [
         { text: 'Cancel', type: 'secondary', action: 'closeModal()' },
-        { text: 'Add Student', type: 'success', action: 'submitNewStudent()', icon: 'fas fa-user-plus' }
-    ]);
+        { text: 'Enroll Student', type: 'success', action: 'submitNewStudent()', icon: 'fas fa-user-plus' }
+    ], 'large');
 }
 
 async function submitNewStudent() {
+    // Get all form values
+    const studentId = document.getElementById('new-student-id').value.trim();
+    const firstName = document.getElementById('new-student-firstname').value.trim();
+    const lastName = document.getElementById('new-student-lastname').value.trim();
+    const email = document.getElementById('new-student-email').value.trim();
+    const dateOfBirth = document.getElementById('new-student-dob').value;
+    const gender = document.getElementById('new-student-gender').value;
+    const yearGroup = parseInt(document.getElementById('new-student-year').value);
+    const house = document.getElementById('new-student-house').value;
+    
+    // Validate required fields
+    if (!studentId || !firstName || !lastName || !email || !dateOfBirth || !gender || !yearGroup || !house) {
+        showError('Please fill in all required fields marked with *');
+        return;
+    }
+    
+    // Validate email format
+    const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+    if (!emailRegex.test(email)) {
+        showError('Please enter a valid email address');
+        return;
+    }
+    
+    // Validate date of birth (student should be between 10 and 25 years old)
+    const dob = new Date(dateOfBirth);
+    const today = new Date();
+    const age = Math.floor((today - dob) / (365.25 * 24 * 60 * 60 * 1000));
+    if (age < 10 || age > 25) {
+        showError('Student age must be between 10 and 25 years');
+        return;
+    }
+    
+    // Compile student data
     const studentData = {
-        studentId: document.getElementById('new-student-id').value,
-        firstName: document.getElementById('new-student-firstname').value,
-        lastName: document.getElementById('new-student-lastname').value,
-        email: document.getElementById('new-student-email').value,
-        dateOfBirth: document.getElementById('new-student-dob').value,
-        gender: document.getElementById('new-student-gender').value,
-        yearGroup: parseInt(document.getElementById('new-student-year').value),
-        house: document.getElementById('new-student-house').value,
-        phone: document.getElementById('new-student-phone').value,
+        // Basic Information
+        studentId: studentId,
+        admissionNumber: document.getElementById('new-student-admission').value.trim() || undefined,
+        firstName: firstName,
+        lastName: lastName,
+        email: email,
+        phone: document.getElementById('new-student-phone').value.trim() || undefined,
+        
+        // Personal Details
+        dateOfBirth: dateOfBirth,
+        gender: gender,
+        pps: document.getElementById('new-student-pps').value.trim() || undefined,
         address: {
-            street: document.getElementById('new-student-address').value
-        }
+            street: document.getElementById('new-student-address').value.trim() || ''
+        },
+        
+        // Academic Information
+        yearGroup: yearGroup,
+        house: house,
+        admissionDate: document.getElementById('new-student-admission-date').value || new Date().toISOString().split('T')[0],
+        lockerNumber: document.getElementById('new-student-locker').value.trim() || undefined,
+        
+        // Medical Information
+        medicalInfo: {
+            bloodGroup: document.getElementById('new-student-blood').value || undefined,
+            allergies: document.getElementById('new-student-allergies').value.trim() 
+                ? document.getElementById('new-student-allergies').value.split(',').map(a => a.trim()).filter(a => a) 
+                : [],
+            conditions: document.getElementById('new-student-conditions').value.trim()
+                ? document.getElementById('new-student-conditions').value.split(',').map(c => c.trim()).filter(c => c)
+                : [],
+            medications: document.getElementById('new-student-medications').value.trim()
+                ? document.getElementById('new-student-medications').value.split(',').map(m => m.trim()).filter(m => m)
+                : [],
+            emergencyContact: {
+                name: document.getElementById('new-student-emergency-name').value.trim() || undefined,
+                relationship: document.getElementById('new-student-emergency-relation').value.trim() || undefined,
+                phone: document.getElementById('new-student-emergency-phone').value.trim() || undefined
+            }
+        },
+        
+        // Previous School
+        previousSchool: {
+            name: document.getElementById('new-student-prev-school').value.trim() || undefined,
+            address: document.getElementById('new-student-prev-address').value.trim() || undefined,
+            lastYear: document.getElementById('new-student-prev-year').value 
+                ? parseInt(document.getElementById('new-student-prev-year').value) 
+                : undefined
+        },
+        
+        // Notes
+        notes: document.getElementById('new-student-notes').value.trim() || undefined,
+        
+        // Photo
+        photoUrl: document.getElementById('new-student-photo').value.trim() || undefined,
+        
+        // Status
+        status: 'Active'
     };
     
-    if (!studentData.firstName || !studentData.lastName || !studentData.email || !studentData.yearGroup) {
-        showError('Please fill in all required fields');
-        return;
+    // Clean up undefined values in nested objects
+    if (!studentData.medicalInfo.bloodGroup && studentData.medicalInfo.allergies.length === 0 && 
+        studentData.medicalInfo.conditions.length === 0 && studentData.medicalInfo.medications.length === 0 &&
+        !studentData.medicalInfo.emergencyContact.name) {
+        delete studentData.medicalInfo;
+    } else if (!studentData.medicalInfo.emergencyContact.name) {
+        delete studentData.medicalInfo.emergencyContact;
+    }
+    
+    if (!studentData.previousSchool.name && !studentData.previousSchool.address && !studentData.previousSchool.lastYear) {
+        delete studentData.previousSchool;
     }
     
     try {
         closeModal();
-        showLoading('Adding student...');
+        showLoading('Enrolling student...');
         
-        await apiCall('/students', {
+        const response = await apiCall('/students', {
             method: 'POST',
             body: JSON.stringify(studentData)
         });
         
         hideLoading();
-        showSuccess('Student added successfully!');
+        showSuccess(`Student ${firstName} ${lastName} enrolled successfully!`);
         
         // Reload students list
         await loadStudents();
     } catch (error) {
         hideLoading();
-        showError('Failed to add student: ' + error.message);
-        console.error(error);
+        showError('Failed to enroll student: ' + error.message);
+        console.error('Enrollment error:', error);
     }
 }
 
@@ -2716,13 +3383,13 @@ function submitReportGeneration() {
 }
 
 // ========== MODAL & DIALOG UTILITIES ==========
-function showModal(title, content, buttons = []) {
+function showModal(title, content, buttons = [], size = 'medium') {
     const overlay = document.createElement('div');
     overlay.className = 'modal-overlay';
     overlay.id = 'modal-overlay';
     
     const modal = document.createElement('div');
-    modal.className = 'modal-content';
+    modal.className = `modal-content ${size === 'large' ? 'modal-large' : ''}`;
     
     modal.innerHTML = `
         <div class="modal-header">

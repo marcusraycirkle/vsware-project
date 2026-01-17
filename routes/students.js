@@ -111,12 +111,28 @@ router.post('/', auth, authorize('admin', 'principal'), async (req, res) => {
   try {
     const { 
       email, firstName, lastName, phone, address,
-      studentId, dateOfBirth, gender, yearGroup,
-      house, currentClass
+      studentId, admissionNumber, dateOfBirth, gender, 
+      yearGroup, house, currentClass, admissionDate,
+      pps, lockerNumber, medicalInfo, previousSchool,
+      notes, photoUrl, status
     } = req.body;
     
     if (!email || !firstName || !lastName || !yearGroup) {
       return res.status(400).json({ message: 'Missing required fields: email, firstName, lastName, yearGroup' });
+    }
+    
+    // Check if student ID already exists
+    if (studentId) {
+      const existingStudent = await Student.findOne({ studentId });
+      if (existingStudent) {
+        return res.status(400).json({ message: 'Student ID already exists' });
+      }
+    }
+    
+    // Check if email already exists
+    const existingUser = await User.findOne({ email });
+    if (existingUser) {
+      return res.status(400).json({ message: 'Email already registered' });
     }
     
     // Generate default password from student ID or timestamp
@@ -130,7 +146,7 @@ router.post('/', auth, authorize('admin', 'principal'), async (req, res) => {
       lastName,
       role: 'student',
       phoneNumber: phone,
-      address: { street: address || '' }
+      address: address || { street: '' }
     });
     await user.save();
     
@@ -138,11 +154,11 @@ router.post('/', auth, authorize('admin', 'principal'), async (req, res) => {
     const yearNames = ['First Year', 'Second Year', 'Third Year', 'TY', 'Fifth Year', 'Sixth Year'];
     const yearName = yearNames[yearGroup - 1] || 'First Year';
     
-    // Create student profile
-    const student = new Student({
+    // Prepare student data
+    const studentData = {
       user: user._id,
       studentId: studentId || `24${Date.now().toString().slice(-6)}`,
-      admissionNumber: `ADM${Date.now().toString().slice(-8)}`,
+      admissionNumber: admissionNumber || `ADM${Date.now().toString().slice(-8)}`,
       dateOfBirth: dateOfBirth || new Date('2008-01-01'),
       gender: gender || 'Other',
       currentYear: yearGroup,
@@ -150,15 +166,53 @@ router.post('/', auth, authorize('admin', 'principal'), async (req, res) => {
       yearName: yearName,
       house: house || 'Bride',
       currentClass,
-      status: 'Active'
-    });
+      admissionDate: admissionDate || new Date(),
+      status: status || 'Active'
+    };
+    
+    // Add optional fields if provided
+    if (pps) studentData.pps = pps;
+    if (lockerNumber) studentData.lockerNumber = lockerNumber;
+    if (photoUrl) studentData.photoUrl = photoUrl;
+    
+    // Add medical information if provided
+    if (medicalInfo) {
+      studentData.medicalInfo = {
+        bloodGroup: medicalInfo.bloodGroup,
+        allergies: medicalInfo.allergies || [],
+        conditions: medicalInfo.conditions || [],
+        medications: medicalInfo.medications || [],
+        emergencyContact: medicalInfo.emergencyContact || {}
+      };
+    }
+    
+    // Add previous school information if provided
+    if (previousSchool && previousSchool.name) {
+      studentData.previousSchool = {
+        name: previousSchool.name,
+        address: previousSchool.address,
+        lastYear: previousSchool.lastYear
+      };
+    }
+    
+    // Add notes if provided
+    if (notes) {
+      studentData.notes = [{
+        content: notes,
+        createdBy: req.userId,
+        createdAt: new Date()
+      }];
+    }
+    
+    // Create student profile
+    const student = new Student(studentData);
     await student.save();
     
     // Link student to user
     user.studentProfile = student._id;
     await user.save();
     
-    // Add student to class
+    // Add student to class if specified
     if (currentClass) {
       await Class.findByIdAndUpdate(currentClass, {
         $addToSet: { students: student._id }
@@ -177,14 +231,19 @@ router.post('/', auth, authorize('admin', 'principal'), async (req, res) => {
       lastName: populatedStudent.user.lastName,
       email: populatedStudent.user.email,
       phone: populatedStudent.user.phoneNumber,
+      dateOfBirth: populatedStudent.dateOfBirth,
+      gender: populatedStudent.gender,
       yearGroup: yearName,
       house: populatedStudent.house,
-      status: 'Active'
+      currentClass: populatedStudent.currentClass,
+      status: populatedStudent.status,
+      photoUrl: populatedStudent.photoUrl
     };
     
     res.status(201).json({
       message: 'Student created successfully',
-      student: formattedStudent
+      student: formattedStudent,
+      defaultPassword: defaultPassword
     });
   } catch (error) {
     console.error('Error creating student:', error);
@@ -197,23 +256,102 @@ router.post('/', auth, authorize('admin', 'principal'), async (req, res) => {
 // @access  Private (Admin/Principal)
 router.put('/:id', auth, authorize('admin', 'principal'), async (req, res) => {
   try {
-    const updates = req.body;
+    const { 
+      firstName, lastName, email, phone, address,
+      dateOfBirth, gender, pps, yearGroup, house, 
+      lockerNumber, status, medicalInfo, previousSchool,
+      notes, photoUrl
+    } = req.body;
     
-    const student = await Student.findByIdAndUpdate(
+    const student = await Student.findById(req.params.id);
+    
+    if (!student) {
+      return res.status(404).json({ message: 'Student not found' });
+    }
+    
+    // Update user information if provided
+    if (firstName || lastName || email || phone || address) {
+      const userUpdates = {};
+      if (firstName) userUpdates.firstName = firstName;
+      if (lastName) userUpdates.lastName = lastName;
+      if (email) userUpdates.email = email;
+      if (phone) userUpdates.phoneNumber = phone;
+      if (address) userUpdates.address = address;
+      
+      await User.findByIdAndUpdate(student.user, userUpdates);
+    }
+    
+    // Update student profile
+    const studentUpdates = {};
+    if (dateOfBirth) studentUpdates.dateOfBirth = dateOfBirth;
+    if (gender) studentUpdates.gender = gender;
+    if (pps) studentUpdates.pps = pps;
+    if (lockerNumber) studentUpdates.lockerNumber = lockerNumber;
+    if (status) studentUpdates.status = status;
+    if (photoUrl !== undefined) studentUpdates.photoUrl = photoUrl;
+    
+    // Handle year group update
+    if (yearGroup) {
+      const yearNames = ['First Year', 'Second Year', 'Third Year', 'TY', 'Fifth Year', 'Sixth Year'];
+      const yearName = yearNames[yearGroup - 1] || 'First Year';
+      studentUpdates.currentYear = yearGroup;
+      studentUpdates.yearGroup = yearName;
+      studentUpdates.yearName = yearName;
+    }
+    
+    if (house) studentUpdates.house = house;
+    
+    // Handle medical information
+    if (medicalInfo) {
+      studentUpdates.medicalInfo = {
+        bloodGroup: medicalInfo.bloodGroup || student.medicalInfo?.bloodGroup,
+        allergies: medicalInfo.allergies || student.medicalInfo?.allergies || [],
+        conditions: medicalInfo.conditions || student.medicalInfo?.conditions || [],
+        medications: medicalInfo.medications || student.medicalInfo?.medications || [],
+        emergencyContact: {
+          name: medicalInfo.emergencyContact?.name || student.medicalInfo?.emergencyContact?.name,
+          relationship: medicalInfo.emergencyContact?.relationship || student.medicalInfo?.emergencyContact?.relationship,
+          phone: medicalInfo.emergencyContact?.phone || student.medicalInfo?.emergencyContact?.phone
+        }
+      };
+    }
+    
+    // Handle previous school information
+    if (previousSchool) {
+      studentUpdates.previousSchool = {
+        name: previousSchool.name || student.previousSchool?.name,
+        address: previousSchool.address || student.previousSchool?.address,
+        lastYear: previousSchool.lastYear || student.previousSchool?.lastYear
+      };
+    }
+    
+    // Handle notes
+    if (notes) {
+      studentUpdates.notes = [
+        ...(student.notes || []),
+        {
+          content: notes,
+          createdBy: req.userId,
+          createdAt: new Date()
+        }
+      ];
+    }
+    
+    const updatedStudent = await Student.findByIdAndUpdate(
       req.params.id,
-      updates,
+      studentUpdates,
       { new: true, runValidators: true }
     )
       .populate('user', '-password')
       .populate('currentClass')
       .populate('parents');
     
-    if (!student) {
-      return res.status(404).json({ message: 'Student not found' });
-    }
-    
-    res.json({ message: 'Student updated successfully', student });
+    res.json({ 
+      message: 'Student updated successfully', 
+      student: updatedStudent 
+    });
   } catch (error) {
+    console.error('Error updating student:', error);
     res.status(500).json({ message: 'Server error', error: error.message });
   }
 });

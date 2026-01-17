@@ -43,7 +43,7 @@ const studentSchema = new mongoose.Schema({
   },
   house: {
     type: String,
-    enum: ['Bride', 'Ide', 'Tola', 'Seanan', 'Padraig', 'Conaire'],
+    enum: ['Seanan', 'Bride', 'Ide', 'Conaire', 'Padraig', 'Tola'],
     required: true
   },
   lockerNumber: {
@@ -63,7 +63,7 @@ const studentSchema = new mongoose.Schema({
   },
   house: {
     type: String,
-    enum: ['Bride', 'Ide', 'Tola', 'Seanan', 'Padraig', 'Conaire'],
+    enum: ['Seanan', 'Bride', 'Ide', 'Conaire', 'Padraig', 'Tola'],
     required: true
   },
   currentClass: {
