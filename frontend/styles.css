@@ -649,9 +649,6 @@ textarea {
     margin-bottom: 0.75rem;
     color: var(--text-primary);
 }
-    -webkit-text-fill-color: transparent;
-    background-clip: text;
-}
 
 .feature-card ul {
     list-style: none;
