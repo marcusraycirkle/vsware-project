@@ -108,7 +108,7 @@ app.use((req, res, next) => {
     "font-src 'self' https://cdnjs.cloudflare.com https://fonts.gstatic.com; " +
     "img-src 'self' data: https: http:; " +
     "media-src 'self' https://cdn.pixabay.com; " +
-    "connect-src 'self'"
+    "connect-src 'self' https://vsware-project.vercel.app https://*.vercel.app"
   );
   
   next();
