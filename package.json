@@ -1,7 +1,7 @@
 {
   "name": "compmis",
   "version": "1.0.0",
-  "description": "CompMIS - Comprehensive Management Information System for St Patrick's Comprehensive School, Shannon, Co. Clare",
+  "description": "MISpal - Comprehensive Management Information System for St Patrick's Comprehensive School, Shannon, Co. Clare",
   "main": "server.js",
   "scripts": {
     "start": "node server.js",
@@ -35,7 +35,8 @@
     "multer": "^1.4.5-lts.1",
     "nodemailer": "^6.9.7",
     "socket.io": "^4.7.2",
-    "uuid": "^9.0.1"
+    "uuid": "^9.0.1",
+    "vercel": "^50.4.5"
   },
   "devDependencies": {
     "concurrently": "^8.2.2",

@@ -18,78 +18,55 @@ let notificationCount = 0;
 
 // ========== INITIALIZATION ==========
 document.addEventListener('DOMContentLoaded', () => {
-    // Initialize hash-based routing
-    initializeHashRouting();
+    // Initialize path-based routing
+    initializeRouting();
     setupEventListeners();
     initializeNotifications();
     loadMockNotifications();
 });
 
-function initializeHashRouting() {
-    // Handle hash changes for navigation
-    window.addEventListener('hashchange', handleHashRoute);
-    window.addEventListener('load', handleHashRoute);
+function initializeRouting() {
+    // Get current path
+    const currentPath = window.location.pathname;
+    console.log('Current path:', currentPath);
     
-    // Set default hash if none exists
-    if (!window.location.hash) {
-        // Check if user is already logged in
+    // Determine which page to show
+    if (currentPath === '/home' || currentPath === '/' || currentPath === '') {
+        showLandingPage();
+    } else if (currentPath === '/selector') {
+        window.location.href = 'school-selector.html';
+    } else if (currentPath.includes('/enrolment')) {
+        window.location.href = 'enrolment.html';
+    } else if (currentPath.includes('/login')) {
         const token = localStorage.getItem('token');
-        const selectedSchool = localStorage.getItem('selectedSchool') || 'shannoncomp';
-        
         if (token) {
-            window.location.hash = `#/${selectedSchool}/overview`;
+            // Redirect to dashboard if already logged in
+            window.location.pathname = '/shannoncomp/overview';
         } else {
-            // Show landing page
-            showLandingPage();
+            showLoginPage();
+        }
+    } else if (currentPath.includes('/shannoncomp/')) {
+        // Dashboard pages
+        const token = localStorage.getItem('token');
+        if (token) {
+            showDashboard();
+            // Extract page name from URL
+            const pathParts = currentPath.split('/');
+            const page = pathParts[pathParts.length - 1] || 'overview';
+            if (page && page !== 'shannoncomp') {
+                setTimeout(() => showSection(page), 100);
+            }
+        } else {
+            window.location.pathname = '/shannoncomp/login';
         }
     } else {
-        handleHashRoute();
+        showLandingPage();
     }
 }
 
-function handleHashRoute() {
-    const hash = window.location.hash.slice(1) || '';
-    const parts = hash.split('/').filter(p => p);
-    
-    console.log('Hash route:', hash, 'Parts:', parts);
-    
-    // Route patterns:
-    // #/selector - school selector
-    // #/shannoncomp/login - school login
-    // #/shannoncomp/enrolment - public enrollment
-    // #/shannoncomp/overview - dashboard (requires auth)
-    // #/shannoncomp/students - dashboard pages (requires auth)
-    
-    if (parts.length === 0 || parts[0] === 'selector') {
-        // Show school selector or landing
-        window.location.href = 'school-selector.html';
-    } else if (parts.length >= 2) {
-        const schoolId = parts[0];
-        const page = parts[1];
-        
-        // Store selected school
-        localStorage.setItem('selectedSchool', schoolId);
-        
-        if (page === 'enrolment') {
-            // Show enrollment page
-            window.location.href = `enrolment.html#/${schoolId}/enrolment`;
-        } else if (page === 'login') {
-            // Show login page
-            showLoginPage();
-        } else {
-            // Dashboard pages - check auth
-            const token = localStorage.getItem('token');
-            if (token) {
-                showDashboard();
-                showSection(page);
-            } else {
-                window.location.hash = `#/${schoolId}/login`;
-            }
-        }
-    } else {
-        // Invalid route - go to selector
-        window.location.hash = '#/selector';
-    }
+// Navigation function using path-based routing
+function navigateTo(path) {
+    window.location.pathname = path;
 }
 
 function showLandingPage() {
@@ -110,6 +87,16 @@ function showLoginPage() {
     if (landingPage) landingPage.style.display = 'none';
     if (loginSection) loginSection.style.display = 'flex';
     if (dashboard) dashboard.classList.add('hidden');
+}
+
+function showDashboard() {
+    const landingPage = document.getElementById('landing-page');
+    const loginSection = document.getElementById('login-section');
+    const dashboard = document.getElementById('dashboard');
+    
+    if (landingPage) landingPage.style.display = 'none';
+    if (loginSection) loginSection.style.display = 'none';
+    if (dashboard) dashboard.classList.remove('hidden');
 }
 
 function setupEventListeners() {
@@ -196,9 +183,8 @@ async function login(email, pin) {
             setTimeout(() => {
                 hideLoading();
                 
-                // Navigate to dashboard with school context
-                const selectedSchool = localStorage.getItem('selectedSchool') || 'shannoncomp';
-                window.location.hash = `#/${selectedSchool}/overview`;
+                // Navigate to dashboard with path-based routing
+                window.location.pathname = '/shannoncomp/overview';
                 
                 applyRoleBasedNavigation();
                 loadDashboardData();
@@ -232,9 +218,8 @@ async function logout() {
     authToken = null;
     currentUser = null;
     
-    // Redirect to landing page
-    const selectedSchool = localStorage.getItem('selectedSchool') || 'shannoncomp';
-    window.location.hash = `#/${selectedSchool}/login`;
+    // Redirect to login page
+    window.location.pathname = '/shannoncomp/login';
 }
 
 function applyRoleBasedNavigation() {

@@ -23,7 +23,7 @@
                     </div>
                     <span class="mispal-brand-text">MISpal</span>
                 </div>
-                <button class="btn-primary" onclick="window.location.hash = '#/selector'">
+                <button class="btn-primary" onclick="window.location.pathname = '/selector'">
                     <i class="fas fa-sign-in-alt"></i> Log In
                 </button>
             </div>
@@ -39,10 +39,10 @@
                 The modern school management platform designed for seamless administration and enhanced learning experiences.
             </p>
             <div style="display: flex; gap: 1rem; justify-content: center; flex-wrap: wrap;">
-                <button class="btn-primary" onclick="window.location.hash = '#/selector'" style="padding: 0.875rem 2rem; font-size: 1rem;">
+                <button class="btn-primary" onclick="window.location.pathname = '/selector'" style="padding: 0.875rem 2rem; font-size: 1rem;">
                     <i class="fas fa-sign-in-alt"></i> Staff Login
                 </button>
-                <button class="btn-secondary" onclick="window.location.hash = '#/shannoncomp/enrolment'" style="padding: 0.875rem 2rem; font-size: 1rem; background: white; color: var(--primary); border: 2px solid var(--primary);">
+                <button class="btn-secondary" onclick="window.location.pathname = '/shannoncomp/enrolment'" style="padding: 0.875rem 2rem; font-size: 1rem; background: white; color: var(--primary); border: 2px solid var(--primary);">
                     <i class="fas fa-user-plus"></i> Student Enrolment
                 </button>
             </div>
@@ -158,7 +158,7 @@
 
     <!-- LOGIN PAGE -->
     <div id="login-page" class="login-page hidden">
-        <a class="login-back-btn" onclick="router.navigate('school-select')">
+<a class="login-back-btn" onclick="window.location.pathname = '/selector'">
             <i class="fas fa-arrow-left"></i> Back to Schools
         </a>
         

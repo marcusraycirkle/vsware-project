@@ -137,8 +137,35 @@ app.get('/api/health', (req, res) => {
   res.json({ status: 'OK', message: 'SchoolWare API is running', dbState: mongoose.connection.readyState });
 });
 
-// Serve index.html for root route
+// Page routes
+app.get('/home', (req, res) => {
+  res.sendFile(__dirname + '/frontend/index.html');
+});
+
+app.get('/selector', (req, res) => {
+  res.sendFile(__dirname + '/frontend/school-selector.html');
+});
+
+app.get('/shannoncomp/login', (req, res) => {
+  res.sendFile(__dirname + '/frontend/index.html');
+});
+
+app.get('/shannoncomp/enrolment', (req, res) => {
+  res.sendFile(__dirname + '/frontend/enrolment.html');
+});
+
+// Dashboard routes (all serve index.html for client-side routing)
+app.get('/shannoncomp/*', (req, res) => {
+  res.sendFile(__dirname + '/frontend/index.html');
+});
+
+// Root redirects to home
 app.get('/', (req, res) => {
+  res.redirect('/home');
+});
+
+// Catch all 404 - serve landing page
+app.use((req, res) => {
   res.sendFile(__dirname + '/frontend/index.html');
 });
 
