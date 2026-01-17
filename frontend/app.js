@@ -30,6 +30,21 @@ function initializeRouting() {
     const currentPath = window.location.pathname;
     console.log('Current path:', currentPath);
     
+    // Restore auth token and user from localStorage
+    const storedToken = localStorage.getItem('token');
+    const storedUser = localStorage.getItem('user');
+    
+    if (storedToken) {
+        authToken = storedToken;
+    }
+    if (storedUser) {
+        try {
+            currentUser = JSON.parse(storedUser);
+        } catch (e) {
+            console.error('Failed to parse stored user:', e);
+        }
+    }
+    
     // Only proceed if we have the expected DOM elements (not on standalone pages)
     const landingPage = document.getElementById('landing-page');
     const loginPage = document.getElementById('login-page');
@@ -41,12 +56,11 @@ function initializeRouting() {
         return;
     }
     
-    const token = localStorage.getItem('token');
-    
     // Check if we're on a page that requires authentication
     if (currentPath.includes('/shannoncomp/') && !currentPath.includes('/enrolment') && !currentPath.includes('/login')) {
-        if (!token) {
+        if (!authToken) {
             // Redirect to login if not authenticated
+            console.log('No auth token, redirecting to login');
             window.location.pathname = '/shannoncomp/login';
             return;
         }
@@ -57,7 +71,7 @@ function initializeRouting() {
         showLandingPage();
     } else if (currentPath === '/shannoncomp/login' || currentPath.includes('/login')) {
         showLoginPage();
-    } else if (currentPath.includes('/shannoncomp/') && token) {
+    } else if (currentPath.includes('/shannoncomp/') && authToken) {
         showDashboard();
         // Extract page name from URL
         const pathParts = currentPath.split('/');
