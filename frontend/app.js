@@ -30,8 +30,17 @@ function initializeRouting() {
     const currentPath = window.location.pathname;
     console.log('Current path:', currentPath);
     
-    // Don't do anything special - the server handles routing
-    // Just show the appropriate section based on the current HTML being served
+    // Only proceed if we have the expected DOM elements (not on standalone pages)
+    const landingPage = document.getElementById('landing-page');
+    const loginPage = document.getElementById('login-page');
+    const dashboard = document.getElementById('dashboard');
+    
+    // If core elements don't exist, we're on a standalone page (selector, enrolment, etc.)
+    if (!landingPage && !loginPage && !dashboard) {
+        console.log('Standalone page detected, skipping app.js initialization');
+        return;
+    }
+    
     const token = localStorage.getItem('token');
     
     // Check if we're on a page that requires authentication
@@ -43,11 +52,7 @@ function initializeRouting() {
         }
     }
     
-    // Server serves the right HTML, just initialize the page appropriately
-    const landingPage = document.getElementById('landing-page');
-    const loginPage = document.getElementById('login-page');
-    const dashboard = document.getElementById('dashboard');
-    
+    // Show appropriate section based on current path
     if (currentPath === '/home' || currentPath === '/' || currentPath === '') {
         showLandingPage();
     } else if (currentPath === '/shannoncomp/login' || currentPath.includes('/login')) {

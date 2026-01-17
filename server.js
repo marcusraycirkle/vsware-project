@@ -182,8 +182,8 @@ app.get('/', (req, res) => {
   res.redirect('/home');
 });
 
-// Catch all 404 - serve landing page
-app.use((req, res) => {
+// Catch all 404 - serve landing page (this should be LAST)
+app.all('*', (req, res) => {
   res.sendFile(__dirname + '/frontend/index.html');
 });
 
