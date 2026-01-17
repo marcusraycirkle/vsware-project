@@ -3,6 +3,9 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta http-equiv="Cache-Control" content="no-cache, no-store, must-revalidate">
+    <meta http-equiv="Pragma" content="no-cache">
+    <meta http-equiv="Expires" content="0">
     <title>Select Your School - MISpal</title>
     <link rel="stylesheet" href="styles.css">
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
@@ -153,7 +156,7 @@
         <div class="selector-container">
             <div class="selector-header">
                 <h1>
-                    <img src="mispal-logo-temp.html" alt="MISpal" class="logo-icon" style="width: 60px; height: 60px; border-radius: 12px; background: white; padding: 8px;">
+                    <img src="/mispal-logo.png" alt="MISpal" class="logo-icon" style="width: 60px; height: 60px; border-radius: 12px; background: white; padding: 8px;">
                     Select Your School
                 </h1>
                 <p>Choose your school to access the Management Information System</p>
@@ -202,15 +205,6 @@
 
         // Load schools on page load
         document.addEventListener('DOMContentLoaded', loadSchools);
-
-        // Handle hash routing
-        function handleRoute() {
-            const hash = window.location.hash.slice(1) || '/selector';
-            console.log('Route:', hash);
-        }
-
-        window.addEventListener('hashchange', handleRoute);
-        window.addEventListener('load', handleRoute);
     </script>
 </body>
 </html>
