@@ -363,37 +363,17 @@
                         </div>
                     </div>
 
-                    <!-- Academic Information -->
+                    <!-- Previous School Information -->
                     <div class="form-section">
-                        <h3><i class="fas fa-graduation-cap"></i> Academic Information</h3>
+                        <h3><i class="fas fa-school"></i> Previous School Information</h3>
                         <div class="form-grid">
-                            <div class="form-group">
-                                <label>Year Group <span class="required">*</span></label>
-                                <select id="yearGroup" name="yearGroup" required>
-                                    <option value="">Select Year...</option>
-                                    <option value="1">First Year</option>
-                                    <option value="2">Second Year</option>
-                                    <option value="3">Third Year</option>
-                                    <option value="4">Transition Year</option>
-                                    <option value="5">Fifth Year</option>
-                                    <option value="6">Sixth Year</option>
-                                </select>
-                            </div>
-                            <div class="form-group">
-                                <label>Preferred Theaghlach (House) <span class="required">*</span></label>
-                                <select id="house" name="house" required>
-                                    <option value="">Select Theaghlach...</option>
-                                    <option value="Seanan">Seanan</option>
-                                    <option value="Bride">Bride</option>
-                                    <option value="Ide">Ide</option>
-                                    <option value="Conaire">Conaire</option>
-                                    <option value="Padraig">Padraig</option>
-                                    <option value="Tola">Tola</option>
-                                </select>
+                            <div class="form-group full-width">
+                                <label>Previous School Name <span class="required">*</span></label>
+                                <input type="text" id="previousSchool" name="previousSchool" required>
                             </div>
                             <div class="form-group full-width">
-                                <label>Previous School</label>
-                                <input type="text" id="previousSchool" name="previousSchool">
+                                <label>Previous School Roll Number</label>
+                                <input type="text" id="previousSchoolRollNumber" name="previousSchoolRollNumber" placeholder="e.g., 12345A">
                             </div>
                         </div>
                     </div>
@@ -431,20 +411,6 @@
                     <div class="form-section">
                         <h3><i class="fas fa-heartbeat"></i> Medical Information</h3>
                         <div class="form-grid">
-                            <div class="form-group">
-                                <label>Blood Group</label>
-                                <select id="bloodGroup" name="bloodGroup">
-                                    <option value="">Select...</option>
-                                    <option value="A+">A+</option>
-                                    <option value="A-">A-</option>
-                                    <option value="B+">B+</option>
-                                    <option value="B-">B-</option>
-                                    <option value="AB+">AB+</option>
-                                    <option value="AB-">AB-</option>
-                                    <option value="O+">O+</option>
-                                    <option value="O-">O-</option>
-                                </select>
-                            </div>
                             <div class="form-group full-width">
                                 <label>Allergies (if any)</label>
                                 <input type="text" id="allergies" name="allergies" placeholder="Separate with commas">
@@ -508,13 +474,12 @@
                         county: data.county,
                         eircode: data.eircode
                     },
-                    yearGroup: parseInt(data.yearGroup),
-                    house: data.house,
+                    yearGroup: 1, // First year admission
                     previousSchool: {
-                        name: data.previousSchool
+                        name: data.previousSchool,
+                        rollNumber: data.previousSchoolRollNumber
                     },
                     medicalInfo: {
-                        bloodGroup: data.bloodGroup,
                         allergies: data.allergies ? data.allergies.split(',').map(a => a.trim()) : [],
                         conditions: data.conditions ? [data.conditions] : []
                     },
