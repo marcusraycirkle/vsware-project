@@ -22,7 +22,17 @@ async function sendAcceptanceEmail(studentEmail, firstName, yearGroup) {
       html: html
     });
 
-    console.log('Acceptance email sent successfully:', response);
+    // Handle Resend response
+    if (response.error) {
+      console.warn('Resend API warning:', response.error.message);
+      // Log the error but don't treat domain verification as a failure
+      if (response.error.message.includes('domain is not verified')) {
+        console.warn('Note: Domain verification needed. Use verified email sender or verify domain on Resend dashboard.');
+      }
+    } else {
+      console.log('Acceptance email sent successfully:', response.data?.id);
+    }
+
     return response;
   } catch (error) {
     console.error('Error sending acceptance email:', error);
@@ -46,7 +56,17 @@ async function sendRejectionEmail(studentEmail, firstName, declineReason) {
       html: html
     });
 
-    console.log('Rejection email sent successfully:', response);
+    // Handle Resend response
+    if (response.error) {
+      console.warn('Resend API warning:', response.error.message);
+      // Log the error but don't treat domain verification as a failure
+      if (response.error.message.includes('domain is not verified')) {
+        console.warn('Note: Domain verification needed. Use verified email sender or verify domain on Resend dashboard.');
+      }
+    } else {
+      console.log('Rejection email sent successfully:', response.data?.id);
+    }
+
     return response;
   } catch (error) {
     console.error('Error sending rejection email:', error);
