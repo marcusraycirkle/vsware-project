@@ -30,37 +30,36 @@ function initializeRouting() {
     const currentPath = window.location.pathname;
     console.log('Current path:', currentPath);
     
-    // Determine which page to show
+    // Don't do anything special - the server handles routing
+    // Just show the appropriate section based on the current HTML being served
+    const token = localStorage.getItem('token');
+    
+    // Check if we're on a page that requires authentication
+    if (currentPath.includes('/shannoncomp/') && !currentPath.includes('/enrolment') && !currentPath.includes('/login')) {
+        if (!token) {
+            // Redirect to login if not authenticated
+            window.location.pathname = '/shannoncomp/login';
+            return;
+        }
+    }
+    
+    // Server serves the right HTML, just initialize the page appropriately
+    const landingPage = document.getElementById('landing-page');
+    const loginPage = document.getElementById('login-page');
+    const dashboard = document.getElementById('dashboard');
+    
     if (currentPath === '/home' || currentPath === '/' || currentPath === '') {
         showLandingPage();
-    } else if (currentPath === '/selector') {
-        window.location.href = 'school-selector.html';
-    } else if (currentPath.includes('/enrolment')) {
-        window.location.href = 'enrolment.html';
-    } else if (currentPath.includes('/login')) {
-        const token = localStorage.getItem('token');
-        if (token) {
-            // Redirect to dashboard if already logged in
-            window.location.pathname = '/shannoncomp/overview';
-        } else {
-            showLoginPage();
+    } else if (currentPath === '/shannoncomp/login' || currentPath.includes('/login')) {
+        showLoginPage();
+    } else if (currentPath.includes('/shannoncomp/') && token) {
+        showDashboard();
+        // Extract page name from URL
+        const pathParts = currentPath.split('/');
+        const page = pathParts[pathParts.length - 1] || 'overview';
+        if (page && page !== 'shannoncomp') {
+            setTimeout(() => showSection(page), 100);
         }
-    } else if (currentPath.includes('/shannoncomp/')) {
-        // Dashboard pages
-        const token = localStorage.getItem('token');
-        if (token) {
-            showDashboard();
-            // Extract page name from URL
-            const pathParts = currentPath.split('/');
-            const page = pathParts[pathParts.length - 1] || 'overview';
-            if (page && page !== 'shannoncomp') {
-                setTimeout(() => showSection(page), 100);
-            }
-        } else {
-            window.location.pathname = '/shannoncomp/login';
-        }
-    } else {
-        showLandingPage();
     }
 }
 
@@ -71,31 +70,31 @@ function navigateTo(path) {
 
 function showLandingPage() {
     const landingPage = document.getElementById('landing-page');
-    const loginSection = document.getElementById('login-section');
+    const loginPage = document.getElementById('login-page');
     const dashboard = document.getElementById('dashboard');
     
     if (landingPage) landingPage.style.display = 'block';
-    if (loginSection) loginSection.style.display = 'none';
+    if (loginPage) loginPage.style.display = 'none';
     if (dashboard) dashboard.classList.add('hidden');
 }
 
 function showLoginPage() {
     const landingPage = document.getElementById('landing-page');
-    const loginSection = document.getElementById('login-section');
+    const loginPage = document.getElementById('login-page');
     const dashboard = document.getElementById('dashboard');
     
     if (landingPage) landingPage.style.display = 'none';
-    if (loginSection) loginSection.style.display = 'flex';
+    if (loginPage) loginPage.style.display = 'flex';
     if (dashboard) dashboard.classList.add('hidden');
 }
 
 function showDashboard() {
     const landingPage = document.getElementById('landing-page');
-    const loginSection = document.getElementById('login-section');
+    const loginPage = document.getElementById('login-page');
     const dashboard = document.getElementById('dashboard');
     
     if (landingPage) landingPage.style.display = 'none';
-    if (loginSection) loginSection.style.display = 'none';
+    if (loginPage) loginPage.style.display = 'none';
     if (dashboard) dashboard.classList.remove('hidden');
 }
 
