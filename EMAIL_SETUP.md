@@ -20,11 +20,25 @@ The enrollment system now sends professional HTML emails using the **Resend** em
 
 ## Setup
 
-### 1. API Key Configuration
-The Resend API key has been added to your `.env` file:
+### 1. API Key Configuration - Vercel Environment Variables
 
+**IMPORTANT: Never commit your Resend API key to git!**
+
+The `RESEND_API_KEY` must be set as an environment variable in Vercel:
+
+1. Go to your Vercel project dashboard
+2. Navigate to **Settings → Environment Variables**
+3. Add a new variable:
+   - **Name**: `RESEND_API_KEY`
+   - **Value**: Your Resend API key (get it from https://resend.com/api-keys)
+4. Click **Save**
+5. Redeploy your project for changes to take effect
+
+The key will be automatically loaded from `process.env.RESEND_API_KEY` at runtime.
+
+For local development, add to your `.env` file (never commit):
 ```
-RESEND_API_KEY=re_frZJVsm2_GNqWJLzDheBuFkBVPurUDFfB
+RESEND_API_KEY=your_key_here
 ```
 
 ### 2. Dependencies
@@ -191,15 +205,21 @@ Content-Type: application/json
 
 ## Next Steps
 
-1. **Update School Information**: Edit `utils/emailTemplates.js` with actual school details
-2. **Add Logo Images**: Replace placeholder URLs with actual school and MISpal logos
-3. **Verify Email Domain**: Resend may require domain verification for production
-4. **Test Thoroughly**: Use the test script and preview emails in various clients
-5. **Monitor**: Check Resend dashboard for delivery status and bounces
+1. **Set Vercel Environment Variables**: Add `RESEND_API_KEY` to your Vercel project settings
+2. **Update School Information**: Edit `utils/emailTemplates.js` with actual school details
+3. **Add Logo Images**: Replace placeholder URLs with actual school and MISpal logos
+4. **Verify Email Domain**: Resend may require domain verification for production
+5. **Test Thoroughly**: Use the test script and preview emails in various clients
+6. **Monitor**: Check Resend dashboard for delivery status and bounces
 
 ## Security Notes
 
-- API key is stored in `.env` (never commit to version control)
-- API key is loaded via `dotenv` at runtime
-- Emails are sent from a dedicated noreply address
-- Student email validation happens at enrollment submission
+- ✅ API key is stored in **Vercel Environment Variables** (production)
+- ✅ API key is stored in `.env` for local development only (never committed)
+- ✅ `.env` file is in `.gitignore` - never tracked by git
+- ✅ API key is loaded via `dotenv` at runtime in development
+- ✅ API key is loaded from `process.env.RESEND_API_KEY` in production
+- ✅ Emails are sent from a dedicated noreply address
+- ✅ Student email validation happens at enrollment submission
+- ✅ No sensitive data is logged or exposed in error messages
+
