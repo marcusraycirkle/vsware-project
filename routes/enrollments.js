@@ -8,6 +8,7 @@ const Class = require('../models/Class');
 const https = require('https');
 const url = require('url');
 const { sendAcceptanceEmail, sendRejectionEmail } = require('../utils/emailService');
+const { logEnrollmentToSheets, logStatusChangeToSheets } = require('../utils/googleSheetsService');
 
 // @route   POST /api/enrollments
 // @desc    Submit new enrollment (public)
@@ -60,12 +61,12 @@ router.post('/', async (req, res) => {
 
     await enrollment.save();
 
-    // Log to Excel (if configured)
+    // Log to Google Sheets (if configured)
     try {
-      await logToExcel(enrollment);
-    } catch (excelError) {
-      console.warn('Failed to log to Excel:', excelError.message);
-      // Don't fail the enrollment submission if Excel logging fails
+      await logEnrollmentToSheets(enrollment);
+    } catch (sheetsError) {
+      console.warn('Failed to log to Google Sheets:', sheetsError.message);
+      // Don't fail the enrollment submission if Sheets logging fails
     }
 
     res.status(201).json({
@@ -233,11 +234,11 @@ router.put('/:id/approve', auth, authorize('admin', 'principal'), async (req, re
     enrollment.student = student._id;
     await enrollment.save();
 
-    // Log approval to Excel
+    // Log approval to Google Sheets
     try {
-      await logApprovalToExcel(enrollment, 'Approved');
-    } catch (excelError) {
-      console.warn('Failed to log approval to Excel:', excelError.message);
+      await logStatusChangeToSheets(enrollment, 'approve');
+    } catch (sheetsError) {
+      console.warn('Failed to log approval to Google Sheets:', sheetsError.message);
     }
 
     // Send acceptance email
@@ -302,11 +303,11 @@ router.put('/:id/decline', auth, authorize('admin', 'principal'), async (req, re
     enrollment.declineDate = new Date();
     await enrollment.save();
 
-    // Log decline to Excel
+    // Log decline to Google Sheets
     try {
-      await logApprovalToExcel(enrollment, 'Declined', reason);
-    } catch (excelError) {
-      console.warn('Failed to log decline to Excel:', excelError.message);
+      await logStatusChangeToSheets(enrollment, 'decline', { reason });
+    } catch (sheetsError) {
+      console.warn('Failed to log decline to Google Sheets:', sheetsError.message);
     }
 
     // Send rejection email
@@ -363,97 +364,4 @@ router.get('/stats/summary', auth, authorize('admin', 'principal', 'teacher'), a
 });
 
 // Helper function to log enrollment to Excel
-async function logToExcel(enrollment) {
-  const excelWebhookUrl = process.env.EXCEL_WEBHOOK_URL;
-
-  if (!excelWebhookUrl) {
-    console.warn('EXCEL_WEBHOOK_URL not configured');
-    return;
-  }
-
-  const payload = {
-    timestamp: new Date().toISOString(),
-    status: 'Submitted',
-    firstName: enrollment.firstName,
-    lastName: enrollment.lastName,
-    email: enrollment.email,
-    phone: enrollment.phone,
-    dateOfBirth: enrollment.dateOfBirth,
-    gender: enrollment.gender,
-    city: enrollment.address?.city || '',
-    county: enrollment.address?.county || '',
-    previousSchool: enrollment.previousSchool?.name || '',
-    notes: ''
-  };
-
-  return new Promise((resolve, reject) => {
-    try {
-      const parsedUrl = new url.URL(excelWebhookUrl);
-      const options = {
-        hostname: parsedUrl.hostname,
-        path: parsedUrl.pathname + parsedUrl.search,
-        method: 'POST',
-        headers: {
-          'Content-Type': 'application/json'
-        }
-      };
-
-      const req = https.request(options, (res) => {
-        let data = '';
-        res.on('data', (chunk) => {
-          data += chunk;
-        });
-        res.on('end', () => {
-          resolve(data);
-        });
-      });
-
-      req.on('error', (error) => {
-        console.error('Error logging to Excel:', error.message);
-        // Don't reject - optional logging should not fail the main operation
-        resolve();
-      });
-
-      req.write(JSON.stringify(payload));
-      req.end();
-    } catch (error) {
-      console.error('Error logging to Excel:', error.message);
-      // Don't reject - optional logging should not fail the main operation
-      resolve();
-    }
-  });
-}
-
-// Helper function to log approval/decline to Excel
-async function logApprovalToExcel(enrollment, action, reason = '') {
-  const excelWebhookUrl = process.env.EXCEL_WEBHOOK_URL;
-
-  if (!excelWebhookUrl) {
-    console.warn('EXCEL_WEBHOOK_URL not configured');
-    return;
-  }
-
-  const payload = {
-    timestamp: new Date().toISOString(),
-    status: action,
-    firstName: enrollment.firstName,
-    lastName: enrollment.lastName,
-    email: enrollment.email,
-    phone: enrollment.phone,
-    dateOfBirth: enrollment.dateOfBirth,
-    gender: enrollment.gender,
-    city: enrollment.address?.city || '',
-    county: enrollment.address?.county || '',
-    previousSchool: enrollment.previousSchool?.name || '',
-    notes: action === 'Declined' ? `Declined: ${reason}` : 'Approved'
-  };
-
-  try {
-    await axios.post(excelWebhookUrl, payload);
-  } catch (error) {
-    console.error('Error logging to Excel:', error.message);
-    throw error;
-  }
-}
-
 module.exports = router;
