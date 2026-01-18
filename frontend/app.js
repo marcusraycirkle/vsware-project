@@ -126,6 +126,59 @@ function setupEventListeners() {
             if (notifPanel) notifPanel.classList.add('hidden');
         }
     });
+
+    // Modern Dashboard Sidebar Navigation
+    const sidebarToggle = document.getElementById('sidebar-toggle-btn');
+    if (sidebarToggle) {
+        sidebarToggle.addEventListener('click', () => {
+            const sidebar = document.getElementById('dashboard-sidebar');
+            if (sidebar) sidebar.classList.toggle('collapsed');
+        });
+    }
+
+    // Sidebar nav items
+    const navItems = document.querySelectorAll('.sidebar-nav .nav-item');
+    navItems.forEach(item => {
+        item.addEventListener('click', (e) => {
+            e.preventDefault();
+            const section = item.getAttribute('data-section');
+            if (section) {
+                // Remove active from all items
+                navItems.forEach(n => n.classList.remove('active'));
+                // Add active to clicked item
+                item.classList.add('active');
+                // Show section
+                showSection(section);
+            }
+        });
+    });
+
+    // Notification bell
+    const notificationBell = document.getElementById('notification-bell-btn');
+    if (notificationBell) {
+        notificationBell.addEventListener('click', () => {
+            const panel = document.getElementById('notification-panel');
+            if (panel) panel.classList.toggle('hidden');
+        });
+    }
+
+    // User avatar menu
+    const userAvatar = document.getElementById('user-avatar-btn');
+    if (userAvatar) {
+        userAvatar.addEventListener('click', () => {
+            const menu = document.getElementById('user-menu');
+            if (menu) menu.classList.toggle('hidden');
+        });
+    }
+
+    // Logout button
+    const logoutBtn = document.getElementById('logout-btn');
+    if (logoutBtn) {
+        logoutBtn.addEventListener('click', (e) => {
+            e.preventDefault();
+            logout();
+        });
+    }
 }
 
 // ========== AUTHENTICATION ==========

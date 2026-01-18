@@ -225,151 +225,126 @@
     <!-- MAIN DASHBOARD -->
     <div id="dashboard" class="dashboard hidden">
         <!-- Top Navigation Bar -->
-        <nav class="top-navbar">
-            <div class="navbar-brand" style="display: flex; align-items: center; gap: 1rem;">
-                <img src="https://www.stpatrickscomprehensive.ie/uploads/2/3/2/0/23206024/editor/st-patrick-s-comp-logo-layout-2-1.png?1564671961" alt="St Patrick's" class="school-logo" style="height: 48px; width: auto;">
-                <div style="display: flex; align-items: center; gap: 0.75rem; border-left: 2px solid var(--border); padding-left: 1rem;">
-                    <div class="mispal-logo-small" style="width: 36px; height: 36px; background: var(--gradient-primary); border-radius: 0.5rem; display: flex; align-items: center; justify-content: center; color: white; font-size: 1.1rem;">
-                        <i class="fas fa-graduation-cap"></i>
-                    </div>
-                    <div style="display: flex; flex-direction: column;">
-                        <span class="mispal-brand-text" style="font-weight: 700; font-size: 1.1rem; line-height: 1.2;">MISpal</span>
-                        <span style="font-size: 0.75rem; color: var(--text-secondary);" id="school-context-name">St. Patrick's Comprehensive</span>
-                    </div>
-                </div>
-            </div>
-            
-            <div class="navbar-menu">
-                <div class="nav-item" onclick="showSection('overview')">
-                    <i class="fas fa-home"></i><span>Dashboard</span>
-                </div>
-                
-                <div class="nav-item dropdown">
-                    <div class="dropdown-trigger">
-                        <i class="fas fa-users"></i><span>Students</span><i class="fas fa-chevron-down"></i>
-                    </div>
-                    <div class="dropdown-content">
-                        <a onclick="showSection('students', 'list')"><i class="fas fa-list"></i> Student Directory</a>
-                        <a onclick="showSection('enrollments')"><i class="fas fa-user-plus"></i> Enrollment Applications</a>
-                        <a onclick="showSection('students', 'profiles')"><i class="fas fa-id-card"></i> Student Profiles</a>
-                        <a onclick="showSection('students', 'attendance')"><i class="fas fa-calendar-check"></i> Attendance</a>
-                        <a onclick="showSection('students', 'behavior')"><i class="fas fa-star"></i> Behavior</a>
-                        <a onclick="showSection('students', 'assessments')"><i class="fas fa-graduation-cap"></i> Assessments</a>
-                        <a onclick="showSection('students', 'reports')"><i class="fas fa-file-alt"></i> Report Cards</a>
-                    </div>
-                </div>
-                
-                <div class="nav-item dropdown">
-                    <div class="dropdown-trigger">
-                        <i class="fas fa-chalkboard-teacher"></i><span>Teachers</span><i class="fas fa-chevron-down"></i>
-                    </div>
-                    <div class="dropdown-content">
-                        <a onclick="showSection('teachers', 'list')"><i class="fas fa-list"></i> Staff Directory</a>
-                        <a onclick="showSection('teachers', 'classes')"><i class="fas fa-book"></i> Class Assignments</a>
-                    </div>
-                </div>
-                
-                <div class="nav-item dropdown">
-                    <div class="dropdown-trigger">
-                        <i class="fas fa-building"></i><span>Academic</span><i class="fas fa-chevron-down"></i>
-                    </div>
-                    <div class="dropdown-content">
-                        <a onclick="showSection('my-timetable')"><i class="fas fa-calendar-week"></i> My Timetable</a>
-                        <a onclick="showSection('classes', 'list')"><i class="fas fa-book-open"></i> Classes</a>
-                        <a onclick="showSection('subjects', 'list')"><i class="fas fa-book"></i> Subjects</a>
-                        <a onclick="showSection('timetable', 'master')" data-admin-only="true"><i class="fas fa-calendar-alt"></i> Master Timetable</a>
-                        <a onclick="showSection('exams', 'schedule')"><i class="fas fa-clipboard-list"></i> Exam Schedule</a>
-                        <a onclick="showSection('curriculum', 'view')"><i class="fas fa-stream"></i> Curriculum</a>
-                    </div>
-                </div>
-                
-                <div class="nav-item dropdown">
-                    <div class="dropdown-trigger">
-                        <i class="fas fa-door-open"></i><span>Facilities</span><i class="fas fa-chevron-down"></i>
-                    </div>
-                    <div class="dropdown-content">
-                        <a onclick="showSection('rooms', 'list')"><i class="fas fa-door-open"></i> Room Directory</a>
-                        <a onclick="showSection('rooms', 'booking')"><i class="fas fa-calendar-plus"></i> Room Booking</a>
-                        <a onclick="showSection('rooms', 'equipment')"><i class="fas fa-tools"></i> Equipment</a>
-                        <a onclick="showSection('library', 'catalog')"><i class="fas fa-book-reader"></i> Library</a>
-                        <a onclick="showSection('transport', 'routes')"><i class="fas fa-bus"></i> Transport</a>
-                    </div>
-                </div>
-                
-                <div class="nav-item dropdown" data-admin-only="true">
-                    <div class="dropdown-trigger">
-                        <i class="fas fa-credit-card"></i><span>Finance</span><i class="fas fa-chevron-down"></i>
-                    </div>
-                    <div class="dropdown-content">
-                        <a onclick="showSection('fees', 'structure')"><i class="fas fa-money-bill"></i> Fee Structure</a>
-                        <a onclick="showSection('fees', 'collection')"><i class="fas fa-coins"></i> Fee Collection</a>
-                        <a onclick="showSection('fees', 'outstanding')"><i class="fas fa-exclamation-triangle"></i> Outstanding</a>
-                        <a onclick="showSection('expenses', 'list')"><i class="fas fa-receipt"></i> Expenses</a>
-                        <a onclick="showSection('payroll', 'view')"><i class="fas fa-wallet"></i> Payroll</a>
-                    </div>
-                </div>
-                
-                <div class="nav-item dropdown" data-admin-only="true">
-                    <div class="dropdown-trigger">
-                        <i class="fas fa-chart-bar"></i><span>Reports</span><i class="fas fa-chevron-down"></i>
-                    </div>
-                    <div class="dropdown-content">
-                        <a onclick="showSection('reports', 'academic')"><i class="fas fa-chart-line"></i> Academic Reports</a>
-                        <a onclick="showSection('reports', 'attendance')" data-admin-only="true"><i class="fas fa-calendar-check"></i> Attendance Reports</a>
-                        <a onclick="showSection('reports', 'behavior')"><i class="fas fa-clipboard-list"></i> Behavior Reports</a>
-                        <a onclick="showSection('reports', 'financial')" data-admin-only="true"><i class="fas fa-dollar-sign"></i> Financial Reports</a>
-                        <a onclick="showSection('reports', 'custom')"><i class="fas fa-cog"></i> Custom Reports</a>
-                    </div>
-                </div>
-                
-                <div class="nav-item" onclick="showSection('messages', 'inbox')">
-                    <i class="fas fa-envelope"></i><span>Messages</span>
-                </div>
-            </div>
-            
-            <div class="navbar-user">
-                <!-- Notification Bell -->
-                <div class="notification-bell" onclick="toggleNotificationPanel()">
-                    <i class="fas fa-bell"></i>
-                    <span class="notification-badge">0</span>
-                </div>
-                
-                <!-- Notification Panel -->
-                <div id="notification-panel" class="notification-panel hidden">
-                    <div class="notification-header">
-                        <h3><i class="fas fa-bell"></i> Notifications</h3>
-                        <div class="notification-actions">
-                            <button class="btn-text" onclick="markAllAsRead()" title="Mark all as read">
-                                <i class="fas fa-check-double"></i>
-                            </button>
-                            <button class="btn-text" onclick="clearAllNotifications()" title="Clear all">
-                                <i class="fas fa-trash"></i>
-                            </button>
-                        </div>
-                    </div>
-                    <div id="notifications-list" class="notifications-list">
-                        <!-- Notifications will be rendered here -->
-                    </div>
-                </div>
-                
-                <div class="user-info">
-                    <span id="user-display-name">User</span>
-                    <small id="user-display-role">Role</small>
-                </div>
-                <button class="btn-logout" onclick="logout()" title="Logout">
-                    <i class="fas fa-sign-out-alt"></i>
-                    <span>Logout</span>
+        <nav class="top-navbar dashboard-navbar">
+            <!-- Sidebar Toggle & Brand -->
+            <div class="navbar-brand">
+                <button class="sidebar-toggle-btn" id="sidebar-toggle-btn" title="Toggle sidebar">
+                    <i class="fas fa-bars"></i>
                 </button>
-                <div class="user-avatar" onclick="toggleUserMenu()">
-                    <i class="fas fa-user-circle"></i>
+                <div class="brand-group">
+                    <div class="brand-logo-wrapper">
+                        <img src="https://www.stpatrickscomprehensive.ie/uploads/2/3/2/0/23206024/editor/st-patrick-s-comp-logo-layout-2-1.png?1564671961" alt="St Patrick's" class="school-logo" style="height: 40px; width: auto;">
+                    </div>
+                    <div class="brand-info">
+                        <h1 class="brand-title">MISpal Teacher Portal</h1>
+                        <p class="brand-subtitle" id="school-context-name">St. Patrick's Comprehensive</p>
+                    </div>
                 </div>
-                <div id="user-menu" class="user-dropdown hidden">
-                    <a onclick="showSection('profile', 'view')"><i class="fas fa-user"></i> My Profile</a>
-                    <a onclick="showSection('settings', 'account')"><i class="fas fa-cog"></i> Settings</a>
-                    <a onclick="logout()" style="border-top: 1px solid var(--border); margin-top: 0.5rem; padding-top: 0.75rem; color: var(--danger);"><i class="fas fa-sign-out-alt"></i> Logout</a>
+            </div>
+            
+            <!-- Center Search -->
+            <div class="navbar-search">
+                <i class="fas fa-search"></i>
+                <input type="text" placeholder="Search students, classes, resources..." id="global-portal-search">
+            </div>
+            
+            <!-- Right Actions -->
+            <div class="navbar-actions">
+                <button class="icon-btn notification-btn" id="notification-bell-btn" title="Notifications">
+                    <i class="fas fa-bell"></i>
+                    <span class="badge notification-badge">0</span>
+                </button>
+                
+                <div class="user-section">
+                    <div class="user-avatar-btn" id="user-avatar-btn" title="User menu">
+                        <i class="fas fa-user-circle"></i>
+                    </div>
+                    <div class="user-info-inline">
+                        <span class="user-name" id="user-display-name">Teacher</span>
+                        <small class="user-role" id="user-display-role">Educator</small>
+                    </div>
                 </div>
+                
+                <button class="btn-logout" id="logout-btn" title="Logout">
+                    <i class="fas fa-sign-out-alt"></i>
+                </button>
             </div>
         </nav>
+
+        <!-- Sidebar Navigation (Modern) -->
+        <aside class="dashboard-sidebar" id="dashboard-sidebar">
+            <nav class="sidebar-nav">
+                <!-- Navigation Sections -->
+                <div class="nav-section">
+                    <div class="nav-section-title">Dashboard</div>
+                    <a href="#" class="nav-item active" data-section="overview">
+                        <i class="fas fa-chart-line"></i>
+                        <span>Dashboard</span>
+                    </a>
+                </div>
+
+                <div class="nav-section">
+                    <div class="nav-section-title">Core</div>
+                    <a href="#" class="nav-item" data-section="my-timetable">
+                        <i class="fas fa-calendar-week"></i>
+                        <span>My Timetable</span>
+                    </a>
+                    <a href="#" class="nav-item" data-section="students">
+                        <i class="fas fa-user-graduate"></i>
+                        <span>My Students</span>
+                    </a>
+                    <a href="#" class="nav-item" data-section="classes">
+                        <i class="fas fa-book-open"></i>
+                        <span>My Classes</span>
+                    </a>
+                    <a href="#" class="nav-item" data-section="messages">
+                        <i class="fas fa-envelope"></i>
+                        <span>Messages</span>
+                        <span class="nav-badge">0</span>
+                    </a>
+                </div>
+
+                <div class="nav-section">
+                    <div class="nav-section-title">Academic</div>
+                    <a href="#" class="nav-item" data-section="attendance">
+                        <i class="fas fa-clipboard-check"></i>
+                        <span>Take Attendance</span>
+                    </a>
+                    <a href="#" class="nav-item" data-section="behavior">
+                        <i class="fas fa-star"></i>
+                        <span>Behavior Tracking</span>
+                    </a>
+                    <a href="#" class="nav-item" data-section="assessments">
+                        <i class="fas fa-file-alt"></i>
+                        <span>Assessments</span>
+                    </a>
+                    <a href="#" class="nav-item" data-section="enrollments">
+                        <i class="fas fa-user-plus"></i>
+                        <span>Enrollments</span>
+                    </a>
+                </div>
+
+                <div class="nav-section">
+                    <div class="nav-section-title">Facilities</div>
+                    <a href="#" class="nav-item" data-section="rooms">
+                        <i class="fas fa-door-open"></i>
+                        <span>Rooms & Booking</span>
+                    </a>
+                </div>
+
+                <div class="nav-section">
+                    <div class="nav-section-title">Account</div>
+                    <a href="#" class="nav-item" data-section="profile">
+                        <i class="fas fa-user"></i>
+                        <span>My Profile</span>
+                    </a>
+                    <a href="#" class="nav-item" data-section="settings">
+                        <i class="fas fa-cog"></i>
+                        <span>Settings</span>
+                    </a>
+                </div>
+            </nav>
+        </aside>
 
         <!-- Main Content -->
         <main class="main-content">
