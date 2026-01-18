@@ -276,7 +276,70 @@ async function login(email, pin) {
 function quickLogin(email, pin) {
     document.getElementById('login-email').value = email;
     document.getElementById('login-pin').value = pin;
-    login(email, pin);
+    
+    // Demo login - don't call the real API
+    simulateDemoLogin(email, pin);
+}
+
+function simulateDemoLogin(email, pin) {
+    try {
+        showLoading();
+        
+        // Demo users database
+        const demoUsers = {
+            'admin@schoolware.com': { email: 'admin@schoolware.com', role: 'Admin', name: 'Admin User', permissionLevel: 'Principal' },
+            'john.smith@schoolware.com': { email: 'john.smith@schoolware.com', role: 'Teacher', name: 'John Smith', permissionLevel: 'Teacher' },
+            'james.wilson@student.schoolware.com': { email: 'james.wilson@student.schoolware.com', role: 'Student', name: 'James Wilson', permissionLevel: 'Student' },
+            'parent.wilson@email.com': { email: 'parent.wilson@email.com', role: 'Parent', name: 'Parent Wilson', permissionLevel: 'Parent' },
+            'mary.johnson@schoolware.com': { email: 'mary.johnson@schoolware.com', role: 'Secretary', name: 'Mary Johnson', permissionLevel: 'Secretary' },
+            'emma.davis@student.schoolware.com': { email: 'emma.davis@student.schoolware.com', role: 'Student', name: 'Emma Davis', permissionLevel: 'Student' }
+        };
+        
+        const user = demoUsers[email];
+        
+        if (user && pin === '1234') {
+            // Simulate successful login
+            const demoToken = 'demo_token_' + Date.now();
+            authToken = demoToken;
+            currentUser = user;
+            
+            // Store auth data
+            localStorage.setItem('token', demoToken);
+            localStorage.setItem('user', JSON.stringify(user));
+            localStorage.setItem('userRole', user.role);
+            localStorage.setItem('permissionLevel', user.permissionLevel || 'General');
+            
+            showSuccess('Welcome back, ' + user.name + '!');
+            
+            setTimeout(() => {
+                hideLoading();
+                
+                // Route based on role
+                const role = user.role;
+                
+                if (role === 'Admin') {
+                    window.location.href = '/admin/dashboard';
+                } else if (role === 'Parent') {
+                    window.location.href = '/shannoncomp/parents/dashboard';
+                } else if (role === 'Student') {
+                    window.location.href = '/shannoncomp/student/dashboard';
+                } else if (role === 'Secretary') {
+                    window.location.href = '/secretary/dashboard';
+                } else if (role === 'Teacher') {
+                    window.location.href = '/shannoncomp/teacher/dashboard';
+                } else {
+                    window.location.href = '/shannoncomp/overview';
+                }
+            }, 500);
+        } else {
+            hideLoading();
+            showError('Invalid demo credentials. Use PIN: 1234');
+        }
+    } catch (error) {
+        hideLoading();
+        showError('Login error: ' + error.message);
+        console.error('Demo login error:', error);
+    }
 }
 
 async function logout() {
