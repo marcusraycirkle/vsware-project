@@ -4236,17 +4236,8 @@ html, body {
     margin: 0;
 }
 
-
 /* Responsive */
 @media (max-width: 768px) {
-    .dashboard-navbar {
-        padding: 0 1rem;
-    }
-    
-    .navbar-brand {
-        min-width: auto;
-    }
-    
     .brand-info {
         display: none;
     }
