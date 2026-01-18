@@ -153,56 +153,56 @@ function setupFeatures() {
             title: 'Attendance',
             subtitle: 'View and submit absences',
             action: 'View Attendance',
-            onclick: 'showFeature("attendance")'
+            href: '/parent-attendance.html'
         },
         {
             icon: '📅',
             title: 'Timetable',
             subtitle: 'Weekly class schedule',
             action: 'View Timetable',
-            onclick: 'showFeature("timetable")'
+            href: '/parent-timetable.html'
         },
         {
             icon: '⭐',
             title: 'Behaviour',
             subtitle: 'Behaviour points and feedback',
             action: 'View Behaviour',
-            onclick: 'showFeature("behaviour")'
+            href: '/parent-behaviour.html'
         },
         {
             icon: '📊',
             title: 'Assessments',
             subtitle: 'View test results',
             action: 'View Results',
-            onclick: 'showFeature("assessments")'
+            href: '/parent-assessments.html'
         },
         {
             icon: '👤',
             title: 'Personal Info',
             subtitle: 'Student profile details',
             action: 'View Profile',
-            onclick: 'showFeature("personal")'
+            href: '/parent-profile.html'
         },
         {
             icon: '💳',
             title: 'Payments',
             subtitle: 'Make payments online',
             action: 'Pay Now',
-            onclick: 'showFeature("payments")'
+            href: '/parent-payments.html'
         },
         {
             icon: '📋',
             title: 'Permission Slips',
             subtitle: 'View and sign slips',
             action: 'View Slips',
-            onclick: 'showFeature("permissions")'
+            href: '/parent-permissions.html'
         },
         {
             icon: '📞',
             title: 'Messages',
             subtitle: 'Messages from school',
             action: 'View Messages',
-            onclick: 'showFeature("messages")'
+            href: '/parent-messages.html'
         }
     ];
 
@@ -211,19 +211,11 @@ function setupFeatures() {
             <div class="widget-icon">${feature.icon}</div>
             <div class="widget-title">${feature.title}</div>
             <div class="widget-subtitle">${feature.subtitle}</div>
-            <button class="widget-action" onclick="${feature.onclick}">
+            <a href="${feature.href}" class="widget-action">
                 ${feature.action} <i class="fas fa-arrow-right"></i>
-            </button>
+            </a>
         </div>
     `).join('');
-}
-
-function showFeature(feature) {
-    console.log(`Showing feature: ${feature} for student:`, currentStudent);
-    
-    // This would navigate to different feature pages
-    // For now, just log the action
-    alert(`Loading ${feature} for ${currentStudent?.name || 'student'}...`);
 }
 
 function setupEventListeners() {

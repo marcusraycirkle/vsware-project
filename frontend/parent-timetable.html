@@ -1,0 +1,493 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Timetable - MISpal Parent Portal</title>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
+    <style>
+        :root {
+            --primary: #4F46E5;
+            --secondary: #10B981;
+            --danger: #EF4444;
+            --warning: #F59E0B;
+            --text-primary: #1F2937;
+            --text-secondary: #6B7280;
+            --bg-primary: #FFFFFF;
+            --bg-secondary: #F9FAFB;
+            --border: #E5E7EB;
+        }
+
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'Inter', sans-serif;
+            background: var(--bg-secondary);
+            color: var(--text-primary);
+        }
+
+        .timetable-page {
+            min-height: 100vh;
+            padding: 2rem;
+            max-width: 1400px;
+            margin: 0 auto;
+        }
+
+        .page-header {
+            background: white;
+            border-radius: 12px;
+            padding: 2rem;
+            margin-bottom: 2rem;
+            border: 1px solid var(--border);
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+
+        .page-title {
+            font-size: 2rem;
+            font-weight: 700;
+            color: var(--primary);
+        }
+
+        .back-btn {
+            padding: 0.75rem 1.5rem;
+            background: var(--text-secondary);
+            color: white;
+            border: none;
+            border-radius: 6px;
+            cursor: pointer;
+            font-weight: 600;
+        }
+
+        .card {
+            background: white;
+            border-radius: 12px;
+            padding: 2rem;
+            border: 1px solid var(--border);
+            margin-bottom: 2rem;
+        }
+
+        .card-title {
+            font-size: 1.5rem;
+            font-weight: 700;
+            margin-bottom: 1.5rem;
+            color: var(--text-primary);
+        }
+
+        .timetable-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+            gap: 1.5rem;
+            margin-bottom: 2rem;
+        }
+
+        .day-column {
+            background: var(--bg-secondary);
+            border-radius: 8px;
+            overflow: hidden;
+            border: 1px solid var(--border);
+        }
+
+        .day-header {
+            background: linear-gradient(135deg, var(--primary), var(--secondary));
+            color: white;
+            padding: 1rem;
+            font-weight: 700;
+            text-align: center;
+        }
+
+        .day-date {
+            font-size: 0.85rem;
+            opacity: 0.9;
+        }
+
+        .lessons-list {
+            display: flex;
+            flex-direction: column;
+        }
+
+        .lesson {
+            padding: 1rem;
+            border-bottom: 1px solid var(--border);
+            transition: all 0.3s;
+            cursor: pointer;
+        }
+
+        .lesson:last-child {
+            border-bottom: none;
+        }
+
+        .lesson:hover {
+            background: white;
+        }
+
+        .lesson-time {
+            font-size: 0.85rem;
+            color: var(--text-secondary);
+            font-weight: 600;
+            margin-bottom: 0.25rem;
+        }
+
+        .lesson-subject {
+            font-weight: 700;
+            color: var(--text-primary);
+            margin-bottom: 0.25rem;
+        }
+
+        .lesson-room {
+            font-size: 0.85rem;
+            color: var(--text-secondary);
+        }
+
+        .lesson-teacher {
+            font-size: 0.8rem;
+            color: var(--text-secondary);
+        }
+
+        .subject-color {
+            width: 4px;
+            height: 4px;
+            border-radius: 50%;
+            display: inline-block;
+            margin-right: 0.5rem;
+        }
+
+        .subject-english { background: #3B82F6; }
+        .subject-irish { background: #10B981; }
+        .subject-math { background: #F59E0B; }
+        .subject-german { background: #8B5CF6; }
+        .subject-history { background: #EF4444; }
+        .subject-geography { background: #06B6D4; }
+        .subject-pe { background: #EC4899; }
+        .subject-csp { background: #14B8A6; }
+        .subject-tech { background: #6366F1; }
+        .subject-ire { background: #D97706; }
+        .subject-ht { background: #7C3AED; }
+        .subject-cs { background: #0891B2; }
+
+        .legend {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 2rem;
+            padding: 1.5rem;
+            background: var(--bg-secondary);
+            border-radius: 8px;
+            margin-top: 2rem;
+        }
+
+        .legend-item {
+            display: flex;
+            align-items: center;
+            gap: 0.5rem;
+            font-size: 0.9rem;
+        }
+
+        .legend-color {
+            width: 12px;
+            height: 12px;
+            border-radius: 3px;
+        }
+
+        @media (max-width: 768px) {
+            .timetable-grid {
+                grid-template-columns: 1fr;
+            }
+
+            .page-header {
+                flex-direction: column;
+                gap: 1rem;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="timetable-page">
+        <div class="page-header">
+            <div>
+                <h1 class="page-title"><i class="fas fa-calendar-week"></i> Timetable</h1>
+                <p style="color: var(--text-secondary); margin-top: 0.5rem;">Week of Jan 19 - Jan 24, 2026 (Same every week)</p>
+            </div>
+            <button class="back-btn" onclick="window.history.back()">
+                <i class="fas fa-arrow-left"></i> Back
+            </button>
+        </div>
+
+        <div class="card">
+            <div class="card-title">Weekly Schedule</div>
+            
+            <div class="timetable-grid">
+                <!-- Monday -->
+                <div class="day-column">
+                    <div class="day-header">
+                        <div>Monday</div>
+                        <div class="day-date">19 Jan</div>
+                    </div>
+                    <div class="lessons-list">
+                        <div class="lesson">
+                            <div class="lesson-time">08:45 - 09:30</div>
+                            <div class="lesson-subject">
+                                <span class="subject-color subject-english"></span> English
+                            </div>
+                            <div class="lesson-room">Room 105</div>
+                            <div class="lesson-teacher">Ms. McMahon</div>
+                        </div>
+                        <div class="lesson">
+                            <div class="lesson-time">09:30 - 10:15</div>
+                            <div class="lesson-subject">
+                                <span class="subject-color subject-irish"></span> Irish
+                            </div>
+                            <div class="lesson-room">Room 203</div>
+                            <div class="lesson-teacher">Ms. Keane</div>
+                        </div>
+                        <div class="lesson">
+                            <div class="lesson-time">10:15 - 11:00</div>
+                            <div class="lesson-subject">
+                                <span class="subject-color subject-math"></span> Mathematics
+                            </div>
+                            <div class="lesson-room">Room 304</div>
+                            <div class="lesson-teacher">Mr. O'Brien</div>
+                        </div>
+                        <div class="lesson">
+                            <div class="lesson-time">11:00 - 11:15</div>
+                            <div style="color: var(--text-secondary); font-weight: 600;">Break</div>
+                        </div>
+                        <div class="lesson">
+                            <div class="lesson-time">11:15 - 12:00</div>
+                            <div class="lesson-subject">
+                                <span class="subject-color subject-german"></span> German
+                            </div>
+                            <div class="lesson-room">Room 401</div>
+                            <div class="lesson-teacher">Mr. Schmidt</div>
+                        </div>
+                        <div class="lesson">
+                            <div class="lesson-time">12:00 - 12:45</div>
+                            <div class="lesson-subject">
+                                <span class="subject-color subject-history"></span> History
+                            </div>
+                            <div class="lesson-room">Room 205</div>
+                            <div class="lesson-teacher">Mrs. Sullivan</div>
+                        </div>
+                        <div class="lesson">
+                            <div class="lesson-time">12:45 - 13:30</div>
+                            <div style="color: var(--text-secondary); font-weight: 600;">Lunch</div>
+                        </div>
+                        <div class="lesson">
+                            <div class="lesson-time">13:30 - 14:15</div>
+                            <div class="lesson-subject">
+                                <span class="subject-color subject-geography"></span> Geography
+                            </div>
+                            <div class="lesson-room">Room 302</div>
+                            <div class="lesson-teacher">Ms. Murphy</div>
+                        </div>
+                        <div class="lesson">
+                            <div class="lesson-time">14:15 - 15:00</div>
+                            <div class="lesson-subject">
+                                <span class="subject-color subject-pe"></span> Physical Education
+                            </div>
+                            <div class="lesson-room">Gym</div>
+                            <div class="lesson-teacher">Mr. Kelly</div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Tuesday -->
+                <div class="day-column">
+                    <div class="day-header">
+                        <div>Tuesday</div>
+                        <div class="day-date">20 Jan</div>
+                    </div>
+                    <div class="lessons-list">
+                        <div class="lesson">
+                            <div class="lesson-time">08:45 - 09:30</div>
+                            <div class="lesson-subject">
+                                <span class="subject-color subject-irish"></span> Irish
+                            </div>
+                            <div class="lesson-room">Room 203</div>
+                            <div class="lesson-teacher">Ms. Keane</div>
+                        </div>
+                        <div class="lesson">
+                            <div class="lesson-time">09:30 - 10:15</div>
+                            <div class="lesson-subject">
+                                <span class="subject-color subject-german"></span> German
+                            </div>
+                            <div class="lesson-room">Room 401</div>
+                            <div class="lesson-teacher">Mr. Schmidt</div>
+                        </div>
+                        <div class="lesson">
+                            <div class="lesson-time">10:15 - 11:00</div>
+                            <div class="lesson-subject">
+                                <span class="subject-color subject-math"></span> Mathematics
+                            </div>
+                            <div class="lesson-room">Room 304</div>
+                            <div class="lesson-teacher">Mr. O'Brien</div>
+                        </div>
+                        <div class="lesson">
+                            <div class="lesson-time">11:00 - 11:15</div>
+                            <div style="color: var(--text-secondary); font-weight: 600;">Break</div>
+                        </div>
+                        <div class="lesson">
+                            <div class="lesson-time">11:15 - 12:00</div>
+                            <div class="lesson-subject">
+                                <span class="subject-color subject-business"></span> Business Studies
+                            </div>
+                            <div class="lesson-room">Room 405</div>
+                            <div class="lesson-teacher">Mr. Walsh</div>
+                        </div>
+                        <div class="lesson">
+                            <div class="lesson-time">12:00 - 12:45</div>
+                            <div class="lesson-subject">
+                                <span class="subject-color subject-english"></span> English
+                            </div>
+                            <div class="lesson-room">Room 105</div>
+                            <div class="lesson-teacher">Ms. McMahon</div>
+                        </div>
+                        <div class="lesson">
+                            <div class="lesson-time">12:45 - 13:30</div>
+                            <div style="color: var(--text-secondary); font-weight: 600;">Lunch</div>
+                        </div>
+                        <div class="lesson">
+                            <div class="lesson-time">13:30 - 14:15</div>
+                            <div class="lesson-subject">
+                                <span class="subject-color subject-pe"></span> Physical Education
+                            </div>
+                            <div class="lesson-room">Gym</div>
+                            <div class="lesson-teacher">Mr. Kelly</div>
+                        </div>
+                        <div class="lesson">
+                            <div class="lesson-time">14:15 - 15:00</div>
+                            <div class="lesson-subject">
+                                <span class="subject-color subject-csp"></span> Civic, Social & Political
+                            </div>
+                            <div class="lesson-room">Room 210</div>
+                            <div class="lesson-teacher">Mr. Byrne</div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Wednesday -->
+                <div class="day-column">
+                    <div class="day-header">
+                        <div>Wednesday</div>
+                        <div class="day-date">21 Jan</div>
+                    </div>
+                    <div class="lessons-list">
+                        <div class="lesson">
+                            <div class="lesson-time">08:45 - 09:30</div>
+                            <div class="lesson-subject">
+                                <span class="subject-color subject-english"></span> English
+                            </div>
+                            <div class="lesson-room">Room 105</div>
+                            <div class="lesson-teacher">Ms. McMahon</div>
+                        </div>
+                        <div class="lesson">
+                            <div class="lesson-time">09:30 - 10:15</div>
+                            <div class="lesson-subject">
+                                <span class="subject-color subject-irish"></span> Irish
+                            </div>
+                            <div class="lesson-room">Room 203</div>
+                            <div class="lesson-teacher">Ms. Keane</div>
+                        </div>
+                        <div class="lesson">
+                            <div class="lesson-time">10:15 - 11:00</div>
+                            <div class="lesson-subject">
+                                <span class="subject-color subject-business"></span> Business Studies
+                            </div>
+                            <div class="lesson-room">Room 405</div>
+                            <div class="lesson-teacher">Mr. Walsh</div>
+                        </div>
+                        <div class="lesson">
+                            <div class="lesson-time">11:00 - 11:15</div>
+                            <div style="color: var(--text-secondary); font-weight: 600;">Break</div>
+                        </div>
+                        <div class="lesson">
+                            <div class="lesson-time">11:15 - 12:00</div>
+                            <div class="lesson-subject">
+                                <span class="subject-color subject-math"></span> Mathematics
+                            </div>
+                            <div class="lesson-room">Room 304</div>
+                            <div class="lesson-teacher">Mr. O'Brien</div>
+                        </div>
+                        <div class="lesson">
+                            <div class="lesson-time">12:00 - 12:45</div>
+                            <div class="lesson-subject">
+                                <span class="subject-color subject-geography"></span> Geography
+                            </div>
+                            <div class="lesson-room">Room 302</div>
+                            <div class="lesson-teacher">Ms. Murphy</div>
+                        </div>
+                        <div class="lesson">
+                            <div class="lesson-time">12:45 - 13:30</div>
+                            <div style="color: var(--text-secondary); font-weight: 600;">Lunch</div>
+                        </div>
+                        <div class="lesson">
+                            <div class="lesson-time">13:30 - 14:15</div>
+                            <div class="lesson-subject">
+                                <span class="subject-color subject-tech"></span> Wood Technology
+                            </div>
+                            <div class="lesson-room">Workshop</div>
+                            <div class="lesson-teacher">Mr. Brady</div>
+                        </div>
+                        <div class="lesson">
+                            <div class="lesson-time">14:15 - 15:00</div>
+                            <div class="lesson-subject">
+                                <span class="subject-color subject-german"></span> German
+                            </div>
+                            <div class="lesson-room">Room 401</div>
+                            <div class="lesson-teacher">Mr. Schmidt</div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <div class="legend">
+                <div class="legend-item">
+                    <div class="legend-color subject-english"></div>
+                    <span>English</span>
+                </div>
+                <div class="legend-item">
+                    <div class="legend-color subject-irish"></div>
+                    <span>Irish</span>
+                </div>
+                <div class="legend-item">
+                    <div class="legend-color subject-math"></div>
+                    <span>Mathematics</span>
+                </div>
+                <div class="legend-item">
+                    <div class="legend-color subject-german"></div>
+                    <span>German</span>
+                </div>
+                <div class="legend-item">
+                    <div class="legend-color subject-history"></div>
+                    <span>History</span>
+                </div>
+                <div class="legend-item">
+                    <div class="legend-color subject-geography"></div>
+                    <span>Geography</span>
+                </div>
+                <div class="legend-item">
+                    <div class="legend-color subject-pe"></div>
+                    <span>Physical Education</span>
+                </div>
+                <div class="legend-item">
+                    <div class="legend-color subject-business"></div>
+                    <span>Business Studies</span>
+                </div>
+                <div class="legend-item">
+                    <div class="legend-color subject-tech"></div>
+                    <span>Wood Technology</span>
+                </div>
+                <div class="legend-item">
+                    <div class="legend-color subject-csp"></div>
+                    <span>Civic, Social & Political</span>
+                </div>
+            </div>
+        </div>
+    </div>
+</body>
+</html>
