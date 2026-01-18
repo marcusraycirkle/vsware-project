@@ -226,6 +226,10 @@ app.get('/shannoncomp/parents/:page', (req, res) => {
   res.sendFile(path.join(__dirname, 'frontend', 'parent-portal.html'));
 });
 
+app.get('/shannoncomp/student/:page', (req, res) => {
+  res.sendFile(path.join(__dirname, 'frontend', 'student-portal.html'));
+});
+
 app.get('/admin/:page', (req, res) => {
   res.sendFile(path.join(__dirname, 'frontend', 'admin-portal.html'));
 });

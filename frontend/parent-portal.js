@@ -15,19 +15,22 @@ document.addEventListener('DOMContentLoaded', () => {
 });
 
 function initializeParentPortal() {
-    // Check if user is logged in
-    const token = localStorage.getItem('parentToken') || localStorage.getItem('userToken');
+    // Check if user is logged in - support both old and new token key names
+    const token = localStorage.getItem('token') || localStorage.getItem('parentToken') || localStorage.getItem('userToken');
     if (!token) {
         window.location.href = '/selector';
         return;
     }
 
-    const parentData = localStorage.getItem('parentUser') || localStorage.getItem('currentUser');
-    if (parentData) {
+    // Support both old and new user key names
+    const userData = localStorage.getItem('user') || localStorage.getItem('parentUser') || localStorage.getItem('currentUser');
+    if (userData) {
         try {
-            const user = JSON.parse(parentData);
-            document.getElementById('user-greeting').textContent = `${user.firstName} ${user.lastName}`;
-            document.getElementById('parent-name').textContent = `${user.firstName} ${user.lastName}`;
+            const user = JSON.parse(userData);
+            const firstName = user.firstName || user.name?.split(' ')[0] || 'Parent';
+            const lastName = user.lastName || user.name?.split(' ')[1] || '';
+            document.getElementById('user-greeting').textContent = `${firstName} ${lastName}`;
+            document.getElementById('parent-name').textContent = `${firstName} ${lastName}`;
             document.getElementById('parent-email').textContent = user.email || 'No email set';
             document.getElementById('parent-phone').textContent = user.phone || '+353 1 234 5678';
         } catch (e) {
