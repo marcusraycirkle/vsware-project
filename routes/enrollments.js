@@ -195,12 +195,22 @@ router.put('/:id/approve', auth, authorize('admin', 'principal'), async (req, re
 
     // Send acceptance email (non-blocking)
     console.log('Sending acceptance email to:', savedEnrollment.email);
-    sendAcceptanceEmail(savedEnrollment.email, savedEnrollment.firstName, savedEnrollment.lastName)
+    sendAcceptanceEmail(savedEnrollment.email, savedEnrollment.firstName, savedEnrollment.yearGroup || 'Year 7')
+      .then(result => {
+        if (result.error) {
+          console.error('Email error:', result.error.message);
+        } else {
+          console.log('Acceptance email sent:', result.data?.id);
+        }
+      })
       .catch(err => console.error('Email send error:', err.message));
 
     // Log to Google Sheets (non-blocking)
     console.log('Logging to Google Sheets...');
-    logStatusChangeToSheets(savedEnrollment, 'Approved')
+    logStatusChangeToSheets(savedEnrollment, 'Approved', {})
+      .then(result => {
+        console.log('Google Sheets response:', result);
+      })
       .catch(err => console.error('Google Sheets log error:', err.message));
 
     console.log('Sending response...');

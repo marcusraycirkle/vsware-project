@@ -134,9 +134,12 @@ async function logStatusChangeToSheets(enrollmentData, action, details = {}) {
       county = address.county || '';
     }
 
+    // Normalize action to check for approval
+    const isApproved = action.toLowerCase().includes('approve') || action === 'Approved';
+
     const payload = {
       timestamp: new Date().toISOString(),
-      status: action === 'approve' ? 'Approved' : 'Declined',
+      status: isApproved ? 'Approved' : 'Declined',
       firstName: enrollmentData.firstName || '',
       lastName: enrollmentData.lastName || '',
       email: enrollmentData.email || '',
