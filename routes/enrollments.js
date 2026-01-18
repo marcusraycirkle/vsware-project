@@ -165,103 +165,40 @@ router.get('/:id', auth, authorize('admin', 'principal', 'teacher'), async (req,
 // @access  Private (Admin/Principal)
 router.put('/:id/approve', auth, authorize('admin', 'principal'), async (req, res) => {
   try {
-    console.log('Step 1: Finding enrollment...');
+    console.log('=== APPROVAL START ===');
+    console.log('Enrollment ID:', req.params.id);
+    console.log('User ID:', req.userId);
+    
     const enrollment = await Enrollment.findById(req.params.id);
-
+    console.log('Enrollment found:', !!enrollment);
+    
     if (!enrollment) {
-      return res.status(404).json({
-        success: false,
-        message: 'Enrollment not found'
-      });
+      return res.status(404).json({ success: false, message: 'Enrollment not found' });
     }
 
-    console.log('Step 2: Checking enrollment status...');
     if (enrollment.status !== 'Pending') {
-      return res.status(400).json({
-        success: false,
-        message: `Cannot approve enrollment with status: ${enrollment.status}`
-      });
+      return res.status(400).json({ success: false, message: `Cannot approve: status is ${enrollment.status}` });
     }
 
-    console.log('Step 3: Finding or creating user...');
-    let user = await User.findOne({ email: enrollment.email });
-
-    if (!user) {
-      console.log('Step 3a: Creating new user...');
-      const defaultPassword = `Student${Date.now()}`;
-      user = new User({
-        email: enrollment.email,
-        password: defaultPassword,
-        firstName: enrollment.firstName,
-        lastName: enrollment.lastName,
-        role: 'student',
-        phoneNumber: enrollment.phone,
-        address: enrollment.address || {}
-      });
-      console.log('Step 3b: Saving user...');
-      await user.save();
-      console.log('Step 3c: User saved successfully');
-    }
-
-    console.log('Step 4: Creating student profile...');
-    const yearNames = ['First Year', 'Second Year', 'Third Year', 'TY', 'Fifth Year', 'Sixth Year'];
-    const yearName = yearNames[(enrollment.yearGroup || 1) - 1] || 'First Year';
-
-    const student = new Student({
-      user: user._id,
-      studentId: `SPC${Date.now().toString().slice(-6)}`,
-      admissionNumber: `ADM${Date.now().toString().slice(-8)}`,
-      dateOfBirth: enrollment.dateOfBirth,
-      gender: enrollment.gender,
-      currentYear: enrollment.yearGroup || 1,
-      yearGroup: yearName,
-      yearName: yearName,
-      house: 'Bride',
-      admissionDate: new Date(),
-      status: 'Active',
-      pps: enrollment.pps,
-      medicalInfo: enrollment.medicalInfo,
-      previousSchool: enrollment.previousSchool || {},
-      notes: enrollment.notes ? [{ content: enrollment.notes, createdBy: req.userId, createdAt: new Date() }] : []
-    });
-
-    console.log('Step 5: Saving student...');
-    await student.save();
-    console.log('Step 5: Student saved successfully');
-
-    console.log('Step 6: Linking student to user...');
-    user.studentProfile = student._id;
-    await user.save();
-    console.log('Step 6: User linked successfully');
-
-    console.log('Step 7: Updating enrollment...');
+    // Mark as approved (simple first)
     enrollment.status = 'Approved';
     enrollment.approvedBy = req.userId;
     enrollment.approvalDate = new Date();
-    enrollment.student = student._id;
     await enrollment.save();
-    console.log('Step 7: Enrollment updated successfully');
+    console.log('Enrollment marked as approved');
 
-    console.log('Step 8: Sending email...');
-    sendAcceptanceEmail(enrollment.email, enrollment.firstName, enrollment.yearGroup).catch(err => {
-      console.warn('Failed to send email:', err.message);
-    });
-
-    console.log('Approval complete!');
     res.json({
       success: true,
-      message: 'Enrollment approved and student profile created',
-      enrollment,
-      student
+      message: 'Enrollment approved',
+      enrollment
     });
   } catch (error) {
-    console.error('Error approving enrollment:', error);
-    console.error('Error stack:', error.stack);
+    console.error('ERROR:', error.message);
+    console.error('Stack:', error.stack);
     res.status(500).json({
       success: false,
-      message: 'Server error approving enrollment',
-      error: error.message,
-      stack: process.env.NODE_ENV === 'development' ? error.stack : undefined
+      message: error.message,
+      error: error.toString()
     });
   }
 });
