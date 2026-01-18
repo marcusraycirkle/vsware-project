@@ -1,0 +1,495 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta http-equiv="Cache-Control" content="no-cache, no-store, must-revalidate">
+    <title>MISpal - Admin Portal</title>
+    <link rel="icon" href="data:image/svg+xml,<svg xmlns=%22http://www.w3.org/2000/svg%22 viewBox=%220 0 100 100%22><text y=%22.9em%22 font-size=%2290%22>🎓</text></svg>">
+    <link rel="stylesheet" href="/admin-styles.css">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800;900&display=swap" rel="stylesheet">
+</head>
+<body>
+    <!-- Main Admin Container -->
+    <div id="admin-portal" class="admin-portal">
+        
+        <!-- Top Navigation Bar -->
+        <header class="admin-header">
+            <div class="header-left">
+                <button class="sidebar-toggle" onclick="toggleSidebar()">
+                    <i class="fas fa-bars"></i>
+                </button>
+                <div class="school-brand">
+                    <img src="/mispal-logo.png" alt="MISpal" class="brand-logo" onerror="this.style.display='none'">
+                    <div class="brand-info">
+                        <h1 class="school-name">St. Patrick's Comprehensive</h1>
+                        <span class="portal-type">Administrator Portal</span>
+                    </div>
+                </div>
+            </div>
+            
+            <div class="header-center">
+                <div class="search-bar">
+                    <i class="fas fa-search"></i>
+                    <input type="text" placeholder="Search students, teachers, classes..." id="global-search">
+                </div>
+            </div>
+            
+            <div class="header-right">
+                <button class="quick-action-btn" onclick="openQuickActions()">
+                    <i class="fas fa-plus"></i>
+                    <span>Quick Action</span>
+                </button>
+                
+                <button class="icon-btn notification-btn" onclick="toggleNotifications()">
+                    <i class="fas fa-bell"></i>
+                    <span class="badge">5</span>
+                </button>
+                
+                <div class="user-menu" onclick="toggleUserMenu()">
+                    <div class="user-avatar">
+                        <i class="fas fa-user-shield"></i>
+                    </div>
+                    <div class="user-info">
+                        <span class="user-name">Admin User</span>
+                        <span class="user-role">Principal</span>
+                    </div>
+                    <i class="fas fa-chevron-down"></i>
+                </div>
+            </div>
+        </header>
+
+        <div class="admin-main">
+            <!-- Sidebar Navigation -->
+            <aside class="admin-sidebar" id="admin-sidebar">
+                <nav class="sidebar-nav">
+                    <div class="nav-section">
+                        <div class="nav-section-title">Main</div>
+                        <a href="#" class="nav-item active" data-page="dashboard" onclick="navigateToPage('dashboard')">
+                            <i class="fas fa-th-large"></i>
+                            <span>Dashboard</span>
+                        </a>
+                        <a href="#" class="nav-item" data-page="calendar" onclick="navigateToPage('calendar')">
+                            <i class="fas fa-calendar-alt"></i>
+                            <span>Calendar</span>
+                        </a>
+                        <a href="#" class="nav-item" data-page="analytics" onclick="navigateToPage('analytics')">
+                            <i class="fas fa-chart-line"></i>
+                            <span>Analytics</span>
+                        </a>
+                    </div>
+
+                    <div class="nav-section">
+                        <div class="nav-section-title">People</div>
+                        <a href="#" class="nav-item" data-page="students" onclick="navigateToPage('students')">
+                            <i class="fas fa-user-graduate"></i>
+                            <span>Students</span>
+                            <span class="count">1,247</span>
+                        </a>
+                        <a href="#" class="nav-item" data-page="teachers" onclick="navigateToPage('teachers')">
+                            <i class="fas fa-chalkboard-teacher"></i>
+                            <span>Teachers</span>
+                            <span class="count">87</span>
+                        </a>
+                        <a href="#" class="nav-item" data-page="parents" onclick="navigateToPage('parents')">
+                            <i class="fas fa-users"></i>
+                            <span>Parents</span>
+                        </a>
+                        <a href="#" class="nav-item" data-page="staff" onclick="navigateToPage('staff')">
+                            <i class="fas fa-user-tie"></i>
+                            <span>Staff</span>
+                        </a>
+                    </div>
+
+                    <div class="nav-section">
+                        <div class="nav-section-title">Academic</div>
+                        <a href="#" class="nav-item" data-page="classes" onclick="navigateToPage('classes')">
+                            <i class="fas fa-door-open"></i>
+                            <span>Classes</span>
+                        </a>
+                        <a href="#" class="nav-item" data-page="subjects" onclick="navigateToPage('subjects')">
+                            <i class="fas fa-book"></i>
+                            <span>Subjects</span>
+                        </a>
+                        <a href="#" class="nav-item" data-page="timetable" onclick="navigateToPage('timetable')">
+                            <i class="fas fa-clock"></i>
+                            <span>Timetable</span>
+                        </a>
+                        <a href="#" class="nav-item" data-page="assessments" onclick="navigateToPage('assessments')">
+                            <i class="fas fa-file-alt"></i>
+                            <span>Assessments</span>
+                        </a>
+                    </div>
+
+                    <div class="nav-section">
+                        <div class="nav-section-title">Operations</div>
+                        <a href="#" class="nav-item" data-page="attendance" onclick="navigateToPage('attendance')">
+                            <i class="fas fa-calendar-check"></i>
+                            <span>Attendance</span>
+                        </a>
+                        <a href="#" class="nav-item" data-page="behavior" onclick="navigateToPage('behavior')">
+                            <i class="fas fa-star"></i>
+                            <span>Behavior</span>
+                        </a>
+                        <a href="#" class="nav-item" data-page="enrollment" onclick="navigateToPage('enrollment')">
+                            <i class="fas fa-user-plus"></i>
+                            <span>Enrollment</span>
+                        </a>
+                        <a href="#" class="nav-item" data-page="rooms" onclick="navigateToPage('rooms')">
+                            <i class="fas fa-building"></i>
+                            <span>Rooms</span>
+                        </a>
+                    </div>
+
+                    <div class="nav-section">
+                        <div class="nav-section-title">Communication</div>
+                        <a href="#" class="nav-item" data-page="messages" onclick="navigateToPage('messages')">
+                            <i class="fas fa-envelope"></i>
+                            <span>Messages</span>
+                            <span class="badge-mini">12</span>
+                        </a>
+                        <a href="#" class="nav-item" data-page="announcements" onclick="navigateToPage('announcements')">
+                            <i class="fas fa-bullhorn"></i>
+                            <span>Announcements</span>
+                        </a>
+                    </div>
+
+                    <div class="nav-section">
+                        <div class="nav-section-title">Settings</div>
+                        <a href="#" class="nav-item" data-page="school-settings" onclick="navigateToPage('school-settings')">
+                            <i class="fas fa-school"></i>
+                            <span>School Settings</span>
+                        </a>
+                        <a href="#" class="nav-item" data-page="customization" onclick="navigateToPage('customization')">
+                            <i class="fas fa-palette"></i>
+                            <span>Customization</span>
+                        </a>
+                        <a href="#" class="nav-item" data-page="users" onclick="navigateToPage('users')">
+                            <i class="fas fa-users-cog"></i>
+                            <span>User Management</span>
+                        </a>
+                        <a href="#" class="nav-item" data-page="integrations" onclick="navigateToPage('integrations')">
+                            <i class="fas fa-plug"></i>
+                            <span>Integrations</span>
+                        </a>
+                    </div>
+                </nav>
+
+                <div class="sidebar-footer">
+                    <div class="upgrade-card">
+                        <i class="fas fa-crown"></i>
+                        <h4>Upgrade to Pro</h4>
+                        <p>Get advanced analytics and reporting</p>
+                        <button class="upgrade-btn">Learn More</button>
+                    </div>
+                </div>
+            </aside>
+
+            <!-- Main Content Area -->
+            <main class="admin-content" id="admin-content">
+                <!-- Dashboard Page (Default) -->
+                <div id="page-dashboard" class="page-content active">
+                    <div class="page-header">
+                        <div>
+                            <h2 class="page-title">Dashboard</h2>
+                            <p class="page-subtitle">Welcome back, here's what's happening today</p>
+                        </div>
+                        <div class="page-actions">
+                            <button class="btn-secondary">
+                                <i class="fas fa-download"></i>
+                                Export Report
+                            </button>
+                            <button class="btn-primary">
+                                <i class="fas fa-plus"></i>
+                                Quick Add
+                            </button>
+                        </div>
+                    </div>
+
+                    <!-- Stats Grid -->
+                    <div class="stats-grid">
+                        <div class="stat-card blue">
+                            <div class="stat-icon">
+                                <i class="fas fa-user-graduate"></i>
+                            </div>
+                            <div class="stat-info">
+                                <span class="stat-label">Total Students</span>
+                                <span class="stat-value">1,247</span>
+                                <span class="stat-change positive">
+                                    <i class="fas fa-arrow-up"></i> 5.2% from last year
+                                </span>
+                            </div>
+                        </div>
+
+                        <div class="stat-card green">
+                            <div class="stat-icon">
+                                <i class="fas fa-chalkboard-teacher"></i>
+                            </div>
+                            <div class="stat-info">
+                                <span class="stat-label">Active Teachers</span>
+                                <span class="stat-value">87</span>
+                                <span class="stat-change positive">
+                                    <i class="fas fa-arrow-up"></i> 3 new this term
+                                </span>
+                            </div>
+                        </div>
+
+                        <div class="stat-card orange">
+                            <div class="stat-icon">
+                                <i class="fas fa-calendar-check"></i>
+                            </div>
+                            <div class="stat-info">
+                                <span class="stat-label">Attendance Rate</span>
+                                <span class="stat-value">94.8%</span>
+                                <span class="stat-change positive">
+                                    <i class="fas fa-arrow-up"></i> 2.1% vs last week
+                                </span>
+                            </div>
+                        </div>
+
+                        <div class="stat-card purple">
+                            <div class="stat-icon">
+                                <i class="fas fa-door-open"></i>
+                            </div>
+                            <div class="stat-info">
+                                <span class="stat-label">Active Classes</span>
+                                <span class="stat-value">64</span>
+                                <span class="stat-change neutral">
+                                    <i class="fas fa-minus"></i> No change
+                                </span>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Dashboard Content Grid -->
+                    <div class="dashboard-grid">
+                        <!-- Recent Activity -->
+                        <div class="dashboard-card">
+                            <div class="card-header">
+                                <h3><i class="fas fa-history"></i> Recent Activity</h3>
+                                <button class="btn-text">View All</button>
+                            </div>
+                            <div class="activity-list" id="recent-activity">
+                                <div class="activity-item">
+                                    <div class="activity-icon blue">
+                                        <i class="fas fa-user-plus"></i>
+                                    </div>
+                                    <div class="activity-content">
+                                        <p><strong>New student enrolled</strong></p>
+                                        <p class="activity-detail">John Smith added to Year 1</p>
+                                        <span class="activity-time">5 minutes ago</span>
+                                    </div>
+                                </div>
+                                <div class="activity-item">
+                                    <div class="activity-icon green">
+                                        <i class="fas fa-check-circle"></i>
+                                    </div>
+                                    <div class="activity-content">
+                                        <p><strong>Attendance submitted</strong></p>
+                                        <p class="activity-detail">Ms. Johnson submitted Year 3 attendance</p>
+                                        <span class="activity-time">15 minutes ago</span>
+                                    </div>
+                                </div>
+                                <div class="activity-item">
+                                    <div class="activity-icon purple">
+                                        <i class="fas fa-calendar"></i>
+                                    </div>
+                                    <div class="activity-content">
+                                        <p><strong>Timetable updated</strong></p>
+                                        <p class="activity-detail">Math class rescheduled for Room 204</p>
+                                        <span class="activity-time">1 hour ago</span>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+
+                        <!-- Quick Stats -->
+                        <div class="dashboard-card">
+                            <div class="card-header">
+                                <h3><i class="fas fa-chart-pie"></i> Today's Overview</h3>
+                            </div>
+                            <div class="quick-stats">
+                                <div class="quick-stat-item">
+                                    <span class="quick-stat-label">Present Today</span>
+                                    <span class="quick-stat-value">1,182</span>
+                                    <div class="quick-stat-bar">
+                                        <div class="quick-stat-fill" style="width: 94.8%"></div>
+                                    </div>
+                                </div>
+                                <div class="quick-stat-item">
+                                    <span class="quick-stat-label">Absent</span>
+                                    <span class="quick-stat-value">43</span>
+                                    <div class="quick-stat-bar">
+                                        <div class="quick-stat-fill orange" style="width: 3.4%"></div>
+                                    </div>
+                                </div>
+                                <div class="quick-stat-item">
+                                    <span class="quick-stat-label">Late Arrivals</span>
+                                    <span class="quick-stat-value">22</span>
+                                    <div class="quick-stat-bar">
+                                        <div class="quick-stat-fill yellow" style="width: 1.8%"></div>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+
+                        <!-- Upcoming Events -->
+                        <div class="dashboard-card">
+                            <div class="card-header">
+                                <h3><i class="fas fa-calendar-alt"></i> Upcoming Events</h3>
+                                <button class="btn-text">Add Event</button>
+                            </div>
+                            <div class="events-list">
+                                <div class="event-item">
+                                    <div class="event-date">
+                                        <span class="event-day">22</span>
+                                        <span class="event-month">Jan</span>
+                                    </div>
+                                    <div class="event-info">
+                                        <h4>Parent-Teacher Conference</h4>
+                                        <p><i class="fas fa-clock"></i> 2:00 PM - 5:00 PM</p>
+                                        <p><i class="fas fa-map-marker-alt"></i> Main Hall</p>
+                                    </div>
+                                </div>
+                                <div class="event-item">
+                                    <div class="event-date">
+                                        <span class="event-day">25</span>
+                                        <span class="event-month">Jan</span>
+                                    </div>
+                                    <div class="event-info">
+                                        <h4>Term Exams Begin</h4>
+                                        <p><i class="fas fa-clock"></i> All Day</p>
+                                        <p><i class="fas fa-map-marker-alt"></i> All Classrooms</p>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+
+                        <!-- Pending Tasks -->
+                        <div class="dashboard-card">
+                            <div class="card-header">
+                                <h3><i class="fas fa-tasks"></i> Pending Actions</h3>
+                                <span class="badge-pill">8 items</span>
+                            </div>
+                            <div class="tasks-list">
+                                <div class="task-item">
+                                    <input type="checkbox" id="task1">
+                                    <label for="task1">
+                                        <span class="task-title">Approve 3 new enrollment requests</span>
+                                        <span class="task-priority high">High Priority</span>
+                                    </label>
+                                </div>
+                                <div class="task-item">
+                                    <input type="checkbox" id="task2">
+                                    <label for="task2">
+                                        <span class="task-title">Review incident reports (5 pending)</span>
+                                        <span class="task-priority medium">Medium</span>
+                                    </label>
+                                </div>
+                                <div class="task-item">
+                                    <input type="checkbox" id="task3">
+                                    <label for="task3">
+                                        <span class="task-title">Update staff handbook</span>
+                                        <span class="task-priority low">Low</span>
+                                    </label>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Other pages will be loaded here dynamically -->
+                <div id="page-students" class="page-content"></div>
+                <div id="page-teachers" class="page-content"></div>
+                <div id="page-classes" class="page-content"></div>
+                <div id="page-calendar" class="page-content"></div>
+                <div id="page-analytics" class="page-content"></div>
+                <div id="page-attendance" class="page-content"></div>
+                <div id="page-behavior" class="page-content"></div>
+                <div id="page-enrollment" class="page-content"></div>
+                <div id="page-timetable" class="page-content"></div>
+                <div id="page-assessments" class="page-content"></div>
+                <div id="page-subjects" class="page-content"></div>
+                <div id="page-rooms" class="page-content"></div>
+                <div id="page-parents" class="page-content"></div>
+                <div id="page-staff" class="page-content"></div>
+                <div id="page-messages" class="page-content"></div>
+                <div id="page-announcements" class="page-content"></div>
+                <div id="page-school-settings" class="page-content"></div>
+                <div id="page-customization" class="page-content"></div>
+                <div id="page-users" class="page-content"></div>
+                <div id="page-integrations" class="page-content"></div>
+            </main>
+        </div>
+    </div>
+
+    <!-- Notification Panel -->
+    <div id="notification-panel" class="notification-panel">
+        <div class="panel-header">
+            <h3>Notifications</h3>
+            <button class="btn-text" onclick="markAllRead()">Mark all read</button>
+        </div>
+        <div class="notification-list">
+            <!-- Notifications will be loaded here -->
+        </div>
+    </div>
+
+    <!-- User Menu Dropdown -->
+    <div id="user-menu-dropdown" class="user-menu-dropdown">
+        <a href="#" class="menu-item">
+            <i class="fas fa-user"></i> Profile
+        </a>
+        <a href="#" class="menu-item">
+            <i class="fas fa-cog"></i> Preferences
+        </a>
+        <a href="#" class="menu-item">
+            <i class="fas fa-question-circle"></i> Help & Support
+        </a>
+        <div class="menu-divider"></div>
+        <a href="#" class="menu-item" onclick="logout()">
+            <i class="fas fa-sign-out-alt"></i> Logout
+        </a>
+    </div>
+
+    <!-- Quick Actions Modal -->
+    <div id="quick-actions-modal" class="modal">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h3>Quick Actions</h3>
+                <button class="modal-close" onclick="closeModal('quick-actions-modal')">
+                    <i class="fas fa-times"></i>
+                </button>
+            </div>
+            <div class="quick-actions-grid">
+                <button class="quick-action-item" onclick="quickAction('add-student')">
+                    <i class="fas fa-user-plus"></i>
+                    <span>Add Student</span>
+                </button>
+                <button class="quick-action-item" onclick="quickAction('add-teacher')">
+                    <i class="fas fa-chalkboard-teacher"></i>
+                    <span>Add Teacher</span>
+                </button>
+                <button class="quick-action-item" onclick="quickAction('create-class')">
+                    <i class="fas fa-door-open"></i>
+                    <span>Create Class</span>
+                </button>
+                <button class="quick-action-item" onclick="quickAction('send-message')">
+                    <i class="fas fa-envelope"></i>
+                    <span>Send Message</span>
+                </button>
+                <button class="quick-action-item" onclick="quickAction('add-event')">
+                    <i class="fas fa-calendar-plus"></i>
+                    <span>Add Event</span>
+                </button>
+                <button class="quick-action-item" onclick="quickAction('generate-report')">
+                    <i class="fas fa-file-alt"></i>
+                    <span>Generate Report</span>
+                </button>
+            </div>
+        </div>
+    </div>
+
+    <script src="/admin-portal.js"></script>
+</body>
+</html>

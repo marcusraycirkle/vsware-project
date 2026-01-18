@@ -51,6 +51,7 @@ const reportRoutes = require('./routes/reports');
 const paymentRoutes = require('./routes/payments');
 const roomRoutes = require('./routes/rooms');
 const enrollmentRoutes = require('./routes/enrollments');
+const adminRoutes = require('./routes/admin');
 
 // Initialize express app
 const app = express();
@@ -163,6 +164,7 @@ app.use('/api/messages', messageRoutes);
 app.use('/api/reports', reportRoutes);
 app.use('/api/payments', paymentRoutes);
 app.use('/api/rooms', roomRoutes);
+app.use('/api/admin', adminRoutes);
 app.use('/api/enrollments', enrollmentRoutes);
 
 // Health check route
@@ -185,7 +187,16 @@ app.get('/shannoncomp/login', (req, res) => {
 
 app.get('/shannoncomp/enrolment', (req, res) => {
   res.sendFile(__dirname + '/frontend/enrolment.html');
+});Admin portal route
+app.get('/admin', (req, res) => {
+  res.sendFile(__dirname + '/frontend/admin-portal.html');
 });
+
+app.get('/admin/*', (req, res) => {
+  res.sendFile(__dirname + '/frontend/admin-portal.html');
+});
+
+// 
 
 // Dashboard routes (all serve index.html for client-side routing)
 app.get('/shannoncomp/*', (req, res) => {
