@@ -4237,13 +4237,6 @@ html, body {
 }
 
 
-    margin-left: 250px;
-    margin-top: 70px;
-    padding: 2rem;
-    flex: 1;
-    overflow-y: auto;
-}
-
 /* Responsive */
 @media (max-width: 768px) {
     .dashboard-navbar {
