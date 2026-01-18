@@ -165,6 +165,7 @@ router.get('/:id', auth, authorize('admin', 'principal', 'teacher'), async (req,
 // @access  Private (Admin/Principal)
 router.put('/:id/approve', auth, authorize('admin', 'principal'), async (req, res) => {
   try {
+    console.log('Step 1: Finding enrollment...');
     const enrollment = await Enrollment.findById(req.params.id);
 
     if (!enrollment) {
@@ -174,6 +175,7 @@ router.put('/:id/approve', auth, authorize('admin', 'principal'), async (req, re
       });
     }
 
+    console.log('Step 2: Checking enrollment status...');
     if (enrollment.status !== 'Pending') {
       return res.status(400).json({
         success: false,
@@ -181,11 +183,11 @@ router.put('/:id/approve', auth, authorize('admin', 'principal'), async (req, re
       });
     }
 
-    // Check if student user already exists
+    console.log('Step 3: Finding or creating user...');
     let user = await User.findOne({ email: enrollment.email });
 
     if (!user) {
-      // Create user account
+      console.log('Step 3a: Creating new user...');
       const defaultPassword = `Student${Date.now()}`;
       user = new User({
         email: enrollment.email,
@@ -196,10 +198,12 @@ router.put('/:id/approve', auth, authorize('admin', 'principal'), async (req, re
         phoneNumber: enrollment.phone,
         address: enrollment.address || {}
       });
+      console.log('Step 3b: Saving user...');
       await user.save();
+      console.log('Step 3c: User saved successfully');
     }
 
-    // Create student profile
+    console.log('Step 4: Creating student profile...');
     const yearNames = ['First Year', 'Second Year', 'Third Year', 'TY', 'Fifth Year', 'Sixth Year'];
     const yearName = yearNames[(enrollment.yearGroup || 1) - 1] || 'First Year';
 
@@ -221,29 +225,29 @@ router.put('/:id/approve', auth, authorize('admin', 'principal'), async (req, re
       notes: enrollment.notes ? [{ content: enrollment.notes, createdBy: req.userId, createdAt: new Date() }] : []
     });
 
+    console.log('Step 5: Saving student...');
     await student.save();
+    console.log('Step 5: Student saved successfully');
 
-    // Link student to user
+    console.log('Step 6: Linking student to user...');
     user.studentProfile = student._id;
     await user.save();
+    console.log('Step 6: User linked successfully');
 
-    // Update enrollment
+    console.log('Step 7: Updating enrollment...');
     enrollment.status = 'Approved';
     enrollment.approvedBy = req.userId;
     enrollment.approvalDate = new Date();
     enrollment.student = student._id;
     await enrollment.save();
+    console.log('Step 7: Enrollment updated successfully');
 
-    // Log approval to Google Sheets (disabled temporarily - webhook not working)
-    // logStatusChangeToSheets(enrollment, 'approve').catch(err => {
-    //   console.warn('Failed to log to Google Sheets:', err.message);
-    // });
-
-    // Send acceptance email
+    console.log('Step 8: Sending email...');
     sendAcceptanceEmail(enrollment.email, enrollment.firstName, enrollment.yearGroup).catch(err => {
       console.warn('Failed to send email:', err.message);
     });
 
+    console.log('Approval complete!');
     res.json({
       success: true,
       message: 'Enrollment approved and student profile created',
@@ -252,10 +256,12 @@ router.put('/:id/approve', auth, authorize('admin', 'principal'), async (req, re
     });
   } catch (error) {
     console.error('Error approving enrollment:', error);
+    console.error('Error stack:', error.stack);
     res.status(500).json({
       success: false,
       message: 'Server error approving enrollment',
-      error: error.message
+      error: error.message,
+      stack: process.env.NODE_ENV === 'development' ? error.stack : undefined
     });
   }
 });
