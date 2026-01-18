@@ -55,13 +55,37 @@ const adminRoutes = require('./routes/admin');
 
 // Initialize express app
 const app = express();
-const server = http.createServer(app);
-const io = socketIO(server, {
-  cors: {
-    origin: process.env.CLIENT_URL || 'http://localhost:3000',
-    methods: ['GET', 'POST']
-  }
-});
+
+// Only use HTTP server with Socket.IO in development
+let server, io;
+if (process.env.NODE_ENV !== 'production' && process.env.VERCEL !== '1') {
+  server = http.createServer(app);
+  io = socketIO(server, {
+    cors: {
+      origin: process.env.CLIENT_URL || 'http://localhost:3000',
+      methods: ['GET', 'POST']
+    }
+  });
+  
+  // Socket.IO connection
+  io.on('connection', (socket) => {
+    console.log('New client connected:', socket.id);
+    
+    socket.on('join-room', (room) => {
+      socket.join(room);
+      console.log(`User joined room: ${room}`);
+    });
+    
+    socket.on('disconnect', () => {
+      console.log('Client disconnected:', socket.id);
+    });
+  });
+  
+  // Make io accessible to routes
+  app.set('io', io);
+} else {
+  server = app;
+}
 
 // Middleware
 app.use(helmet());
@@ -73,7 +97,16 @@ app.use(async (req, res, next) => {
     next();
   } catch (error) {
     console.error('Database connection error:', error);
-    res.status(500).json({ message: 'Database connection failed', error: error.message });
+    // For health check, allow it to pass even if DB fails
+    if (req.path === '/api/health') {
+      return res.json({ status: 'WARNING', message: 'API is running but DB is unavailable', dbState: mongoose.connection.readyState });
+    }
+    // For static files and home pages, allow them to load even without DB
+    if (req.path === '/' || req.path === '/home' || req.path === '/selector' || req.path.includes('/admin') || req.path.includes('/.')) {
+      next();
+    } else {
+      res.status(500).json({ message: 'Database connection failed', error: error.message });
+    }
   }
 });
 
@@ -132,23 +165,6 @@ const limiter = rateLimit({
   max: 100 // limit each IP to 100 requests per windowMs
 });
 app.use('/api/', limiter);
-
-// Socket.IO connection
-io.on('connection', (socket) => {
-  console.log('New client connected:', socket.id);
-  
-  socket.on('join-room', (room) => {
-    socket.join(room);
-    console.log(`User joined room: ${room}`);
-  });
-  
-  socket.on('disconnect', () => {
-    console.log('Client disconnected:', socket.id);
-  });
-});
-
-// Make io accessible to routes
-app.set('io', io);
 
 // Routes
 app.use('/api/auth', authRoutes);

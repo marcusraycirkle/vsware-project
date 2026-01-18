@@ -25,6 +25,14 @@
       "dest": "server.js"
     },
     {
+      "src": "/admin/(.*)",
+      "dest": "server.js"
+    },
+    {
+      "src": "/admin",
+      "dest": "server.js"
+    },
+    {
       "src": "/shannoncomp/enrolment",
       "dest": "server.js"
     },
