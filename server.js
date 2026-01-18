@@ -139,11 +139,12 @@ app.use((req, res, next) => {
   res.set('Content-Security-Policy', 
     "default-src 'self'; " +
     "script-src 'self' 'unsafe-inline' https://cdnjs.cloudflare.com; " +
+    "script-src-attr 'none'; " +
     "style-src 'self' 'unsafe-inline' https://cdnjs.cloudflare.com https://fonts.googleapis.com; " +
     "font-src 'self' https://cdnjs.cloudflare.com https://fonts.gstatic.com; " +
     "img-src 'self' data: https: http:; " +
     "media-src 'self' https://cdn.pixabay.com; " +
-    "connect-src 'self' https://vsware-project.vercel.app https://*.vercel.app"
+    "connect-src 'self' https://vsware-project.vercel.app https://*.vercel.app http://localhost:5000"
   );
   
   next();

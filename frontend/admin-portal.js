@@ -133,6 +133,67 @@ function setupEventListeners() {
             }
         });
     });
+
+    // Page-specific button listeners
+    // Students page
+    const exportStudentsBtn = document.getElementById('export-students-btn');
+    if (exportStudentsBtn) {
+        exportStudentsBtn.addEventListener('click', exportStudents);
+    }
+
+    const importStudentsBtn = document.getElementById('import-students-btn');
+    if (importStudentsBtn) {
+        importStudentsBtn.addEventListener('click', importStudents);
+    }
+
+    const addStudentBtn = document.getElementById('add-student-btn');
+    if (addStudentBtn) {
+        addStudentBtn.addEventListener('click', openAddStudentModal);
+    }
+
+    // Teachers page
+    const exportTeachersBtn = document.getElementById('export-teachers-btn');
+    if (exportTeachersBtn) {
+        exportTeachersBtn.addEventListener('click', exportTeachers);
+    }
+
+    const addTeacherBtn = document.getElementById('add-teacher-btn');
+    if (addTeacherBtn) {
+        addTeacherBtn.addEventListener('click', openAddTeacherModal);
+    }
+
+    // Customization page
+    const resetCustomizationBtn = document.getElementById('reset-customization-btn');
+    if (resetCustomizationBtn) {
+        resetCustomizationBtn.addEventListener('click', resetCustomization);
+    }
+
+    const saveCustomizationBtn = document.getElementById('save-customization-btn');
+    if (saveCustomizationBtn) {
+        saveCustomizationBtn.addEventListener('click', saveCustomization);
+    }
+
+    // School settings
+    const saveSchoolSettingsBtn = document.getElementById('save-school-settings-btn');
+    if (saveSchoolSettingsBtn) {
+        saveSchoolSettingsBtn.addEventListener('click', saveSchoolSettings);
+    }
+
+    // Logo upload area
+    const logoUploadArea = document.getElementById('logo-upload-area');
+    const logoInput = document.getElementById('logo-upload');
+    if (logoUploadArea && logoInput) {
+        logoUploadArea.addEventListener('click', () => {
+            logoInput.click();
+        });
+        logoInput.addEventListener('change', handleLogoUpload);
+    }
+
+    // Users page
+    const addUserBtn = document.getElementById('add-user-btn');
+    if (addUserBtn) {
+        addUserBtn.addEventListener('click', openAddUserModal);
+    }
 }
 
 // ========== NAVIGATION ==========
@@ -257,13 +318,13 @@ function loadStudentsPage(container) {
                 <p class="page-subtitle">Manage all students and their information</p>
             </div>
             <div class="page-actions">
-                <button class="btn-secondary" onclick="exportStudents()">
+                <button class="btn-secondary" id="export-students-btn">
                     <i class="fas fa-download"></i> Export
                 </button>
-                <button class="btn-secondary" onclick="importStudents()">
+                <button class="btn-secondary" id="import-students-btn">
                     <i class="fas fa-upload"></i> Import
                 </button>
-                <button class="btn-primary" onclick="openAddStudentModal()">
+                <button class="btn-primary" id="add-student-btn">
                     <i class="fas fa-user-plus"></i> Add Student
                 </button>
             </div>
@@ -389,13 +450,13 @@ function renderStudentsTable(students) {
                             </span>
                         </td>
                         <td style="padding: 16px; text-align: right;">
-                            <button onclick="viewStudent('${student._id}')" style="padding: 8px 12px; background: var(--primary-light); color: var(--primary); border: none; border-radius: 6px; cursor: pointer; margin-right: 4px;">
+                            <button class="action-btn" data-action="view" data-student-id="${student._id}" style="padding: 8px 12px; background: var(--primary-light); color: var(--primary); border: none; border-radius: 6px; cursor: pointer; margin-right: 4px;">
                                 <i class="fas fa-eye"></i>
                             </button>
-                            <button onclick="editStudent('${student._id}')" style="padding: 8px 12px; background: var(--bg-secondary); color: var(--text-primary); border: none; border-radius: 6px; cursor: pointer; margin-right: 4px;">
+                            <button class="action-btn" data-action="edit" data-student-id="${student._id}" style="padding: 8px 12px; background: var(--bg-secondary); color: var(--text-primary); border: none; border-radius: 6px; cursor: pointer; margin-right: 4px;">
                                 <i class="fas fa-edit"></i>
                             </button>
-                            <button onclick="deleteStudent('${student._id}')" style="padding: 8px 12px; background: #FEE2E2; color: #DC2626; border: none; border-radius: 6px; cursor: pointer;">
+                            <button class="action-btn" data-action="delete" data-student-id="${student._id}" style="padding: 8px 12px; background: #FEE2E2; color: #DC2626; border: none; border-radius: 6px; cursor: pointer;">
                                 <i class="fas fa-trash"></i>
                             </button>
                         </td>
@@ -406,6 +467,23 @@ function renderStudentsTable(students) {
     `;
     
     container.innerHTML = html;
+    
+    // Add event listeners for action buttons
+    container.querySelectorAll('.action-btn').forEach(btn => {
+        btn.addEventListener('click', function(e) {
+            e.preventDefault();
+            const action = this.getAttribute('data-action');
+            const studentId = this.getAttribute('data-student-id');
+            
+            if (action === 'view') {
+                viewStudent(studentId);
+            } else if (action === 'edit') {
+                editStudent(studentId);
+            } else if (action === 'delete') {
+                deleteStudent(studentId);
+            }
+        });
+    });
 }
 
 // ========== TEACHERS PAGE ==========
@@ -417,10 +495,10 @@ function loadTeachersPage(container) {
                 <p class="page-subtitle">Manage teaching staff and assignments</p>
             </div>
             <div class="page-actions">
-                <button class="btn-secondary" onclick="exportTeachers()">
+                <button class="btn-secondary" id="export-teachers-btn">
                     <i class="fas fa-download"></i> Export
                 </button>
-                <button class="btn-primary" onclick="openAddTeacherModal()">
+                <button class="btn-primary" id="add-teacher-btn">
                     <i class="fas fa-user-plus"></i> Add Teacher
                 </button>
             </div>
@@ -522,17 +600,17 @@ function renderTeachersTable(teachers) {
             </thead>
             <tbody>
                 ${teachers.map(teacher => `
-                    <tr style="border-bottom: 1px solid var(--border-color); transition: background 0.2s;" onmouseover="this.style.background='var(--bg-secondary)'" onmouseout="this.style.background='transparent'">
+                    <tr style="border-bottom: 1px solid var(--border-color); transition: background 0.2s;" class="teacher-row">
                         <td style="padding: 16px; font-size: 14px; font-weight: 600; color: var(--text-primary);">${teacher.teacherId}</td>
                         <td style="padding: 16px; font-size: 14px; color: var(--text-primary);">${teacher.firstName} ${teacher.lastName}</td>
                         <td style="padding: 16px; font-size: 14px; color: var(--text-secondary);">${teacher.subject}</td>
                         <td style="padding: 16px; font-size: 14px; color: var(--text-secondary);">${teacher.email}</td>
                         <td style="padding: 16px; font-size: 14px; color: var(--text-secondary);">${teacher.classes} classes</td>
                         <td style="padding: 16px; text-align: right;">
-                            <button onclick="viewTeacher('${teacher._id}')" style="padding: 8px 12px; background: var(--primary-light); color: var(--primary); border: none; border-radius: 6px; cursor: pointer; margin-right: 4px;">
+                            <button class="action-btn" data-action="view" data-teacher-id="${teacher._id}" style="padding: 8px 12px; background: var(--primary-light); color: var(--primary); border: none; border-radius: 6px; cursor: pointer; margin-right: 4px;">
                                 <i class="fas fa-eye"></i>
                             </button>
-                            <button onclick="editTeacher('${teacher._id}')" style="padding: 8px 12px; background: var(--bg-secondary); color: var(--text-primary); border: none; border-radius: 6px; cursor: pointer;">
+                            <button class="action-btn" data-action="edit" data-teacher-id="${teacher._id}" style="padding: 8px 12px; background: var(--bg-secondary); color: var(--text-primary); border: none; border-radius: 6px; cursor: pointer;">
                                 <i class="fas fa-edit"></i>
                             </button>
                         </td>
@@ -543,6 +621,31 @@ function renderTeachersTable(teachers) {
     `;
     
     container.innerHTML = html;
+    
+    // Add event listeners for teacher table action buttons
+    container.querySelectorAll('.action-btn').forEach(btn => {
+        btn.addEventListener('click', function(e) {
+            e.preventDefault();
+            const action = this.getAttribute('data-action');
+            const teacherId = this.getAttribute('data-teacher-id');
+            
+            if (action === 'view') {
+                viewTeacher(teacherId);
+            } else if (action === 'edit') {
+                editTeacher(teacherId);
+            }
+        });
+    });
+    
+    // Add hover effect to teacher rows
+    container.querySelectorAll('.teacher-row').forEach(row => {
+        row.addEventListener('mouseenter', function() {
+            this.style.background = 'var(--bg-secondary)';
+        });
+        row.addEventListener('mouseleave', function() {
+            this.style.background = 'transparent';
+        });
+    });
 }
 
 // ========== CUSTOMIZATION PAGE ==========
@@ -554,10 +657,10 @@ function loadCustomizationPage(container) {
                 <p class="page-subtitle">Customize the look and feel of your portal</p>
             </div>
             <div class="page-actions">
-                <button class="btn-secondary" onclick="resetCustomization()">
+                <button class="btn-secondary" id="reset-customization-btn">
                     <i class="fas fa-undo"></i> Reset to Default
                 </button>
-                <button class="btn-primary" onclick="saveCustomization()">
+                <button class="btn-primary" id="save-customization-btn">
                     <i class="fas fa-save"></i> Save Changes
                 </button>
             </div>
@@ -597,7 +700,7 @@ function loadCustomizationPage(container) {
                 <div style="padding: 24px;">
                     <div style="margin-bottom: 24px;">
                         <label style="display: block; font-size: 13px; font-weight: 600; margin-bottom: 8px; color: var(--text-secondary);">School Logo</label>
-                        <div style="width: 100%; height: 150px; border: 2px dashed var(--border-color); border-radius: 8px; display: flex; align-items: center; justify-content: center; cursor: pointer;" onclick="document.getElementById('logo-upload').click()">
+                        <div id="logo-upload-area" style="width: 100%; height: 150px; border: 2px dashed var(--border-color); border-radius: 8px; display: flex; align-items: center; justify-content: center; cursor: pointer;">
                             <div style="text-align: center; color: var(--text-secondary);">
                                 <i class="fas fa-cloud-upload-alt" style="font-size: 32px; margin-bottom: 8px;"></i>
                                 <p>Click to upload logo</p>
@@ -688,7 +791,7 @@ function loadSchoolSettingsPage(container) {
                 <p class="page-subtitle">Configure school information and preferences</p>
             </div>
             <div class="page-actions">
-                <button class="btn-primary" onclick="saveSchoolSettings()">
+                <button class="btn-primary" id="save-school-settings-btn">
                     <i class="fas fa-save"></i> Save Settings
                 </button>
             </div>
@@ -756,7 +859,7 @@ function loadUserManagementPage(container) {
                 <p class="page-subtitle">Manage system users and permissions</p>
             </div>
             <div class="page-actions">
-                <button class="btn-primary" onclick="openAddUserModal()">
+                <button class="btn-primary" id="add-user-btn">
                     <i class="fas fa-user-plus"></i> Add User
                 </button>
             </div>
@@ -990,5 +1093,11 @@ function saveCustomization() { showToast('Customization saved!'); }
 function resetCustomization() { if(confirm('Reset to default?')) showToast('Reset to defaults'); }
 function saveSchoolSettings() { showToast('School settings saved!'); }
 function markAllRead() { showToast('All notifications marked as read'); }
+function handleLogoUpload(e) { 
+    const file = e.target.files[0];
+    if (file) {
+        showToast('Logo uploaded: ' + file.name);
+    }
+}
 
 console.log('Admin Portal JavaScript loaded successfully');
