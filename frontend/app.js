@@ -116,6 +116,18 @@ function setupEventListeners() {
         loginForm.addEventListener('submit', handleLogin);
     }
     
+    // Setup quick login buttons (for CSP compliance - no inline onclick)
+    document.querySelectorAll('.quick-login-btn').forEach(btn => {
+        btn.addEventListener('click', (e) => {
+            e.preventDefault();
+            const email = btn.getAttribute('data-email');
+            const pin = btn.getAttribute('data-pin');
+            if (email && pin) {
+                quickLogin(email, pin);
+            }
+        });
+    });
+    
     document.addEventListener('click', (e) => {
         if (!e.target.closest('.user-menu')) {
             const userMenu = document.getElementById('user-menu');
