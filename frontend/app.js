@@ -1,6 +1,6 @@
 // ========== CONFIGURATION ==========
-// API_URL - use relative path for current server, or environment variable
-const API_URL = process.env.REACT_APP_API_URL || (window.location.hostname === 'localhost' ? 'http://localhost:5000/api' : `${window.location.protocol}//${window.location.host}/api`);
+// API_URL configuration
+const API_URL = window.location.hostname === 'localhost' ? 'http://localhost:5000/api' : `${window.location.protocol}//${window.location.host}/api`;
 let currentUser = null;
 let authToken = null;
 let currentSchoolId = null;

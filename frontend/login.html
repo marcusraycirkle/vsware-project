@@ -21,34 +21,17 @@
 
         body {
             font-family: 'Inter', sans-serif;
-            background: #0a0e27;
-            background-image: 
-                radial-gradient(2px 2px at 20% 30%, #eee, rgba(0,0,0,0)),
-                radial-gradient(2px 2px at 60% 70%, #fff, rgba(0,0,0,0)),
-                radial-gradient(1px 1px at 50% 50%, #fff, rgba(0,0,0,0)),
-                radial-gradient(1px 1px at 80% 10%, #fff, rgba(0,0,0,0)),
-                radial-gradient(2px 2px at 90% 60%, #fff, rgba(0,0,0,0)),
-                radial-gradient(1px 1px at 30% 80%, #eee, rgba(0,0,0,0)),
-                radial-gradient(1px 1px at 10% 40%, #fff, rgba(0,0,0,0));
-            background-repeat: repeat;
-            background-size: 200% 200%;
-            animation: space-drift 20s linear infinite;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
             min-height: 100vh;
             display: flex;
-            flex-direction: column;
             align-items: center;
             justify-content: center;
             padding: 2rem;
         }
 
-        @keyframes space-drift {
-            0% { background-position: 0% 0%; }
-            100% { background-position: 100% 100%; }
-        }
-
         .login-wrapper {
             width: 100%;
-            max-width: 1400px;
+            max-width: 500px;
         }
 
         .login-back-btn {
@@ -67,55 +50,33 @@
             transform: translateX(-4px);
         }
 
-        .login-container {
-            display: grid;
-            grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
-            gap: 1.5rem;
-            max-width: 1200px;
-            margin: 0 auto;
-        }
-
         .login-card {
-            background: rgba(255, 255, 255, 0.95);
-            backdrop-filter: blur(10px);
-            border-radius: 1.5rem;
-            padding: 2rem;
-            box-shadow: 0 20px 60px rgba(0, 0, 0, 0.5), 0 0 40px rgba(102, 126, 234, 0.2);
-            border: 1px solid rgba(255, 255, 255, 0.2);
-            transition: all 0.3s ease;
-            display: flex;
-            flex-direction: column;
-        }
-
-        .login-card:nth-child(1) {
-            grid-column: 1 / -1;
-        }
-
-        .login-card.form-card {
-            background: rgba(255, 255, 255, 0.98);
+            background: white;
+            border-radius: 1rem;
+            padding: 2.5rem;
+            box-shadow: 0 20px 60px rgba(0, 0, 0, 0.3);
         }
 
         .login-school-info {
             display: flex;
             align-items: center;
-            gap: 1.5rem;
+            gap: 1rem;
             margin-bottom: 2rem;
             padding-bottom: 1.5rem;
             border-bottom: 2px solid #f0f0f0;
         }
 
         .login-school-logo {
-            width: 80px;
-            height: 80px;
+            width: 60px;
+            height: 60px;
             background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
-            border-radius: 1rem;
+            border-radius: 0.75rem;
             display: flex;
             align-items: center;
             justify-content: center;
-            font-size: 2.5rem;
+            font-size: 2rem;
             color: white;
             overflow: hidden;
-            box-shadow: 0 10px 30px rgba(102, 126, 234, 0.3);
         }
 
         .login-school-logo img {
@@ -126,44 +87,20 @@
 
         .login-school-name {
             flex: 1;
-        }
-
-        .login-school-name h1 {
-            font-size: 1.75rem;
-            font-weight: 800;
+            font-size: 1.25rem;
+            font-weight: 700;
             color: #1a202c;
-            margin-bottom: 0.25rem;
-        }
-
-        .login-school-name p {
-            color: #718096;
-            font-size: 0.95rem;
-            display: flex;
-            align-items: center;
-            gap: 0.5rem;
-        }
-
-        .login-school-name p i {
-            color: #667eea;
-            font-size: 1.1rem;
         }
 
         .login-header {
             margin-bottom: 2rem;
+            text-align: center;
         }
 
         .login-header h2 {
-            font-size: 1.75rem;
+            font-size: 1.875rem;
             color: #1a202c;
             margin-bottom: 0.5rem;
-            display: flex;
-            align-items: center;
-            gap: 0.75rem;
-        }
-
-        .login-header h2 i {
-            color: #667eea;
-            font-size: 1.5rem;
         }
 
         .login-header p {
@@ -194,16 +131,15 @@
         }
 
         .input-group label i {
-            width: 18px;
+            width: 16px;
             color: #667eea;
-            font-size: 1.1rem;
         }
 
         .input-group input,
         .input-group select {
             padding: 0.875rem;
-            border: 2px solid #e2e8f0;
-            border-radius: 0.75rem;
+            border: 1px solid #e2e8f0;
+            border-radius: 0.5rem;
             font-size: 1rem;
             font-family: 'Inter', sans-serif;
             transition: all 0.3s ease;
@@ -217,25 +153,24 @@
         }
 
         .btn-login-submit {
-            padding: 1rem;
-            background: linear-gradient(135deg, #00d4ff 0%, #0099ff 100%);
+            padding: 0.875rem;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
             color: white;
             border: none;
-            border-radius: 0.75rem;
-            font-weight: 700;
+            border-radius: 0.5rem;
+            font-weight: 600;
             font-size: 1rem;
             cursor: pointer;
             transition: all 0.3s ease;
             display: flex;
             align-items: center;
             justify-content: center;
-            gap: 0.75rem;
-            box-shadow: 0 8px 20px rgba(0, 153, 255, 0.3);
+            gap: 0.5rem;
         }
 
         .btn-login-submit:hover {
             transform: translateY(-2px);
-            box-shadow: 0 12px 30px rgba(0, 153, 255, 0.5);
+            box-shadow: 0 10px 20px rgba(102, 126, 234, 0.3);
         }
 
         .btn-login-submit:active {
@@ -247,80 +182,94 @@
             cursor: not-allowed;
         }
 
+        .login-divider {
+            text-align: center;
+            color: #a0aec0;
+            margin: 2rem 0;
+            font-size: 0.85rem;
+            position: relative;
+        }
+
+        .login-divider::before,
+        .login-divider::after {
+            content: '';
+            position: absolute;
+            top: 50%;
+            width: 45%;
+            height: 1px;
+            background: #e2e8f0;
+        }
+
+        .login-divider::before {
+            left: 0;
+        }
+
+        .login-divider::after {
+            right: 0;
+        }
+
+        .quick-login-grid {
+            display: grid;
+            grid-template-columns: repeat(3, 1fr);
+            gap: 0.75rem;
+        }
+
         .quick-login-btn {
-            padding: 1rem;
-            background: linear-gradient(135deg, #f7fafc 0%, #edf2f7 100%);
-            border: 2px solid #e2e8f0;
-            border-radius: 0.75rem;
+            padding: 0.75rem;
+            background: #f7fafc;
+            border: 1px solid #e2e8f0;
+            border-radius: 0.5rem;
             cursor: pointer;
-            font-weight: 600;
+            font-weight: 500;
             color: #2d3748;
             display: flex;
             flex-direction: column;
             align-items: center;
             justify-content: center;
-            gap: 0.75rem;
+            gap: 0.5rem;
             transition: all 0.3s ease;
             font-family: 'Inter', sans-serif;
-            min-height: 140px;
+            font-size: 0.75rem;
         }
 
         .quick-login-btn i {
-            font-size: 2rem;
-            color: #667eea;
-        }
-
-        .quick-login-btn span {
+            width: 20px;
             text-align: center;
-            line-height: 1.3;
+            color: #667eea;
+            font-size: 1.5rem;
         }
 
         .quick-login-btn:hover {
-            background: linear-gradient(135deg, #edf2f7 0%, #e2e8f0 100%);
-            border-color: #667eea;
-            transform: translateY(-4px);
-            box-shadow: 0 8px 20px rgba(102, 126, 234, 0.2);
+            background: #edf2f7;
+            border-color: #cbd5e0;
+            transform: translateY(-2px);
         }
 
         .error-message {
             background: #fed7d7;
             color: #c53030;
             padding: 0.75rem;
-            border-radius: 0.75rem;
+            border-radius: 0.5rem;
             margin-bottom: 1rem;
             display: none;
-            flex-direction: row;
-            align-items: center;
-            gap: 0.75rem;
             border-left: 4px solid #c53030;
-        }
-
-        .error-message i {
-            font-size: 1.2rem;
         }
 
         .success-message {
             background: #c6f6d5;
             color: #22543d;
             padding: 0.75rem;
-            border-radius: 0.75rem;
+            border-radius: 0.5rem;
             margin-bottom: 1rem;
             display: none;
-            flex-direction: row;
-            align-items: center;
-            gap: 0.75rem;
             border-left: 4px solid #22543d;
-        }
-
-        .success-message i {
-            font-size: 1.2rem;
         }
 
         .loading-spinner {
             width: 18px;
             height: 18px;
-            border: 3px solid rgba(255, 255, 255, 0.3);
-            border-top-color: white;
+            border: 3px solid rgba(102, 126, 234, 0.3);
+            border-top-color: #667eea;
             border-radius: 50%;
             animation: spin 0.8s linear infinite;
             display: none;
@@ -339,12 +288,8 @@
         }
 
         @media (max-width: 768px) {
-            .login-container {
-                grid-template-columns: 1fr;
-            }
-
-            .login-card:nth-child(1) {
-                grid-column: 1;
+            .quick-login-grid {
+                grid-template-columns: repeat(2, 1fr);
             }
         }
 
@@ -354,11 +299,11 @@
             }
 
             .login-header h2 {
-                font-size: 1.3rem;
+                font-size: 1.5rem;
             }
 
-            .quick-login-btn {
-                min-height: 120px;
+            .quick-login-grid {
+                grid-template-columns: 1fr;
             }
         }
     </style>
@@ -369,89 +314,65 @@
             <i class="fas fa-arrow-left"></i> Back to Schools
         </a>
         
-        <div class="login-container">
-            <!-- Header Card -->
-            <div class="login-card">
-                <div class="login-school-info">
-                    <div class="login-school-logo">
-                        <img src="/mispal-logo.png" alt="School Logo" style="width: 100%; height: 100%; object-fit: cover;">
-                    </div>
-                    <div class="login-school-name">
-                        <h1 id="school-name">St. Patrick's Comprehensive</h1>
-                        <p><i class="fas fa-globe"></i> Select our school to continue</p>
-                    </div>
+        <div class="login-card">
+            <div class="login-school-info">
+                <div class="login-school-logo">
+                    <img src="/mispal-logo.png" alt="School Logo" style="width: 100%; height: 100%; object-fit: cover;">
                 </div>
+                <div class="login-school-name" id="school-name">St. Patrick's Comprehensive</div>
+            </div>
+            
+            <div class="login-header">
+                <h2>Welcome Back</h2>
+                <p>Sign in to your account</p>
             </div>
 
-            <!-- Login Form Card -->
-            <div class="login-card form-card">
-                <div class="login-header">
-                    <h2><i class="fas fa-sign-in-alt"></i> Sign In</h2>
-                    <p>Enter your credentials</p>
+            <div class="error-message" id="error-msg"></div>
+            <div class="success-message" id="success-msg"></div>
+            
+            <form id="login-form" class="login-form" onsubmit="handleLogin(event)">
+                <div class="input-group">
+                    <label><i class="fas fa-envelope"></i> Email Address</label>
+                    <input type="email" id="login-email" placeholder="your.email@school.ie" required autocomplete="username">
                 </div>
-
-                <div class="error-message" id="error-msg"></div>
-                <div class="success-message" id="success-msg"></div>
                 
-                <form id="login-form" class="login-form" onsubmit="handleLogin(event)">
-                    <div class="input-group">
-                        <label><i class="fas fa-envelope"></i> Email Address</label>
-                        <input type="email" id="login-email" placeholder="your.email@school.ie" required autocomplete="username">
-                    </div>
-                    
-                    <div class="input-group">
-                        <label><i class="fas fa-lock"></i> PIN</label>
-                        <input type="password" id="login-pin" placeholder="Enter your PIN" maxlength="6" required autocomplete="current-password">
-                    </div>
-                    
-                    <button type="submit" class="btn-login-submit">
-                        <div class="loading-spinner"></div>
-                        <span><i class="fas fa-arrow-right"></i> Sign In</span>
-                    </button>
-                </form>
-            </div>
-
-            <!-- Admin Card -->
-            <div class="login-card">
-                <div class="login-header">
-                    <h2><i class="fas fa-user-shield"></i> Admin</h2>
+                <div class="input-group">
+                    <label><i class="fas fa-lock"></i> PIN</label>
+                    <input type="password" id="login-pin" placeholder="Enter your PIN" maxlength="6" required autocomplete="current-password">
                 </div>
+                
+                <button type="submit" class="btn-login-submit">
+                    <div class="loading-spinner"></div>
+                    <span><i class="fas fa-sign-in-alt"></i> Sign In</span>
+                </button>
+            </form>
+            
+            <div class="login-divider">Quick Demo Logins</div>
+            
+            <div class="quick-login-grid">
                 <button type="button" class="quick-login-btn" onclick="quickLogin('admin@schoolware.com', '1234')">
                     <i class="fas fa-crown"></i>
-                    <span>admin@schoolware.com</span>
+                    <span>Admin</span>
                 </button>
-            </div>
-
-            <!-- Teacher Card -->
-            <div class="login-card">
-                <div class="login-header">
-                    <h2><i class="fas fa-chalkboard-user"></i> Teacher</h2>
-                </div>
                 <button type="button" class="quick-login-btn" onclick="quickLogin('john.smith@schoolware.com', '1234')">
-                    <i class="fas fa-book-open"></i>
-                    <span>john.smith@schoolware.com</span>
+                    <i class="fas fa-chalkboard-user"></i>
+                    <span>Teacher</span>
                 </button>
-            </div>
-
-            <!-- Student Card -->
-            <div class="login-card">
-                <div class="login-header">
-                    <h2><i class="fas fa-user-graduate"></i> Student</h2>
-                </div>
                 <button type="button" class="quick-login-btn" onclick="quickLogin('james.wilson@student.schoolware.com', '1234')">
-                    <i class="fas fa-backpack"></i>
-                    <span>james.wilson@student.schoolware.com</span>
+                    <i class="fas fa-user-graduate"></i>
+                    <span>Student</span>
                 </button>
-            </div>
-
-            <!-- Parent Card -->
-            <div class="login-card">
-                <div class="login-header">
-                    <h2><i class="fas fa-home"></i> Parent</h2>
-                </div>
                 <button type="button" class="quick-login-btn" onclick="quickLogin('parent.wilson@email.com', '1234')">
-                    <i class="fas fa-heart"></i>
-                    <span>parent.wilson@email.com</span>
+                    <i class="fas fa-home"></i>
+                    <span>Parent</span>
+                </button>
+                <button type="button" class="quick-login-btn" onclick="quickLogin('mary.johnson@schoolware.com', '1234')">
+                    <i class="fas fa-headset"></i>
+                    <span>Secretary</span>
+                </button>
+                <button type="button" class="quick-login-btn" onclick="quickLogin('emma.davis@student.schoolware.com', '1234')">
+                    <i class="fas fa-backpack"></i>
+                    <span>Student 2</span>
                 </button>
             </div>
         </div>

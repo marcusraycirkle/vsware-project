@@ -11,166 +11,411 @@
     <link rel="shortcut icon" href="/mispal-logo.png" type="image/png">
     <link rel="stylesheet" href="/styles.css">
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800;900&display=swap" rel="stylesheet">
     <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        html, body {
+            width: 100%;
+            height: 100%;
+            font-family: 'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif;
+            overflow-x: hidden;
+        }
+
+        /* Space Background */
+        .space-background {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: 
+                radial-gradient(2px 2px at 20% 30%, #fff, rgba(255, 255, 255, 0)),
+                radial-gradient(2px 2px at 60% 70%, #fff, rgba(255, 255, 255, 0)),
+                radial-gradient(1px 1px at 50% 50%, #fff, rgba(255, 255, 255, 0)),
+                radial-gradient(1px 1px at 80% 10%, #fff, rgba(255, 255, 255, 0)),
+                radial-gradient(2px 2px at 90% 60%, #fff, rgba(255, 255, 255, 0)),
+                radial-gradient(1px 1px at 30% 80%, #fff, rgba(255, 255, 255, 0)),
+                radial-gradient(1px 1px at 10% 90%, #fff, rgba(255, 255, 255, 0)),
+                radial-gradient(2px 2px at 40% 20%, #fff, rgba(255, 255, 255, 0));
+            background-repeat: repeat;
+            background-size: 200% 200%;
+            background-attachment: fixed;
+            background-color: #0a0e27;
+            z-index: 0;
+            animation: twinkle 3s ease-in-out infinite;
+        }
+
+        @keyframes twinkle {
+            0%, 100% { opacity: 0.5; }
+            50% { opacity: 1; }
+        }
+
+        .stars {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            z-index: 0;
+        }
+
+        .star {
+            position: absolute;
+            background: white;
+            border-radius: 50%;
+            animation: twinkle-star 3s infinite;
+        }
+
+        @keyframes twinkle-star {
+            0%, 100% { opacity: 0.3; }
+            50% { opacity: 1; }
+        }
+
         .selector-page {
             min-height: 100vh;
-            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            width: 100%;
             display: flex;
             align-items: center;
             justify-content: center;
             padding: 2rem;
+            position: relative;
+            z-index: 1;
         }
 
         .selector-container {
-            max-width: 1200px;
+            max-width: 1400px;
             width: 100%;
         }
 
         .selector-header {
             text-align: center;
             color: white;
-            margin-bottom: 3rem;
+            margin-bottom: 4rem;
+            animation: fadeInDown 0.8s ease;
         }
 
         .selector-header h1 {
-            font-size: 2.5rem;
-            margin-bottom: 0.5rem;
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            gap: 1rem;
-        }
-
-        .selector-header .logo-icon {
-            width: 60px;
-            height: 60px;
+            font-size: 3rem;
+            margin-bottom: 1rem;
+            font-weight: 800;
+            background: linear-gradient(135deg, #00d4ff 0%, #7c3aed 100%);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            background-clip: text;
+            text-shadow: 0 0 20px rgba(0, 212, 255, 0.3);
         }
 
         .selector-header p {
-            font-size: 1.2rem;
-            opacity: 0.9;
+            font-size: 1.1rem;
+            opacity: 0.85;
+            font-weight: 300;
         }
 
         .schools-grid {
             display: grid;
-            grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
-            gap: 2rem;
+            grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
+            gap: 1.5rem;
             margin-bottom: 2rem;
+            animation: fadeInUp 0.8s ease 0.2s both;
         }
 
         .school-card {
-            background: white;
-            border-radius: 1rem;
-            padding: 2rem;
+            background: rgba(255, 255, 255, 0.08);
+            border: 2px solid rgba(0, 212, 255, 0.2);
+            border-radius: 1.5rem;
+            padding: 2rem 1.5rem;
             text-align: center;
             cursor: pointer;
-            transition: all 0.3s ease;
-            box-shadow: 0 10px 30px rgba(0,0,0,0.2);
-        }
-
-        .school-card:hover {
-            transform: translateY(-10px);
-            box-shadow: 0 20px 40px rgba(0,0,0,0.3);
-        }
-
-        .school-logo {
-            width: 120px;
-            height: 120px;
-            margin: 0 auto 1.5rem;
-            border-radius: 50%;
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            transition: all 0.4s cubic-bezier(0.34, 1.56, 0.64, 1);
+            backdrop-filter: blur(10px);
+            position: relative;
             overflow: hidden;
         }
 
-        .school-logo img {
-            width: 100%;
-            height: 100%;
-            object-fit: cover;
+        .school-card::before {
+            content: '';
+            position: absolute;
+            top: -50%;
+            left: -50%;
+            width: 200%;
+            height: 200%;
+            background: radial-gradient(circle, rgba(0, 212, 255, 0.1) 0%, transparent 70%);
+            animation: rotate 20s linear infinite;
+            pointer-events: none;
+        }
+
+        @keyframes rotate {
+            0% { transform: rotate(0deg); }
+            100% { transform: rotate(360deg); }
+        }
+
+        .school-card:hover {
+            border-color: rgba(0, 212, 255, 0.6);
+            background: rgba(0, 212, 255, 0.15);
+            transform: translateY(-8px) scale(1.02);
+            box-shadow: 0 20px 40px rgba(0, 212, 255, 0.2), 
+                        0 0 20px rgba(0, 212, 255, 0.15);
+        }
+
+        .school-icon {
+            width: 80px;
+            height: 80px;
+            margin: 0 auto 1.5rem;
+            border-radius: 1rem;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 2.5rem;
+            background: linear-gradient(135deg, #00d4ff 0%, #7c3aed 100%);
+            position: relative;
+            z-index: 1;
+            transition: all 0.4s ease;
+            box-shadow: 0 10px 30px rgba(0, 212, 255, 0.3);
+        }
+
+        .school-card:hover .school-icon {
+            transform: scale(1.1) rotate(5deg);
+            box-shadow: 0 15px 40px rgba(0, 212, 255, 0.4);
         }
 
         .school-name {
-            font-size: 1.5rem;
+            font-size: 1.3rem;
             font-weight: 700;
-            color: #1a202c;
+            color: #ffffff;
             margin-bottom: 0.5rem;
+            position: relative;
+            z-index: 1;
         }
 
-        .school-location {
-            color: #718096;
-            margin-bottom: 1.5rem;
+        .school-code {
+            font-size: 0.85rem;
+            color: #00d4ff;
+            margin-bottom: 1rem;
+            position: relative;
+            z-index: 1;
         }
 
-        .school-actions {
-            display: flex;
-            gap: 1rem;
-            justify-content: center;
-            flex-wrap: wrap;
+        .school-desc {
+            font-size: 0.9rem;
+            color: rgba(255, 255, 255, 0.7);
+            margin-bottom: 1rem;
+            position: relative;
+            z-index: 1;
         }
 
-        .btn {
-            padding: 0.75rem 1.5rem;
-            border-radius: 0.5rem;
+        .select-btn {
+            width: 100%;
+            padding: 0.8rem 1.5rem;
+            background: linear-gradient(135deg, #00d4ff 0%, #00a8cc 100%);
+            color: #0a0e27;
             border: none;
-            font-weight: 600;
+            border-radius: 0.5rem;
+            font-weight: 700;
             cursor: pointer;
             transition: all 0.3s ease;
-            text-decoration: none;
-            display: inline-flex;
-            align-items: center;
-            gap: 0.5rem;
+            position: relative;
+            z-index: 1;
+            font-size: 0.95rem;
         }
 
-        .btn-primary {
-            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
-            color: white;
-        }
-
-        .btn-primary:hover {
+        .select-btn:hover {
             transform: scale(1.05);
-            box-shadow: 0 5px 15px rgba(102, 126, 234, 0.4);
+            box-shadow: 0 10px 20px rgba(0, 212, 255, 0.4);
         }
 
-        .btn-secondary {
-            background: #f7fafc;
-            color: #4a5568;
-            border: 2px solid #e2e8f0;
+        .select-btn:active {
+            transform: scale(0.98);
         }
 
-        .btn-secondary:hover {
-            background: #edf2f7;
+        .footer {
+            text-align: center;
+            color: rgba(255, 255, 255, 0.6);
+            font-size: 0.85rem;
+            margin-top: 3rem;
+            position: relative;
+            z-index: 1;
+        }
+
+        @keyframes fadeInDown {
+            from {
+                opacity: 0;
+                transform: translateY(-30px);
+            }
+            to {
+                opacity: 1;
+                transform: translateY(0);
+            }
+        }
+
+        @keyframes fadeInUp {
+            from {
+                opacity: 0;
+                transform: translateY(30px);
+            }
+            to {
+                opacity: 1;
+                transform: translateY(0);
+            }
+        }
+
+        @media (max-width: 1024px) {
+            .schools-grid {
+                grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+                gap: 1.2rem;
+            }
+
+            .selector-header h1 {
+                font-size: 2.5rem;
+            }
         }
 
         @media (max-width: 768px) {
+            .schools-grid {
+                grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+                gap: 1rem;
+            }
+
             .selector-header h1 {
                 font-size: 2rem;
             }
 
+            .selector-page {
+                padding: 1.5rem;
+            }
+
+            .school-card {
+                padding: 1.5rem 1rem;
+            }
+        }
+
+        @media (max-width: 480px) {
             .schools-grid {
                 grid-template-columns: 1fr;
+                gap: 0.8rem;
+            }
+
+            .selector-header h1 {
+                font-size: 1.5rem;
+            }
+
+            .selector-header p {
+                font-size: 0.95rem;
+            }
+
+            .selector-header {
+                margin-bottom: 2rem;
             }
         }
     </style>
 </head>
 <body>
+    <div class="space-background"></div>
+    <div class="stars" id="stars-container"></div>
+
     <div class="selector-page">
         <div class="selector-container">
             <div class="selector-header">
-                <h1>
-                    <img src="/mispal-logo.png" alt="MISpal" class="logo-icon" style="width: 60px; height: 60px; border-radius: 12px; background: white; padding: 8px;">
-                    Select Your School
-                </h1>
-                <p>Choose your school to access the Management Information System</p>
+                <h1><i class="fas fa-graduation-cap"></i> Select Your School</h1>
+                <p>Choose your educational institution to get started</p>
             </div>
 
             <div class="schools-grid" id="schools-grid">
-                <!-- Schools will be loaded here -->
+                <!-- Schools will be populated here -->
+            </div>
+
+            <div class="footer">
+                <p>✨ MISpal School Management System | Secure Access for Educators & Students</p>
             </div>
         </div>
     </div>
 
-    <script src="/school-selector.js"></script>
+    <script src="/app.js"></script>
+    <script>
+        // Generate random stars in background
+        function generateStars() {
+            const starsContainer = document.getElementById('stars-container');
+            const numberOfStars = Math.floor(window.innerWidth / 50);
+            
+            for (let i = 0; i < numberOfStars; i++) {
+                const star = document.createElement('div');
+                star.className = 'star';
+                star.style.width = Math.random() * 2 + 'px';
+                star.style.height = star.style.width;
+                star.style.left = Math.random() * 100 + '%';
+                star.style.top = Math.random() * 100 + '%';
+                star.style.animationDelay = Math.random() * 3 + 's';
+                starsContainer.appendChild(star);
+            }
+        }
+
+        // Initialize schools grid
+        function initializeSchoolSelector() {
+            generateStars();
+            
+            const schools = [
+                {
+                    code: 'ST001',
+                    name: "St. Patrick's Comprehensive",
+                    icon: 'fas fa-school',
+                    desc: 'Secondary School'
+                },
+                {
+                    code: 'ST002',
+                    name: 'Dublin Central Academy',
+                    icon: 'fas fa-building',
+                    desc: 'Primary School'
+                },
+                {
+                    code: 'ST003',
+                    name: 'Riverside Learning Hub',
+                    icon: 'fas fa-book-open',
+                    desc: 'Secondary School'
+                },
+                {
+                    code: 'ST004',
+                    name: 'Trinity Education Centre',
+                    icon: 'fas fa-graduation-cap',
+                    desc: 'Secondary School'
+                }
+            ];
+
+            const grid = document.getElementById('schools-grid');
+            grid.innerHTML = '';
+
+            schools.forEach((school, index) => {
+                const card = document.createElement('div');
+                card.className = 'school-card';
+                card.innerHTML = `
+                    <div class="school-icon">
+                        <i class="${school.icon}"></i>
+                    </div>
+                    <div class="school-name">${school.name}</div>
+                    <div class="school-code">${school.code}</div>
+                    <div class="school-desc">${school.desc}</div>
+                    <button class="select-btn" onclick="selectSchool('${school.code}', '${school.name}')">
+                        <i class="fas fa-arrow-right"></i> Select
+                    </button>
+                `;
+                grid.appendChild(card);
+            });
+        }
+
+        function selectSchool(code, name) {
+            localStorage.setItem('selectedSchool', JSON.stringify({ code, name }));
+            window.location.pathname = '/shannoncomp/login';
+        }
+
+        // Initialize on load
+        document.addEventListener('DOMContentLoaded', initializeSchoolSelector);
+        window.addEventListener('resize', () => {
+            document.getElementById('stars-container').innerHTML = '';
+            generateStars();
+        });
+    </script>
 </body>
 </html>
