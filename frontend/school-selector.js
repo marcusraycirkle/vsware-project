@@ -27,11 +27,8 @@ function loadSchools() {
                 <i class="fas fa-map-marker-alt"></i> ${school.location}
             </p>
             <div class="school-actions">
-                <a href="/admin" class="btn btn-primary">
-                    <i class="fas fa-user-shield"></i> Admin Portal
-                </a>
-                <a href="/shannoncomp/login" class="btn btn-secondary" style="background: linear-gradient(135deg, ${school.color} 0%, ${school.color}dd 100%); color: white; border: none;">
-                    <i class="fas fa-chalkboard-teacher"></i> Teacher Login
+                <a href="/shannoncomp/login" class="btn btn-primary" style="background: linear-gradient(135deg, ${school.color} 0%, ${school.color}dd 100%); color: white; border: none;">
+                    <i class="fas fa-sign-in-alt"></i> Login
                 </a>
                 <a href="/shannoncomp/enrolment" class="btn btn-secondary">
                     <i class="fas fa-user-plus"></i> Enrol
