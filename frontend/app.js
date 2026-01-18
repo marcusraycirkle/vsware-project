@@ -466,6 +466,9 @@ async function loadDashboardData() {
         // Check user role and load appropriate dashboard
         const userRole = currentUser?.role || localStorage.getItem('userRole');
         
+        // Load sidebar notifications for all users
+        await loadSidebarNotifications();
+        
         if (userRole === 'Student') {
             await loadStudentDashboard();
             return;
@@ -485,6 +488,60 @@ async function loadDashboardData() {
     }
 }
 
+async function loadSidebarNotifications() {
+    try {
+        const notificationsList = document.getElementById('sidebar-notifications-list');
+        if (!notificationsList) return;
+        
+        // Load notifications from various sources
+        const [behaviorData, messagesData] = await Promise.all([
+            apiCall('/behavior?limit=5&sort=-createdAt').catch(() => ({ behavior: [] })),
+            apiCall('/messages?status=unread&limit=5').catch(() => ({ messages: [] }))
+        ]);
+        
+        const notifications = [];
+        
+        // Add recent behavior notifications
+        const behaviors = behaviorData.behavior || [];
+        behaviors.forEach(b => {
+            notifications.push({
+                type: 'behavior',
+                icon: 'fas fa-star',
+                title: 'Positive behavior logged',
+                time: new Date(b.createdAt).toLocaleDateString('en-US', { weekday: 'short', month: 'short', day: 'numeric' })
+            });
+        });
+        
+        // Add unread message notifications
+        const messages = messagesData.messages || [];
+        messages.forEach(m => {
+            notifications.push({
+                type: 'message',
+                icon: 'fas fa-envelope',
+                title: 'Unread message',
+                time: new Date(m.createdAt).toLocaleDateString('en-US', { weekday: 'short', month: 'short', day: 'numeric' })
+            });
+        });
+        
+        // Render notifications
+        if (notifications.length === 0) {
+            notificationsList.innerHTML = '<div class="notification-item empty"><p>No new notifications</p></div>';
+        } else {
+            notificationsList.innerHTML = notifications.map(n => `
+                <div class="notification-item">
+                    <i class="${n.icon}"></i>
+                    <div>
+                        <p><strong>${n.title}</strong></p>
+                        <small>${n.time}</small>
+                    </div>
+                </div>
+            `).join('');
+        }
+    } catch (error) {
+        console.error('Error loading sidebar notifications:', error);
+    }
+}
+
 async function loadQuickStats() {
     try {
         // Get today's date
@@ -494,9 +551,9 @@ async function loadQuickStats() {
         const behaviorData = await apiCall('/behavior?limit=5&sort=-createdAt').catch(() => ({ behavior: [] }));
         const recentBehavior = behaviorData.behavior || [];
         
-        // Load today's room bookings
-        const bookingsData = await apiCall(`/rooms/bookings?date=${today}`).catch(() => []);
-        const todayBookings = Array.isArray(bookingsData) ? bookingsData.length : 0;
+        // Load today's room bookings (disabled - endpoint not available)
+        // const bookingsData = await apiCall(`/rooms/bookings?date=${today}`).catch(() => []);
+        const todayBookings = 0;
         
         // Load pending messages
         const messagesData = await apiCall('/messages?status=unread&limit=10').catch(() => ({ messages: [] }));

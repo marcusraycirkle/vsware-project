@@ -200,14 +200,8 @@ function setupEventListeners() {
 let sidebarCollapsed = false;
 
 function toggleSidebar() {
-    const sidebar = document.getElementById('admin-sidebar');
-    sidebarCollapsed = !sidebarCollapsed;
-    
-    if (sidebarCollapsed) {
-        sidebar.classList.add('collapsed');
-    } else {
-        sidebar.classList.remove('collapsed');
-    }
+    // Sidebar is now permanent - toggle disabled
+    console.log('Sidebar is now permanent and cannot be toggled');
 }
 
 function navigateToPage(pageName) {

@@ -3908,6 +3908,23 @@ html, body {
     color: var(--primary);
 }
 
+/* Hide sidebar toggle - sidebar and navbar are now permanent */
+.sidebar-toggle-btn {
+    display: none;
+}
+
+/* Ensure admin sidebar is always visible */
+#admin-sidebar {
+    width: 250px !important;
+    left: 0 !important;
+    transform: none !important;
+}
+
+#admin-sidebar.collapsed {
+    width: 250px !important;
+    left: 0 !important;
+}
+
 .brand-group {
     display: flex;
     align-items: center;
@@ -4160,8 +4177,66 @@ html, body {
     font-weight: 600;
 }
 
-/* Main Content Area */
-.main-content {
+/* Sidebar Notifications */
+.sidebar-notifications {
+    border-bottom: 1px solid var(--border);
+    padding-bottom: 1rem;
+    margin-bottom: 1rem;
+}
+
+.sidebar-section-header {
+    display: flex;
+    align-items: center;
+    gap: 0.5rem;
+    font-size: 0.85rem;
+    font-weight: 700;
+    text-transform: uppercase;
+    color: var(--text-secondary);
+    padding: 0 1.5rem;
+    margin-bottom: 0.75rem;
+    letter-spacing: 0.5px;
+}
+
+.notifications-list {
+    max-height: 300px;
+    overflow-y: auto;
+}
+
+.notification-item {
+    padding: 0.75rem 1.5rem;
+    font-size: 0.9rem;
+    border-left: 3px solid transparent;
+    cursor: pointer;
+    transition: all var(--transition);
+}
+
+.notification-item:hover {
+    background: var(--bg-hover);
+    border-left-color: var(--danger);
+}
+
+.notification-item p {
+    margin: 0;
+    color: var(--text-primary);
+    font-size: 0.85rem;
+}
+
+.notification-item small {
+    color: var(--text-secondary);
+    font-size: 0.75rem;
+}
+
+.notification-item.empty {
+    padding: 1rem;
+    text-align: center;
+    color: var(--text-secondary);
+}
+
+.notification-item.empty p {
+    margin: 0;
+}
+
+
     margin-left: 250px;
     margin-top: 70px;
     padding: 2rem;
