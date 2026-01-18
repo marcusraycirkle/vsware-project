@@ -53,6 +53,86 @@ function setupEventListeners() {
     if (globalSearch) {
         globalSearch.addEventListener('input', debounce(handleGlobalSearch, 300));
     }
+
+    // Sidebar toggle
+    const sidebarToggle = document.getElementById('sidebar-toggle-btn');
+    if (sidebarToggle) {
+        sidebarToggle.addEventListener('click', toggleSidebar);
+    }
+
+    // Quick action button
+    const quickActionBtn = document.getElementById('quick-action-btn');
+    if (quickActionBtn) {
+        quickActionBtn.addEventListener('click', openQuickActions);
+    }
+
+    // Notification button
+    const notificationBtn = document.getElementById('notification-btn');
+    if (notificationBtn) {
+        notificationBtn.addEventListener('click', toggleNotifications);
+    }
+
+    // User menu button
+    const userMenuBtn = document.getElementById('user-menu-btn');
+    if (userMenuBtn) {
+        userMenuBtn.addEventListener('click', toggleUserMenu);
+    }
+
+    // Navigation items
+    const navItems = document.querySelectorAll('.nav-item');
+    navItems.forEach(item => {
+        item.addEventListener('click', (e) => {
+            e.preventDefault();
+            const page = item.getAttribute('data-page');
+            if (page) {
+                navigateToPage(page);
+            }
+        });
+    });
+
+    // Mark all read button
+    const markAllReadBtn = document.getElementById('mark-all-read-btn');
+    if (markAllReadBtn) {
+        markAllReadBtn.addEventListener('click', markAllRead);
+    }
+
+    // Logout link
+    const logoutLink = document.getElementById('logout-link');
+    if (logoutLink) {
+        logoutLink.addEventListener('click', (e) => {
+            e.preventDefault();
+            logout();
+        });
+    }
+
+    // Quick actions modal buttons
+    const quickActionItems = document.querySelectorAll('.quick-action-item');
+    quickActionItems.forEach(btn => {
+        btn.addEventListener('click', () => {
+            const action = btn.getAttribute('data-action');
+            if (action) {
+                quickAction(action);
+            }
+        });
+    });
+
+    // Quick actions close button
+    const quickActionsCloseBtn = document.getElementById('quick-actions-close-btn');
+    if (quickActionsCloseBtn) {
+        quickActionsCloseBtn.addEventListener('click', () => {
+            closeModal('quick-actions-modal');
+        });
+    }
+
+    // Close modal when clicking outside
+    const modals = document.querySelectorAll('.modal');
+    modals.forEach(modal => {
+        modal.addEventListener('click', (e) => {
+            if (e.target === modal) {
+                modal.classList.remove('active');
+            }
+        });
+    });
 }
 
 // ========== NAVIGATION ==========
