@@ -193,6 +193,16 @@ router.put('/:id/approve', auth, authorize('admin', 'principal'), async (req, re
     console.log('Save completed successfully');
     console.log('Saved enrollment:', savedEnrollment._id);
 
+    // Send acceptance email (non-blocking)
+    console.log('Sending acceptance email to:', savedEnrollment.email);
+    sendAcceptanceEmail(savedEnrollment.email, savedEnrollment.firstName, savedEnrollment.lastName)
+      .catch(err => console.error('Email send error:', err.message));
+
+    // Log to Google Sheets (non-blocking)
+    console.log('Logging to Google Sheets...');
+    logStatusChangeToSheets(savedEnrollment, 'Approved')
+      .catch(err => console.error('Google Sheets log error:', err.message));
+
     console.log('Sending response...');
     res.json({
       success: true,
@@ -250,12 +260,12 @@ router.put('/:id/decline', auth, authorize('admin', 'principal'), async (req, re
     enrollment.declineDate = new Date();
     await enrollment.save();
 
-    // Log decline to Google Sheets (disabled temporarily - webhook not working)
-    // logStatusChangeToSheets(enrollment, 'decline', { reason }).catch(err => {
-    //   console.warn('Failed to log to Google Sheets:', err.message);
-    // });
+    // Log decline to Google Sheets (non-blocking)
+    logStatusChangeToSheets(enrollment, 'Declined', { reason }).catch(err => {
+      console.warn('Failed to log to Google Sheets:', err.message);
+    });
 
-    // Send rejection email
+    // Send rejection email (non-blocking)
     sendRejectionEmail(enrollment.email, enrollment.firstName, reason).catch(err => {
       console.warn('Failed to send email:', err.message);
     });
