@@ -216,9 +216,9 @@ app.get('/shannoncomp/*', (req, res) => {
   res.sendFile(path.join(__dirname, 'frontend', 'index.html'));
 });
 
-// Root serves index.html directly (no redirect needed)
+// Root serves loading screen with video
 app.get('/', (req, res) => {
-  res.sendFile(path.join(__dirname, 'frontend', 'index.html'));
+  res.sendFile(path.join(__dirname, 'frontend', 'loading.html'));
 });
 
 // Catch all 404 - serve landing page (this should be LAST)
