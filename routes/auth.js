@@ -115,11 +115,12 @@ router.post('/register', [
 });
 
 // @route   POST /api/auth/login
-// @desc    Login user with PIN
+// @desc    Login user with PIN and role verification
 // @access  Public
 router.post('/login', [
   body('email').isEmail().normalizeEmail(),
-  body('pin').isLength({ min: 4, max: 6 }).withMessage('PIN must be 4-6 digits')
+  body('password').isLength({ min: 4, max: 6 }).withMessage('PIN must be 4-6 digits'),
+  body('role').isIn(['admin', 'principal', 'secretary', 'teacher', 'parent', 'student']).withMessage('Invalid role')
 ], async (req, res) => {
   try {
     // Validate input
@@ -128,12 +129,17 @@ router.post('/login', [
       return res.status(400).json({ errors: errors.array() });
     }
     
-    const { email, pin } = req.body;
+    const { email, password, role } = req.body;
     
     // Check if user exists
     const user = await User.findOne({ email });
     if (!user) {
       return res.status(400).json({ message: 'Invalid credentials' });
+    }
+    
+    // Verify role matches
+    if (user.role !== role) {
+      return res.status(403).json({ message: `This account is registered as a ${user.role}, not a ${role}` });
     }
     
     // Check if account is active
@@ -142,7 +148,7 @@ router.post('/login', [
     }
     
     // Verify PIN
-    const isMatch = await user.comparePin(pin);
+    const isMatch = await user.comparePin(password);
     if (!isMatch) {
       return res.status(400).json({ message: 'Invalid credentials' });
     }
@@ -173,7 +179,7 @@ router.post('/login', [
       message: 'Login successful',
       token,
       user: {
-        id: user._id,
+        _id: user._id,
         email: user.email,
         firstName: user.firstName,
         lastName: user.lastName,

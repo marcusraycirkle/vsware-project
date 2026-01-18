@@ -199,17 +199,12 @@ app.get('/selector', (req, res) => {
   res.sendFile(path.join(__dirname, 'frontend', 'school-selector.html'));
 });
 
+app.get('/login', (req, res) => {
+  res.sendFile(path.join(__dirname, 'frontend', 'login.html'));
+});
+
 app.get('/shannoncomp/login', (req, res) => {
-  res.sendFile(path.join(__dirname, 'frontend', 'index.html'));
-});
-
-app.get('/shannoncomp/enrolment', (req, res) => {
-  res.sendFile(path.join(__dirname, 'frontend', 'enrolment.html'));
-});
-
-// Admin portal route
-app.get('/admin', (req, res) => {
-  res.sendFile(path.join(__dirname, 'frontend', 'admin-portal.html'));
+  res.sendFile(path.join(__dirname, 'frontend', 'login.html'));
 });
 
 app.get('/admin/*', (req, res) => {

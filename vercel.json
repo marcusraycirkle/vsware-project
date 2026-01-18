@@ -25,19 +25,15 @@
       "dest": "server.js"
     },
     {
-      "src": "/admin/(.*)",
-      "dest": "server.js"
-    },
-    {
-      "src": "/admin",
-      "dest": "server.js"
-    },
-    {
-      "src": "/shannoncomp/enrolment",
+      "src": "/login",
       "dest": "server.js"
     },
     {
       "src": "/shannoncomp/login",
+      "dest": "server.js"
+    },
+    {
+      "src": "/shannoncomp/enrolment",
       "dest": "server.js"
     },
     {
