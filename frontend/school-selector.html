@@ -397,10 +397,12 @@
                     <div class="school-name">${school.name}</div>
                     <div class="school-code">${school.code}</div>
                     <div class="school-desc">${school.desc}</div>
-                    <button class="select-btn" onclick="selectSchool('${school.code}', '${school.name}')">
+                    <button class="select-btn">
                         <i class="fas fa-arrow-right"></i> Select
                     </button>
                 `;
+                const btn = card.querySelector('.select-btn');
+                btn.addEventListener('click', () => selectSchool(school.code, school.name));
                 grid.appendChild(card);
             });
         }
