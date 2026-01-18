@@ -24,6 +24,32 @@ document.addEventListener('DOMContentLoaded', () => {
     setupEventListeners();
     initializeNotifications();
     loadMockNotifications();
+
+    // LEGAL DROPDOWN LOGIC
+    const legalDropdown = document.querySelector('.legal-dropdown');
+    if (legalDropdown) {
+        const btn = legalDropdown.querySelector('button');
+        const content = legalDropdown.querySelector('.dropdown-content');
+        btn.addEventListener('click', (e) => {
+            e.preventDefault();
+            content.style.display = content.style.display === 'block' ? 'none' : 'block';
+        });
+        // Hide dropdown when clicking outside
+        document.addEventListener('click', (event) => {
+            if (!legalDropdown.contains(event.target)) {
+                content.style.display = 'none';
+            }
+        });
+        // Show loading overlay on legal link click
+        const legalLinks = legalDropdown.querySelectorAll('.legal-link');
+        legalLinks.forEach(link => {
+            link.addEventListener('click', (e) => {
+                if (typeof showLoading === 'function') showLoading();
+                // Let navigation proceed, hide loading after short delay
+                setTimeout(() => { if (typeof hideLoading === 'function') hideLoading(); }, 1200);
+            });
+        });
+    }
 });
 
 function initializeRouting() {

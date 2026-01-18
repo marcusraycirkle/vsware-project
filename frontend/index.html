@@ -30,6 +30,19 @@
                 <a href="/selector" class="btn-primary">
                     <i class="fas fa-sign-in-alt"></i> Log In
                 </a>
+                <div class="dropdown legal-dropdown" style="position: relative; display: inline-block; margin-left: 1.5rem;">
+                    <button class="btn-secondary" style="padding: 0.5rem 1.25rem; font-size: 1rem; background: white; color: var(--primary); border: 2px solid var(--primary); cursor: pointer; display: flex; align-items: center; gap: 0.5rem;">
+                        <i class="fas fa-balance-scale"></i> Legal <i class="fas fa-caret-down"></i>
+                    </button>
+                    <div class="dropdown-content" style="display: none; position: absolute; right: 0; background: white; min-width: 200px; box-shadow: 0 8px 24px rgba(0,0,0,0.12); border-radius: 8px; z-index: 1001;">
+                        <a href="/frontend/privacy-policy.html" class="dropdown-link legal-link" style="display: flex; align-items: center; gap: 0.5rem; padding: 0.75rem 1.25rem; color: var(--primary); text-decoration: none; border-bottom: 1px solid #eee;">
+                            <i class="fas fa-lock"></i> Privacy Policy
+                        </a>
+                        <a href="/frontend/terms-of-service.html" class="dropdown-link legal-link" style="display: flex; align-items: center; gap: 0.5rem; padding: 0.75rem 1.25rem; color: var(--primary); text-decoration: none;">
+                            <i class="fas fa-file-contract"></i> Terms of Service
+                        </a>
+                    </div>
+                </div>
             </div>
         </nav>
 
