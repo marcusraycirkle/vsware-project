@@ -4390,64 +4390,6 @@ async function loadParentDashboard() {
         hideLoading();
     }
 }
-                            <p class=\"text-muted\">${child.yearGroup || ''} - ${child.house || ''} House</p>
-                        </div>
-                    </div>
-                    <div class=\"child-stats\">
-                        <div class=\"stat-box\">
-                            <div class=\"stat-value\">${attendanceRate}%</div>
-                            <div class=\"stat-label\">Attendance</div>
-                        </div>
-                        <div class=\"stat-box\">
-                            <div class=\"stat-value\">${recentBehavior.filter(b => b.type === 'Positive').length}</div>
-                            <div class=\"stat-label\">Positive</div>
-                        </div>
-                        <div class=\"stat-box\">
-                            <div class=\"stat-value\">${recentBehavior.filter(b => b.type === 'Negative').length}</div>
-                            <div class=\"stat-label\">Incidents</div>
-                        </div>
-                    </div>
-                    <div class=\"child-actions\">
-                        <button class=\"btn-sm\" onclick=\"viewChildDetails('${child._id}')\">
-                            <i class=\"fas fa-eye\"></i> View Details
-                        </button>
-                        <button class=\"btn-sm\" onclick=\"viewChildTimetable('${child._id}')\">
-                            <i class=\"fas fa-calendar\"></i> Timetable
-                        </button>
-                        <button class=\"btn-sm\" onclick=\"contactTeacher('${child._id}')\">
-                            <i class=\"fas fa-envelope\"></i> Contact Teacher
-                        </button>
-                    </div>
-                </div>
-            `;
-        }));
-        
-        container.innerHTML = `
-            <div class=\"parent-dashboard\">
-                <div class=\"page-header\">
-                    <h1><i class=\"fas fa-users\"></i> My Children</h1>
-                    <p>Monitor your children's progress and attendance</p>
-                </div>
-                <div class=\"children-grid\">
-                    ${childrenCards.join('')}
-                </div>
-                <div class=\"parent-actions-section\">
-                    <div class=\"action-card\" onclick=\"showSection('messages')\">
-                        <i class=\"fas fa-envelope\"></i>
-                        <h3>Messages</h3>
-                        <p>View communications from teachers</p>
-                    </div>
-                    <div class=\"action-card\" onclick=\"showSection('payments')\">
-                        <i class=\"fas fa-receipt\"></i>
-                        <h3>Payments</h3>
-                        <p>View and manage school fees</p>
-                    </div>
-                    <div class=\"action-card\" onclick=\"viewCalendar()\">
-                        <i class=\"fas fa-calendar-alt\"></i>
-                        <h3>School Calendar</h3>
-                        <p>View upcoming events</p>
-                    </div>
-                </div>
             </div>
         `;
     } catch (error) {
