@@ -477,9 +477,13 @@ async function loadDashboardData() {
             return;
         }
         
-        // Admin/Teacher dashboard
-        await loadStats();
-        await loadHouses();
+        // Admin/Teacher dashboard - only call stats for Admin role
+        if (userRole === 'Admin') {
+            await loadStats();
+            await loadHouses();
+        }
+        
+        // These are safe for all roles
         await loadDashboardAttendance();
         await loadRecentActivity();
         await loadQuickStats();
@@ -4291,43 +4295,26 @@ async function loadParentDashboard() {
     try {
         showLoading('Loading children information...');
         
-        // Get parent's children
-        const childrenData = await apiCall('/students?limit=20').catch(() => ({ students: [] }));
-        const children = childrenData.students || [];
-        
+        // Parent dashboard is now handled via parent-portal.html
+        // This function is for backwards compatibility with teacher portal
         hideLoading();
         
         const container = document.getElementById('parent-dashboard-content');
         if (!container) return;
         
-        if (children.length === 0) {
-            container.innerHTML = `
-                <div class=\"empty-state\">
-                    <i class=\"fas fa-users\"></i>
-                    <p>No children found in your account. Please contact administration.</p>
-                </div>
-            `;
-            return;
-        }
-        
-        // Load data for each child
-        const childrenCards = await Promise.all(children.slice(0, 4).map(async child => {
-            const [attendance, behavior] = await Promise.all([
-                apiCall(`/attendance?student=${child._id}&limit=30`).catch(() => ({ attendance: [] })),
-                apiCall(`/behavior?student=${child._id}&limit=5`).catch(() => ({ behaviors: [] }))
-            ]);
-            
-            const attendanceRate = calculateAttendanceRate(attendance.attendance || []);
-            const recentBehavior = behavior.behaviors || [];
-            
-            return `
-                <div class=\"child-card\">
-                    <div class=\"child-header\">
-                        <div class=\"child-avatar\">
-                            <i class=\"fas fa-user-circle\"></i>
-                        </div>
-                        <div class=\"child-info\">
-                            <h3>${child.firstName || ''} ${child.lastName || ''}</h3>
+        container.innerHTML = `
+            <div class="empty-state">
+                <p>Please use the dedicated Parent Portal for the full experience.</p>
+                <a href="/parent-portal.html" class="btn-primary" style="display: inline-block; padding: 0.75rem 1.5rem; background: var(--primary); color: white; text-decoration: none; border-radius: 6px; margin-top: 1rem;">
+                    Go to Parent Portal
+                </a>
+            </div>
+        `;
+    } catch (error) {
+        console.error('Error loading parent dashboard:', error);
+        hideLoading();
+    }
+}
                             <p class=\"text-muted\">${child.yearGroup || ''} - ${child.house || ''} House</p>
                         </div>
                     </div>

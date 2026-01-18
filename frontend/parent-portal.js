@@ -118,9 +118,62 @@ async function loadNotifications() {
         ];
 
         displayNotifications();
+        loadMessages();
     } catch (error) {
         console.error('Error loading notifications:', error);
     }
+}
+
+async function loadMessages() {
+    try {
+        const messages = [
+            {
+                id: 1,
+                from: 'Mr. O\'Brien',
+                subject: 'Mathematics Assignment Due',
+                preview: 'Please remind your son about the mathematics assignment due on Friday...',
+                date: 'Today'
+            },
+            {
+                id: 2,
+                from: 'School Office',
+                subject: 'School Closure Notice',
+                preview: 'The school will be closed on Monday for staff training day...',
+                date: 'Yesterday'
+            },
+            {
+                id: 3,
+                from: 'Ms. McMahon',
+                subject: 'Your feedback on recent exam',
+                preview: 'Great work on the recent English exam! Here are some suggestions...',
+                date: '2 days ago'
+            }
+        ];
+
+        displayMessages(messages);
+    } catch (error) {
+        console.error('Error loading messages:', error);
+    }
+}
+
+function displayMessages(messages) {
+    const container = document.getElementById('mail-list');
+    
+    if (!messages || messages.length === 0) {
+        container.innerHTML = '<div class="empty-notifications"><p>No messages</p></div>';
+        return;
+    }
+
+    container.innerHTML = messages.slice(0, 3).map(msg => `
+        <div class="mail-item" onclick="window.location.href='/parent-messages.html'">
+            <div class="mail-header">
+                <span class="mail-from">${msg.from}</span>
+                <span class="mail-date">${msg.date}</span>
+            </div>
+            <div class="mail-subject">${msg.subject}</div>
+            <div class="mail-preview">${msg.preview}</div>
+        </div>
+    `).join('');
 }
 
 function displayNotifications() {

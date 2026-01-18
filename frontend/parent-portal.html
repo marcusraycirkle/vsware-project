@@ -339,6 +339,53 @@
             color: var(--text-secondary);
         }
 
+        .mail-list {
+            display: flex;
+            flex-direction: column;
+            gap: 0.75rem;
+        }
+
+        .mail-item {
+            padding: 1rem;
+            background: var(--bg-secondary);
+            border-left: 4px solid var(--primary);
+            border-radius: 6px;
+            transition: all var(--transition);
+            cursor: pointer;
+        }
+
+        .mail-item:hover {
+            background: #F3F4F6;
+        }
+
+        .mail-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: start;
+            margin-bottom: 0.5rem;
+        }
+
+        .mail-from {
+            font-weight: 600;
+            color: var(--text-primary);
+        }
+
+        .mail-date {
+            font-size: 0.8rem;
+            color: var(--text-secondary);
+        }
+
+        .mail-subject {
+            font-size: 0.95rem;
+            color: var(--text-primary);
+            margin-bottom: 0.25rem;
+        }
+
+        .mail-preview {
+            font-size: 0.85rem;
+            color: var(--text-secondary);
+        }
+
         /* ========== CONTACT SECTION ========== */
         .contact-section {
             display: grid;
@@ -511,6 +558,25 @@
                 <div class="notifications-list" id="notifications-list">
                     <div class="empty-notifications">
                         <p>No new notifications</p>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Mail Section -->
+            <div class="card" id="mail-section">
+                <div class="card-header">
+                    <div style="display: flex; align-items: center; gap: 0.75rem;">
+                        <i class="fas fa-envelope" style="font-size: 1.3rem; color: var(--primary);"></i>
+                        <div>
+                            <h3 style="margin: 0; font-size: 1.1rem;">Messages</h3>
+                            <p style="margin: 0.25rem 0 0; font-size: 0.85rem; color: var(--text-secondary);">School messages and communications</p>
+                        </div>
+                    </div>
+                    <a href="/parent-messages.html" class="see-all-btn">View All</a>
+                </div>
+                <div id="mail-list" class="mail-list">
+                    <div class="empty-notifications">
+                        <p>No new messages</p>
                     </div>
                 </div>
             </div>

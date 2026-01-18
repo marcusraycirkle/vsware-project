@@ -217,6 +217,23 @@ app.get('/shannoncomp/enrolment', (req, res) => {
   res.sendFile(path.join(__dirname, 'frontend', 'enrolment.html'));
 });
 
+// Role-based dashboard routes
+app.get('/shannoncomp/teacher/:page', (req, res) => {
+  res.sendFile(path.join(__dirname, 'frontend', 'index.html'));
+});
+
+app.get('/shannoncomp/parents/:page', (req, res) => {
+  res.sendFile(path.join(__dirname, 'frontend', 'parent-portal.html'));
+});
+
+app.get('/admin/:page', (req, res) => {
+  res.sendFile(path.join(__dirname, 'frontend', 'admin-portal.html'));
+});
+
+app.get('/secretary/:page', (req, res) => {
+  res.sendFile(path.join(__dirname, 'frontend', 'secretary-portal.html'));
+});
+
 // Dashboard routes (all serve index.html for client-side routing)
 app.get('/shannoncomp/*', (req, res) => {
   res.sendFile(path.join(__dirname, 'frontend', 'index.html'));
