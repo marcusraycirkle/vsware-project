@@ -190,35 +190,35 @@ app.get('/api/health', (req, res) => {
   res.json({ status: 'OK', message: 'SchoolWare API is running', dbState: mongoose.connection.readyState });
 });
 
-// Page routes
+// Page routes - serve HTML files from frontend directory
 app.get('/home', (req, res) => {
-  res.sendFile(__dirname + '/frontend/index.html');
+  res.sendFile(path.join(__dirname, 'frontend', 'index.html'));
 });
 
 app.get('/selector', (req, res) => {
-  res.sendFile(__dirname + '/frontend/school-selector.html');
+  res.sendFile(path.join(__dirname, 'frontend', 'school-selector.html'));
 });
 
 app.get('/shannoncomp/login', (req, res) => {
-  res.sendFile(__dirname + '/frontend/index.html');
+  res.sendFile(path.join(__dirname, 'frontend', 'index.html'));
 });
 
 app.get('/shannoncomp/enrolment', (req, res) => {
-  res.sendFile(__dirname + '/frontend/enrolment.html');
+  res.sendFile(path.join(__dirname, 'frontend', 'enrolment.html'));
 });
 
 // Admin portal route
 app.get('/admin', (req, res) => {
-  res.sendFile(__dirname + '/frontend/admin-portal.html');
+  res.sendFile(path.join(__dirname, 'frontend', 'admin-portal.html'));
 });
 
 app.get('/admin/*', (req, res) => {
-  res.sendFile(__dirname + '/frontend/admin-portal.html');
+  res.sendFile(path.join(__dirname, 'frontend', 'admin-portal.html'));
 });
 
 // Dashboard routes (all serve index.html for client-side routing)
 app.get('/shannoncomp/*', (req, res) => {
-  res.sendFile(__dirname + '/frontend/index.html');
+  res.sendFile(path.join(__dirname, 'frontend', 'index.html'));
 });
 
 // Root serves index.html directly (no redirect needed)
@@ -228,7 +228,7 @@ app.get('/', (req, res) => {
 
 // Catch all 404 - serve landing page (this should be LAST)
 app.all('*', (req, res) => {
-  res.sendFile(__dirname + '/frontend/index.html');
+  res.sendFile(path.join(__dirname, 'frontend', 'index.html'));
 });
 
 // Start server (only for local development)
