@@ -14,7 +14,7 @@ class LoadingAnimation {
     overlay.innerHTML = `
       <div class="loading-content">
         <video id="loading-video-overlay" playsinline muted autoplay style="width: 100%; height: 100%; object-fit: cover; position: absolute; top: 0; left: 0;">
-          <source src="/videoloadtest2.mp4" type="video/mp4">
+          <source src="/videoloadtest2.MP4" type="video/mp4">
         </video>
         <div class="loading-fallback" style="display: none; position: absolute; top: 0; left: 0; width: 100%; height: 100%; background: linear-gradient(135deg, #667eea 0%, #764ba2 100%); flex-direction: column; align-items: center; justify-content: center;">
           <div style="font-size: 3rem; margin-bottom: 2rem;">📚</div>

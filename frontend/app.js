@@ -1,5 +1,6 @@
 // ========== CONFIGURATION ==========
-const API_URL = 'https://vsware-project.vercel.app/api'; // Vercel backend
+// API_URL - use relative path for current server, or environment variable
+const API_URL = process.env.REACT_APP_API_URL || (window.location.hostname === 'localhost' ? 'http://localhost:5000/api' : `${window.location.protocol}//${window.location.host}/api`);
 let currentUser = null;
 let authToken = null;
 let currentSchoolId = null;
@@ -193,8 +194,17 @@ async function login(email, pin) {
             setTimeout(() => {
                 hideLoading();
                 
-                // Navigate to dashboard with path-based routing
-                window.location.pathname = '/shannoncomp/overview';
+                // Route based on role
+                const role = currentUser.role;
+                const permissionLevel = currentUser.permissionLevel || 'General';
+                
+                // Admin users go to admin portal
+                if (role === 'admin' || permissionLevel === 'Admin' || permissionLevel === 'Principal' || permissionLevel === 'Deputy Principal') {
+                    window.location.pathname = '/admin-portal.html';
+                } else {
+                    // Everyone else goes to main dashboard
+                    window.location.pathname = '/shannoncomp/overview';
+                }
                 
                 applyRoleBasedNavigation();
                 loadDashboardData();

@@ -18,8 +18,9 @@ document.addEventListener('DOMContentLoaded', () => {
 });
 
 function initializeAuth() {
-    authToken = localStorage.getItem('adminToken');
-    const storedUser = localStorage.getItem('adminUser');
+    // Check both token locations for compatibility
+    authToken = localStorage.getItem('token') || localStorage.getItem('adminToken');
+    const storedUser = localStorage.getItem('user') || localStorage.getItem('adminUser');
     
     if (storedUser) {
         try {
@@ -31,8 +32,8 @@ function initializeAuth() {
     }
     
     // Redirect to login if not authenticated
-    if (!authToken && window.location.pathname === '/admin') {
-        window.location.href = '/selector';
+    if (!authToken && window.location.pathname === '/admin-portal.html') {
+        window.location.pathname = '/shannoncomp/login';
     }
 }
 
@@ -41,8 +42,8 @@ function updateUserDisplay() {
         const userName = document.querySelector('.user-name');
         const userRole = document.querySelector('.user-role');
         
-        if (userName) userName.textContent = currentUser.name || 'Admin User';
-        if (userRole) userRole.textContent = currentUser.role || 'Principal';
+        if (userName) userName.textContent = (currentUser.firstName || '') + ' ' + (currentUser.lastName || '') || currentUser.name || 'Admin User';
+        if (userRole) userRole.textContent = currentUser.role || currentUser.permissionLevel || 'Principal';
     }
 }
 

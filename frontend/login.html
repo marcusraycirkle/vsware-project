@@ -21,17 +21,34 @@
 
         body {
             font-family: 'Inter', sans-serif;
-            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            background: #0a0e27;
+            background-image: 
+                radial-gradient(2px 2px at 20% 30%, #eee, rgba(0,0,0,0)),
+                radial-gradient(2px 2px at 60% 70%, #fff, rgba(0,0,0,0)),
+                radial-gradient(1px 1px at 50% 50%, #fff, rgba(0,0,0,0)),
+                radial-gradient(1px 1px at 80% 10%, #fff, rgba(0,0,0,0)),
+                radial-gradient(2px 2px at 90% 60%, #fff, rgba(0,0,0,0)),
+                radial-gradient(1px 1px at 30% 80%, #eee, rgba(0,0,0,0)),
+                radial-gradient(1px 1px at 10% 40%, #fff, rgba(0,0,0,0));
+            background-repeat: repeat;
+            background-size: 200% 200%;
+            animation: space-drift 20s linear infinite;
             min-height: 100vh;
             display: flex;
+            flex-direction: column;
             align-items: center;
             justify-content: center;
             padding: 2rem;
         }
 
+        @keyframes space-drift {
+            0% { background-position: 0% 0%; }
+            100% { background-position: 100% 100%; }
+        }
+
         .login-wrapper {
             width: 100%;
-            max-width: 500px;
+            max-width: 1400px;
         }
 
         .login-back-btn {
@@ -50,33 +67,55 @@
             transform: translateX(-4px);
         }
 
+        .login-container {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
+            gap: 1.5rem;
+            max-width: 1200px;
+            margin: 0 auto;
+        }
+
         .login-card {
-            background: white;
-            border-radius: 1rem;
-            padding: 2.5rem;
-            box-shadow: 0 20px 60px rgba(0, 0, 0, 0.3);
+            background: rgba(255, 255, 255, 0.95);
+            backdrop-filter: blur(10px);
+            border-radius: 1.5rem;
+            padding: 2rem;
+            box-shadow: 0 20px 60px rgba(0, 0, 0, 0.5), 0 0 40px rgba(102, 126, 234, 0.2);
+            border: 1px solid rgba(255, 255, 255, 0.2);
+            transition: all 0.3s ease;
+            display: flex;
+            flex-direction: column;
+        }
+
+        .login-card:nth-child(1) {
+            grid-column: 1 / -1;
+        }
+
+        .login-card.form-card {
+            background: rgba(255, 255, 255, 0.98);
         }
 
         .login-school-info {
             display: flex;
             align-items: center;
-            gap: 1rem;
+            gap: 1.5rem;
             margin-bottom: 2rem;
             padding-bottom: 1.5rem;
             border-bottom: 2px solid #f0f0f0;
         }
 
         .login-school-logo {
-            width: 60px;
-            height: 60px;
+            width: 80px;
+            height: 80px;
             background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
-            border-radius: 0.75rem;
+            border-radius: 1rem;
             display: flex;
             align-items: center;
             justify-content: center;
-            font-size: 2rem;
+            font-size: 2.5rem;
             color: white;
             overflow: hidden;
+            box-shadow: 0 10px 30px rgba(102, 126, 234, 0.3);
         }
 
         .login-school-logo img {
@@ -87,20 +126,44 @@
 
         .login-school-name {
             flex: 1;
-            font-size: 1.25rem;
-            font-weight: 700;
+        }
+
+        .login-school-name h1 {
+            font-size: 1.75rem;
+            font-weight: 800;
             color: #1a202c;
+            margin-bottom: 0.25rem;
+        }
+
+        .login-school-name p {
+            color: #718096;
+            font-size: 0.95rem;
+            display: flex;
+            align-items: center;
+            gap: 0.5rem;
+        }
+
+        .login-school-name p i {
+            color: #667eea;
+            font-size: 1.1rem;
         }
 
         .login-header {
             margin-bottom: 2rem;
-            text-align: center;
         }
 
         .login-header h2 {
-            font-size: 1.875rem;
+            font-size: 1.75rem;
             color: #1a202c;
             margin-bottom: 0.5rem;
+            display: flex;
+            align-items: center;
+            gap: 0.75rem;
+        }
+
+        .login-header h2 i {
+            color: #667eea;
+            font-size: 1.5rem;
         }
 
         .login-header p {
@@ -131,15 +194,16 @@
         }
 
         .input-group label i {
-            width: 16px;
+            width: 18px;
             color: #667eea;
+            font-size: 1.1rem;
         }
 
         .input-group input,
         .input-group select {
             padding: 0.875rem;
-            border: 1px solid #e2e8f0;
-            border-radius: 0.5rem;
+            border: 2px solid #e2e8f0;
+            border-radius: 0.75rem;
             font-size: 1rem;
             font-family: 'Inter', sans-serif;
             transition: all 0.3s ease;
@@ -153,24 +217,25 @@
         }
 
         .btn-login-submit {
-            padding: 0.875rem;
-            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            padding: 1rem;
+            background: linear-gradient(135deg, #00d4ff 0%, #0099ff 100%);
             color: white;
             border: none;
-            border-radius: 0.5rem;
-            font-weight: 600;
+            border-radius: 0.75rem;
+            font-weight: 700;
             font-size: 1rem;
             cursor: pointer;
             transition: all 0.3s ease;
             display: flex;
             align-items: center;
             justify-content: center;
-            gap: 0.5rem;
+            gap: 0.75rem;
+            box-shadow: 0 8px 20px rgba(0, 153, 255, 0.3);
         }
 
         .btn-login-submit:hover {
             transform: translateY(-2px);
-            box-shadow: 0 10px 20px rgba(102, 126, 234, 0.3);
+            box-shadow: 0 12px 30px rgba(0, 153, 255, 0.5);
         }
 
         .btn-login-submit:active {
@@ -182,112 +247,83 @@
             cursor: not-allowed;
         }
 
-        .login-divider {
-            text-align: center;
-            color: #a0aec0;
-            margin: 2rem 0;
-            font-size: 0.85rem;
-            position: relative;
-        }
-
-        .login-divider::before,
-        .login-divider::after {
-            content: '';
-            position: absolute;
-            top: 50%;
-            width: 45%;
-            height: 1px;
-            background: #e2e8f0;
-        }
-
-        .login-divider::before {
-            left: 0;
-        }
-
-        .login-divider::after {
-            right: 0;
-        }
-
-        .quick-login-grid {
-            display: grid;
-            grid-template-columns: 1fr;
-            gap: 0.75rem;
-        }
-
         .quick-login-btn {
-            padding: 0.75rem;
-            background: #f7fafc;
-            border: 1px solid #e2e8f0;
-            border-radius: 0.5rem;
+            padding: 1rem;
+            background: linear-gradient(135deg, #f7fafc 0%, #edf2f7 100%);
+            border: 2px solid #e2e8f0;
+            border-radius: 0.75rem;
             cursor: pointer;
-            font-weight: 500;
+            font-weight: 600;
             color: #2d3748;
             display: flex;
+            flex-direction: column;
             align-items: center;
+            justify-content: center;
             gap: 0.75rem;
             transition: all 0.3s ease;
             font-family: 'Inter', sans-serif;
+            min-height: 140px;
         }
 
         .quick-login-btn i {
-            width: 20px;
-            text-align: center;
+            font-size: 2rem;
             color: #667eea;
         }
 
+        .quick-login-btn span {
+            text-align: center;
+            line-height: 1.3;
+        }
+
         .quick-login-btn:hover {
-            background: #edf2f7;
-            border-color: #cbd5e0;
-            transform: translateX(2px);
+            background: linear-gradient(135deg, #edf2f7 0%, #e2e8f0 100%);
+            border-color: #667eea;
+            transform: translateY(-4px);
+            box-shadow: 0 8px 20px rgba(102, 126, 234, 0.2);
         }
 
         .error-message {
             background: #fed7d7;
             color: #c53030;
             padding: 0.75rem;
-            border-radius: 0.5rem;
+            border-radius: 0.75rem;
             margin-bottom: 1rem;
             display: none;
-            animation: slideIn 0.3s ease;
+            flex-direction: row;
+            align-items: center;
+            gap: 0.75rem;
+            border-left: 4px solid #c53030;
         }
 
-        .error-message.show {
-            display: block;
-        }
-
-        @keyframes slideIn {
-            from {
-                opacity: 0;
-                transform: translateY(-10px);
-            }
-            to {
-                opacity: 1;
-                transform: translateY(0);
-            }
+        .error-message i {
+            font-size: 1.2rem;
         }
 
         .success-message {
             background: #c6f6d5;
             color: #22543d;
             padding: 0.75rem;
-            border-radius: 0.5rem;
+            border-radius: 0.75rem;
             margin-bottom: 1rem;
             display: none;
-            animation: slideIn 0.3s ease;
+            flex-direction: row;
+            align-items: center;
+            gap: 0.75rem;
+            border-left: 4px solid #22543d;
+        }
+
+        .success-message i {
+            font-size: 1.2rem;
         }
 
         .loading-spinner {
-            display: none;
-            width: 20px;
-            height: 20px;
-            border: 3px solid #ffffff30;
+            width: 18px;
+            height: 18px;
+            border: 3px solid rgba(255, 255, 255, 0.3);
             border-top-color: white;
             border-radius: 50%;
             animation: spin 0.8s linear infinite;
-        }
-
-        @keyframes spin {
-            to { transform: rotate(360deg); }
+            display: none;
         }
 
         .btn-login-submit.loading .loading-spinner {
@@ -298,17 +334,31 @@
             display: none;
         }
 
+        @keyframes spin {
+            to { transform: rotate(360deg); }
+        }
+
+        @media (max-width: 768px) {
+            .login-container {
+                grid-template-columns: 1fr;
+            }
+
+            .login-card:nth-child(1) {
+                grid-column: 1;
+            }
+        }
+
         @media (max-width: 480px) {
             .login-card {
                 padding: 1.5rem;
             }
 
             .login-header h2 {
-                font-size: 1.5rem;
+                font-size: 1.3rem;
             }
 
-            .quick-login-grid {
-                grid-template-columns: 1fr;
+            .quick-login-btn {
+                min-height: 120px;
             }
         }
     </style>
@@ -319,153 +369,102 @@
             <i class="fas fa-arrow-left"></i> Back to Schools
         </a>
         
-        <div class="login-card">
-            <div class="login-school-info">
-                <div class="login-school-logo">
-                    <img src="/mispal-logo.png" alt="School Logo" style="width: 100%; height: 100%; object-fit: cover;">
+        <div class="login-container">
+            <!-- Header Card -->
+            <div class="login-card">
+                <div class="login-school-info">
+                    <div class="login-school-logo">
+                        <img src="/mispal-logo.png" alt="School Logo" style="width: 100%; height: 100%; object-fit: cover;">
+                    </div>
+                    <div class="login-school-name">
+                        <h1 id="school-name">St. Patrick's Comprehensive</h1>
+                        <p><i class="fas fa-globe"></i> Select our school to continue</p>
+                    </div>
                 </div>
-                <div class="login-school-name" id="school-name">St. Patrick's Comprehensive</div>
-            </div>
-            
-            <div class="login-header">
-                <h2>Welcome Back</h2>
-                <p>Sign in to your account</p>
             </div>
 
-            <div class="error-message" id="error-msg"></div>
-            <div class="success-message" id="success-msg"></div>
-            
-            <form id="login-form" class="login-form" onsubmit="handleLogin(event)">
-                <div class="input-group">
-                    <label><i class="fas fa-envelope"></i> Email Address</label>
-                    <input type="email" id="login-email" placeholder="your.email@school.ie" required autocomplete="username">
+            <!-- Login Form Card -->
+            <div class="login-card form-card">
+                <div class="login-header">
+                    <h2><i class="fas fa-sign-in-alt"></i> Sign In</h2>
+                    <p>Enter your credentials</p>
                 </div>
+
+                <div class="error-message" id="error-msg"></div>
+                <div class="success-message" id="success-msg"></div>
                 
-                <div class="input-group">
-                    <label><i class="fas fa-lock"></i> Password</label>
-                    <input type="password" id="login-password" placeholder="Enter your password" required autocomplete="current-password">
+                <form id="login-form" class="login-form" onsubmit="handleLogin(event)">
+                    <div class="input-group">
+                        <label><i class="fas fa-envelope"></i> Email Address</label>
+                        <input type="email" id="login-email" placeholder="your.email@school.ie" required autocomplete="username">
+                    </div>
+                    
+                    <div class="input-group">
+                        <label><i class="fas fa-lock"></i> PIN</label>
+                        <input type="password" id="login-pin" placeholder="Enter your PIN" maxlength="6" required autocomplete="current-password">
+                    </div>
+                    
+                    <button type="submit" class="btn-login-submit">
+                        <div class="loading-spinner"></div>
+                        <span><i class="fas fa-arrow-right"></i> Sign In</span>
+                    </button>
+                </form>
+            </div>
+
+            <!-- Admin Card -->
+            <div class="login-card">
+                <div class="login-header">
+                    <h2><i class="fas fa-user-shield"></i> Admin</h2>
                 </div>
-                
-                <button type="submit" class="btn-login-submit">
-                    <div class="loading-spinner"></div>
-                    <span><i class="fas fa-sign-in-alt"></i> Sign In</span>
-                </button>
-            </form>
-            
-            <div class="login-divider">Quick Login (Demo)</div>
-            
-            <div class="quick-login-grid">
                 <button type="button" class="quick-login-btn" onclick="quickLogin('admin@schoolware.com', '1234')">
-                    <i class="fas fa-user-tie"></i>
-                    <span>Admin (admin@schoolware.com)</span>
+                    <i class="fas fa-crown"></i>
+                    <span>admin@schoolware.com</span>
                 </button>
+            </div>
+
+            <!-- Teacher Card -->
+            <div class="login-card">
+                <div class="login-header">
+                    <h2><i class="fas fa-chalkboard-user"></i> Teacher</h2>
+                </div>
                 <button type="button" class="quick-login-btn" onclick="quickLogin('john.smith@schoolware.com', '1234')">
-                    <i class="fas fa-chalkboard-teacher"></i>
-                    <span>Teacher (john.smith@schoolware.com)</span>
+                    <i class="fas fa-book-open"></i>
+                    <span>john.smith@schoolware.com</span>
                 </button>
+            </div>
+
+            <!-- Student Card -->
+            <div class="login-card">
+                <div class="login-header">
+                    <h2><i class="fas fa-user-graduate"></i> Student</h2>
+                </div>
                 <button type="button" class="quick-login-btn" onclick="quickLogin('james.wilson@student.schoolware.com', '1234')">
-                    <i class="fas fa-user-graduate"></i>
-                    <span>Student (james.wilson@schoolware.com)</span>
+                    <i class="fas fa-backpack"></i>
+                    <span>james.wilson@student.schoolware.com</span>
                 </button>
+            </div>
+
+            <!-- Parent Card -->
+            <div class="login-card">
+                <div class="login-header">
+                    <h2><i class="fas fa-home"></i> Parent</h2>
+                </div>
                 <button type="button" class="quick-login-btn" onclick="quickLogin('parent.wilson@email.com', '1234')">
-                    <i class="fas fa-user-friends"></i>
-                    <span>Parent (parent.wilson@email.com)</span>
-                </button>
-                <button type="button" class="quick-login-btn" onclick="quickLogin('mary.johnson@schoolware.com', '1234')">
-                    <i class="fas fa-headset"></i>
-                    <span>Secretary (mary.johnson@schoolware.com)</span>
+                    <i class="fas fa-heart"></i>
+                    <span>parent.wilson@email.com</span>
                 </button>
             </div>
         </div>
     </div>
 
+    <script src="/app.js"></script>
     <script>
-        const schoolName = "St. Patrick's Comprehensive";
-        const apiBaseUrl = '/api';
-
-        async function handleLogin(event) {
-            event.preventDefault();
-            
+        function handleLogin(e) {
+            e.preventDefault();
             const email = document.getElementById('login-email').value;
-            const password = document.getElementById('login-password').value;
-            const submitBtn = document.querySelector('.btn-login-submit');
-            const errorMsg = document.getElementById('error-msg');
-            const successMsg = document.getElementById('success-msg');
-
-            // Show loading state
-            submitBtn.classList.add('loading');
-            submitBtn.disabled = true;
-
-            try {
-                const response = await fetch(`${apiBaseUrl}/auth/login`, {
-                    method: 'POST',
-                    headers: {
-                        'Content-Type': 'application/json'
-                    },
-                    body: JSON.stringify({
-                        email,
-                        password
-                    })
-                });
-
-                const data = await response.json();
-
-                if (!response.ok) {
-                    showError(data.message || 'Login failed. Please try again.');
-                    return;
-                }
-
-                // Store token
-                localStorage.setItem('token', data.token);
-                localStorage.setItem('user', JSON.stringify(data.user));
-                localStorage.setItem('userRole', data.user.role);
-                localStorage.setItem('userId', data.user._id);
-                localStorage.setItem('userName', `${data.user.firstName} ${data.user.lastName}`);
-
-                successMsg.textContent = 'Login successful! Redirecting...';
-                successMsg.classList.add('show');
-
-                // Redirect based on role
-                setTimeout(() => {
-                    window.location.pathname = '/shannoncomp/dashboard';
-                }, 1000);
-
-            } catch (error) {
-                console.error('Login error:', error);
-                showError('Network error. Please try again.');
-            } finally {
-                submitBtn.classList.remove('loading');
-                submitBtn.disabled = false;
-            }
+            const pin = document.getElementById('login-pin').value;
+            login(email, pin);
         }
-
-        async function quickLogin(email, password) {
-            document.getElementById('login-email').value = email;
-            document.getElementById('login-password').value = password;
-            
-            // Simulate form submission
-            const form = document.getElementById('login-form');
-            const event = new Event('submit', { bubbles: true });
-            form.dispatchEvent(event);
-        }
-
-        function showError(message) {
-            const errorMsg = document.getElementById('error-msg');
-            errorMsg.textContent = message;
-            errorMsg.classList.add('show');
-            
-            setTimeout(() => {
-                errorMsg.classList.remove('show');
-            }, 5000);
-        }
-
-        // Set school name from URL if available
-        window.addEventListener('load', () => {
-            const pathParts = window.location.pathname.split('/');
-            if (pathParts[1]) {
-                document.getElementById('school-name').textContent = schoolName;
-            }
-        });
     </script>
 </body>
 </html>
