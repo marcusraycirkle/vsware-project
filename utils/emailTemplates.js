@@ -1,10 +1,11 @@
 /**
  * Email templates for enrollment notifications
+ * Clean, professional design optimized for deliverability
  */
 
 const schoolInfo = {
   name: 'St. Patrick\'s Comprehensive School',
-  address: 'Shannon, Co. Clare, Ireland',
+  address: 'Bóthar Linne, Tullyvarraga, Shannon, Co. Clare, Ireland',
   eircode: 'V14 Y434',
   phone: '061-361428',
   rollNumber: '81007U',
@@ -13,18 +14,469 @@ const schoolInfo = {
 };
 
 const emailSender = 'enrolments@mispal.cirkledevelopment.co.uk';
-const schoolLogoUrl = 'https://www.stpatrickscomprehensive.ie/uploads/2/3/2/0/23206024/editor/st-patrick-s-comp-logo-layout-2-1.png?1564671961';
-// MISpal logo as inline SVG (no external dependency issues)
-const mispalLogoSvg = `<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 200 60" width="130" height="39">
-  <defs>
-    <linearGradient id="mispalGradient" x1="0%" y1="0%" x2="100%" y2="0%">
-      <stop offset="0%" style="stop-color:#ff6b9d;stop-opacity:1" />
-      <stop offset="100%" style="stop-color:#ff1744;stop-opacity:1" />
-    </linearGradient>
-  </defs>
-  <text x="10" y="45" font-family="Arial, sans-serif" font-size="42" font-weight="bold" fill="url(#mispalGradient)" letter-spacing="2">MISpal</text>
-</svg>`;
-const welcomeImageUrl = 'https://via.placeholder.com/600x300?text=Welcome+to+St.+Patrick%27s';
+
+/**
+ * Generate acceptance email HTML - Optimized for spam filter avoidance
+ */
+function generateAcceptanceEmailHTML(firstName, yearGroup) {
+  return `<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <meta http-equiv="X-UA-Compatible" content="IE=edge">
+  <title>Enrollment Approved</title>
+  <style>
+    body, table, td, div, p, a { -webkit-text-size-adjust: 100%; -ms-text-size-adjust: 100%; }
+    table, td { mso-table-lspace: 0pt; mso-table-rspace: 0pt; }
+    img { border: 0; outline: none; text-decoration: none; display: block; }
+    
+    body {
+      margin: 0;
+      padding: 0;
+      background-color: #ffffff;
+      font-family: Arial, Helvetica, sans-serif;
+      font-size: 14px;
+      line-height: 1.6;
+      color: #333333;
+    }
+    
+    .email-wrapper {
+      width: 100%;
+      max-width: 600px;
+      margin: 0 auto;
+      background-color: #ffffff;
+    }
+    
+    .header {
+      background-color: #1a3a52;
+      padding: 30px 20px;
+      text-align: center;
+      border-bottom: 4px solid #2ecc71;
+    }
+    
+    .header h1 {
+      margin: 0;
+      color: #ffffff;
+      font-size: 26px;
+      font-weight: bold;
+      letter-spacing: 0.5px;
+    }
+    
+    .header p {
+      margin: 8px 0 0 0;
+      color: #e8f4f8;
+      font-size: 13px;
+    }
+    
+    .content {
+      padding: 30px 25px;
+    }
+    
+    .greeting {
+      font-size: 16px;
+      font-weight: bold;
+      color: #1a3a52;
+      margin-bottom: 12px;
+    }
+    
+    .intro-text {
+      font-size: 14px;
+      line-height: 1.7;
+      color: #333333;
+      margin-bottom: 15px;
+    }
+    
+    .status-badge {
+      display: inline-block;
+      background-color: #2ecc71;
+      color: white;
+      padding: 8px 16px;
+      border-radius: 4px;
+      font-weight: bold;
+      font-size: 12px;
+      margin: 15px 0;
+    }
+    
+    .info-box {
+      background-color: #f0f8f4;
+      border-left: 4px solid #2ecc71;
+      padding: 15px;
+      margin: 20px 0;
+      border-radius: 4px;
+    }
+    
+    .info-box h3 {
+      margin: 0 0 10px 0;
+      color: #1a3a52;
+      font-size: 14px;
+      font-weight: bold;
+    }
+    
+    .info-box p {
+      margin: 8px 0;
+      color: #333333;
+      font-size: 13px;
+      line-height: 1.6;
+    }
+    
+    .next-steps {
+      background-color: #e8f5e9;
+      border-left: 4px solid #1a3a52;
+      padding: 15px;
+      margin: 20px 0;
+      border-radius: 4px;
+    }
+    
+    .next-steps h3 {
+      margin: 0 0 10px 0;
+      color: #1a3a52;
+      font-size: 14px;
+      font-weight: bold;
+    }
+    
+    .next-steps ol {
+      margin: 0;
+      padding-left: 20px;
+      color: #333333;
+      font-size: 13px;
+    }
+    
+    .next-steps li {
+      margin-bottom: 8px;
+      line-height: 1.6;
+    }
+    
+    .footer {
+      background-color: #1a3a52;
+      color: #ffffff;
+      padding: 25px;
+      text-align: center;
+      font-size: 12px;
+      line-height: 1.6;
+      border-top: 4px solid #2ecc71;
+    }
+    
+    .footer h3 {
+      margin: 0 0 12px 0;
+      font-size: 14px;
+      font-weight: bold;
+    }
+    
+    .footer p {
+      margin: 5px 0;
+    }
+    
+    .divider {
+      border-bottom: 1px solid #333333;
+      margin: 12px 0;
+    }
+    
+    .footer-links {
+      margin-top: 10px;
+    }
+    
+    .footer-links a {
+      color: #5dade2;
+      text-decoration: none;
+      margin: 0 8px;
+      font-size: 12px;
+    }
+  </style>
+</head>
+<body>
+  <table class="email-wrapper" width="100%" cellpadding="0" cellspacing="0" role="presentation">
+    <tr>
+      <td align="center">
+        <table width="100%" cellpadding="0" cellspacing="0" role="presentation">
+          <!-- Header -->
+          <tr>
+            <td class="header">
+              <h1>✓ Enrollment Approved</h1>
+              <p>Congratulations! Your place is confirmed at St. Patrick's Comprehensive School</p>
+            </td>
+          </tr>
+          
+          <!-- Content -->
+          <tr>
+            <td class="content">
+              <div class="greeting">Hello ${firstName},</div>
+              
+              <div class="intro-text">
+                <p>We are delighted to inform you that <strong>your enrollment application has been approved!</strong></p>
+                <p>Your place at St. Patrick's Comprehensive School is now confirmed, and we look forward to welcoming you to our community.</p>
+              </div>
+              
+              <div style="text-align: center;">
+                <span class="status-badge">✓ ADMISSION APPROVED</span>
+              </div>
+              
+              <div class="info-box">
+                <h3>What's Next</h3>
+                <p>Your credentials and welcome packet will be sent to you shortly. Keep an eye on your email for important updates about your induction and orientation program.</p>
+              </div>
+              
+              <div class="next-steps">
+                <h3>Key Steps in Your Journey</h3>
+                <ol>
+                  <li><strong>Induction Day:</strong> Watch for announcements about our 2-day induction program where you'll tour the school and explore subject options.</li>
+                  <li><strong>Subject Selection:</strong> You'll receive an option form – choose your favorite subjects wisely!</li>
+                  <li><strong>Final Setup:</strong> Once completed, you'll get your Microsoft account details, MISpal login, and all important information.</li>
+                </ol>
+              </div>
+              
+              <div class="intro-text">
+                <p style="margin-bottom: 0;"><strong>Any questions?</strong> Feel free to reach out to us anytime. We're here to help!</p>
+              </div>
+            </td>
+          </tr>
+          
+          <!-- Footer -->
+          <tr>
+            <td class="footer">
+              <h3>St. Patrick's Comprehensive School</h3>
+              <p>Bóthar Linne, Tullyvarraga<br/>Shannon, Co. Clare, Ireland<br/>V14 Y434</p>
+              <p>📞 061-361428 | 📧 info@shannoncomp.ie</p>
+              <p style="font-size: 11px; color: #999999;">Roll Number: 81007U</p>
+              <div class="divider"></div>
+              <div class="footer-links">
+                <a href="https://www.stpatrickscomprehensive.ie/">Website</a> • 
+                <a href="mailto:info@shannoncomp.ie">Email</a>
+              </div>
+              <p style="font-size: 11px; color: #888888; margin-top: 10px; font-style: italic;">Powered by MISpal Enrollment System</p>
+            </td>
+          </tr>
+        </table>
+      </td>
+    </tr>
+  </table>
+</body>
+</html>`;
+}
+
+/**
+ * Generate rejection email HTML - Professional, compassionate tone
+ */
+function generateRejectionEmailHTML(firstName, declineReason) {
+  return `<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <meta http-equiv="X-UA-Compatible" content="IE=edge">
+  <title>Application Status</title>
+  <style>
+    body, table, td, div, p, a { -webkit-text-size-adjust: 100%; -ms-text-size-adjust: 100%; }
+    table, td { mso-table-lspace: 0pt; mso-table-rspace: 0pt; }
+    img { border: 0; outline: none; text-decoration: none; display: block; }
+    
+    body {
+      margin: 0;
+      padding: 0;
+      background-color: #ffffff;
+      font-family: Arial, Helvetica, sans-serif;
+      font-size: 14px;
+      line-height: 1.6;
+      color: #333333;
+    }
+    
+    .email-wrapper {
+      width: 100%;
+      max-width: 600px;
+      margin: 0 auto;
+      background-color: #ffffff;
+    }
+    
+    .header {
+      background-color: #1a3a52;
+      padding: 30px 20px;
+      text-align: center;
+      border-bottom: 4px solid #c0392b;
+    }
+    
+    .header h1 {
+      margin: 0;
+      color: #ffffff;
+      font-size: 24px;
+      font-weight: bold;
+      letter-spacing: 0.5px;
+    }
+    
+    .header p {
+      margin: 8px 0 0 0;
+      color: #e8f4f8;
+      font-size: 13px;
+    }
+    
+    .content {
+      padding: 30px 25px;
+    }
+    
+    .greeting {
+      font-size: 16px;
+      font-weight: bold;
+      color: #1a3a52;
+      margin-bottom: 12px;
+    }
+    
+    .message-text {
+      font-size: 14px;
+      line-height: 1.7;
+      color: #333333;
+      margin-bottom: 15px;
+    }
+    
+    .reason-box {
+      background-color: #fef5f5;
+      border-left: 4px solid #c0392b;
+      padding: 15px;
+      margin: 20px 0;
+      border-radius: 4px;
+    }
+    
+    .reason-box h3 {
+      margin: 0 0 10px 0;
+      color: #c0392b;
+      font-size: 14px;
+      font-weight: bold;
+    }
+    
+    .reason-box p {
+      margin: 0;
+      color: #333333;
+      font-size: 13px;
+      line-height: 1.6;
+    }
+    
+    .next-steps {
+      background-color: #f0f8f4;
+      border-left: 4px solid #1a3a52;
+      padding: 15px;
+      margin: 20px 0;
+      border-radius: 4px;
+    }
+    
+    .next-steps h3 {
+      margin: 0 0 10px 0;
+      color: #1a3a52;
+      font-size: 14px;
+      font-weight: bold;
+    }
+    
+    .next-steps p {
+      margin: 8px 0;
+      color: #333333;
+      font-size: 13px;
+      line-height: 1.6;
+    }
+    
+    .footer {
+      background-color: #1a3a52;
+      color: #ffffff;
+      padding: 25px;
+      text-align: center;
+      font-size: 12px;
+      line-height: 1.6;
+      border-top: 4px solid #c0392b;
+    }
+    
+    .footer h3 {
+      margin: 0 0 12px 0;
+      font-size: 14px;
+      font-weight: bold;
+    }
+    
+    .footer p {
+      margin: 5px 0;
+    }
+    
+    .divider {
+      border-bottom: 1px solid #333333;
+      margin: 12px 0;
+    }
+    
+    .footer-links {
+      margin-top: 10px;
+    }
+    
+    .footer-links a {
+      color: #5dade2;
+      text-decoration: none;
+      margin: 0 8px;
+      font-size: 12px;
+    }
+  </style>
+</head>
+<body>
+  <table class="email-wrapper" width="100%" cellpadding="0" cellspacing="0" role="presentation">
+    <tr>
+      <td align="center">
+        <table width="100%" cellpadding="0" cellspacing="0" role="presentation">
+          <!-- Header -->
+          <tr>
+            <td class="header">
+              <h1>Application Status Update</h1>
+              <p>Regarding your enrollment application to St. Patrick's Comprehensive School</p>
+            </td>
+          </tr>
+          
+          <!-- Content -->
+          <tr>
+            <td class="content">
+              <div class="greeting">Hello ${firstName},</div>
+              
+              <div class="message-text">
+                <p>Thank you for your interest in St. Patrick's Comprehensive School and for submitting your enrollment application. We appreciate the time and care you took with your submission.</p>
+                <p style="margin-top: 12px;">After careful review, we regret to inform you that your application has not been accepted at this time.</p>
+              </div>
+              
+              <div class="reason-box">
+                <h3>Reason for Decline</h3>
+                <p>${declineReason}</p>
+              </div>
+              
+              <div class="next-steps">
+                <h3>Next Steps</h3>
+                <p>If you would like to discuss this decision further or have questions about the reason for decline, we encourage you to contact our admissions office. We're happy to provide feedback and discuss any alternative pathways.</p>
+                <p style="margin-top: 10px;"><strong>Contact Us:</strong><br/>📞 061-361428<br/>📧 info@shannoncomp.ie</p>
+              </div>
+              
+              <div class="message-text">
+                <p style="margin-bottom: 0;">We wish you all the best with your educational journey and hope you find a school that is the perfect fit for you.</p>
+              </div>
+            </td>
+          </tr>
+          
+          <!-- Footer -->
+          <tr>
+            <td class="footer">
+              <h3>St. Patrick's Comprehensive School</h3>
+              <p>Bóthar Linne, Tullyvarraga<br/>Shannon, Co. Clare, Ireland<br/>V14 Y434</p>
+              <p>📞 061-361428 | 📧 info@shannoncomp.ie</p>
+              <p style="font-size: 11px; color: #999999;">Roll Number: 81007U</p>
+              <div class="divider"></div>
+              <div class="footer-links">
+                <a href="https://www.stpatrickscomprehensive.ie/">Website</a> • 
+                <a href="mailto:info@shannoncomp.ie">Email</a>
+              </div>
+              <p style="font-size: 11px; color: #888888; margin-top: 10px; font-style: italic;">Powered by MISpal Enrollment System</p>
+            </td>
+          </tr>
+        </table>
+      </td>
+    </tr>
+  </table>
+</body>
+</html>`;
+}
+
+module.exports = {
+  generateAcceptanceEmailHTML,
+  generateRejectionEmailHTML,
+  schoolInfo,
+  emailSender
+};
+
 
 /**
  * Generate acceptance email HTML
@@ -470,6 +922,5 @@ module.exports = {
   generateAcceptanceEmailHTML,
   generateRejectionEmailHTML,
   schoolInfo,
-  emailSender,
-  mispalLogoSvg
+  emailSender
 };
