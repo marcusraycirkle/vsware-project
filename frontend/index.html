@@ -274,18 +274,6 @@
         <!-- Sidebar Navigation (Modern) -->
         <aside class="dashboard-sidebar" id="dashboard-sidebar">
             <nav class="sidebar-nav">
-                <!-- Notifications Section at Top -->
-                <div class="sidebar-notifications">
-                    <div class="sidebar-section-header">
-                        <i class="fas fa-bell"></i> Notifications
-                    </div>
-                    <div id="sidebar-notifications-list" class="notifications-list">
-                        <div class="notification-item empty">
-                            <p>No new notifications</p>
-                        </div>
-                    </div>
-                </div>
-
                 <!-- Navigation Sections -->
                 <div class="nav-section">
                     <div class="nav-section-title">Dashboard</div>
@@ -477,6 +465,26 @@
                                         <small>2 hours ago</small>
                                     </div>
                                 </div>
+                            </div>
+                        </div>
+                        
+                        <div class="card">
+                            <div class="card-header">
+                                <h2><i class="fas fa-tasks"></i> Quick Actions</h2>
+                            </div>
+                            <div class="quick-actions">
+                                <button class="action-btn" onclick="showSection('students', 'attendance')">
+                                    <i class="fas fa-clipboard-check"></i> Take Attendance
+                                </button>
+                                <button class="action-btn" onclick="showSection('students', 'behavior')">
+                                    <i class="fas fa-plus-circle"></i> Log Behavior
+                                </button>
+                                <button class="action-btn" onclick="showSection('messages', 'compose')">
+                                    <i class="fas fa-envelope"></i> Send Message
+                                </button>
+                                <button class="action-btn" onclick="showSection('rooms', 'booking')">
+                                    <i class="fas fa-calendar-plus"></i> Book Room
+                                </button>
                             </div>
                         </div>
                     </div>
