@@ -112,6 +112,11 @@ app.use(cors(corsOptions));
 app.use(express.json());
 app.use(express.urlencoded({ extended: true }));
 
+// Root route for loading screen - MUST be before static middleware
+app.get('/', (req, res) => {
+  res.sendFile(path.join(__dirname, 'frontend', 'loading.html'));
+});
+
 // Serve static files FIRST (before any middleware that could fail)
 app.use(express.static(path.join(__dirname, 'frontend'), {
   maxAge: '1h',
@@ -214,11 +219,6 @@ app.get('/shannoncomp/enrolment', (req, res) => {
 // Dashboard routes (all serve index.html for client-side routing)
 app.get('/shannoncomp/*', (req, res) => {
   res.sendFile(path.join(__dirname, 'frontend', 'index.html'));
-});
-
-// Root serves loading screen with video
-app.get('/', (req, res) => {
-  res.sendFile(path.join(__dirname, 'frontend', 'loading.html'));
 });
 
 // Catch all 404 - serve landing page (this should be LAST)
