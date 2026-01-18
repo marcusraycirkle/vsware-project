@@ -168,37 +168,47 @@ router.put('/:id/approve', auth, authorize('admin', 'principal'), async (req, re
     console.log('=== APPROVAL START ===');
     console.log('Enrollment ID:', req.params.id);
     console.log('User ID:', req.userId);
+    console.log('User object:', req.user);
     
     const enrollment = await Enrollment.findById(req.params.id);
     console.log('Enrollment found:', !!enrollment);
     
     if (!enrollment) {
+      console.log('404: Enrollment not found');
       return res.status(404).json({ success: false, message: 'Enrollment not found' });
     }
 
+    console.log('Enrollment status:', enrollment.status);
     if (enrollment.status !== 'Pending') {
+      console.log('400: Cannot approve - already ' + enrollment.status);
       return res.status(400).json({ success: false, message: `Cannot approve: status is ${enrollment.status}` });
     }
 
-    // Mark as approved (simple first)
+    console.log('About to update enrollment...');
     enrollment.status = 'Approved';
     enrollment.approvedBy = req.userId;
     enrollment.approvalDate = new Date();
-    await enrollment.save();
-    console.log('Enrollment marked as approved');
+    console.log('Calling save()...');
+    const savedEnrollment = await enrollment.save();
+    console.log('Save completed successfully');
+    console.log('Saved enrollment:', savedEnrollment._id);
 
+    console.log('Sending response...');
     res.json({
       success: true,
       message: 'Enrollment approved',
-      enrollment
+      enrollment: savedEnrollment
     });
   } catch (error) {
-    console.error('ERROR:', error.message);
+    console.error('ERROR in approval endpoint:', error.message);
+    console.error('Error name:', error.name);
     console.error('Stack:', error.stack);
+    console.error('Full error:', JSON.stringify(error, null, 2));
     res.status(500).json({
       success: false,
       message: error.message,
-      error: error.toString()
+      error: error.toString(),
+      errorName: error.name
     });
   }
 });
