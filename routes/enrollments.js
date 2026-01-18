@@ -196,12 +196,7 @@ router.put('/:id/approve', auth, authorize('admin', 'principal'), async (req, re
         phoneNumber: enrollment.phone,
         address: enrollment.address || {}
       });
-      try {
-        await user.save();
-      } catch (userError) {
-        console.error('Error creating user:', userError);
-        throw new Error(`Failed to create user account: ${userError.message}`);
-      }
+      await user.save();
     }
 
     // Create student profile
@@ -217,21 +212,16 @@ router.put('/:id/approve', auth, authorize('admin', 'principal'), async (req, re
       currentYear: enrollment.yearGroup || 1,
       yearGroup: yearName,
       yearName: yearName,
-      house: 'Bride', // Default house, can be updated later
+      house: 'Bride',
       admissionDate: new Date(),
       status: 'Active',
       pps: enrollment.pps,
       medicalInfo: enrollment.medicalInfo,
-      previousSchool: enrollment.previousSchool,
+      previousSchool: enrollment.previousSchool || {},
       notes: enrollment.notes ? [{ content: enrollment.notes, createdBy: req.userId, createdAt: new Date() }] : []
     });
 
-    try {
-      await student.save();
-    } catch (studentError) {
-      console.error('Error creating student:', studentError);
-      throw new Error(`Failed to create student profile: ${studentError.message}`);
-    }
+    await student.save();
 
     // Link student to user
     user.studentProfile = student._id;
@@ -244,21 +234,15 @@ router.put('/:id/approve', auth, authorize('admin', 'principal'), async (req, re
     enrollment.student = student._id;
     await enrollment.save();
 
-    // Log approval to Google Sheets
-    try {
-      await logStatusChangeToSheets(enrollment, 'approve');
-    } catch (sheetsError) {
-      console.warn('Failed to log approval to Google Sheets:', sheetsError.message);
-    }
+    // Log approval to Google Sheets (non-blocking)
+    logStatusChangeToSheets(enrollment, 'approve').catch(err => {
+      console.warn('Failed to log to Google Sheets:', err.message);
+    });
 
-    // Send acceptance email
-    try {
-      await sendAcceptanceEmail(enrollment.email, enrollment.firstName, enrollment.yearGroup);
-      console.log('Acceptance email sent to:', enrollment.email);
-    } catch (emailError) {
-      console.warn('Failed to send acceptance email:', emailError.message);
-      // Don't fail the approval if email sending fails
-    }
+    // Send acceptance email (non-blocking)
+    sendAcceptanceEmail(enrollment.email, enrollment.firstName, enrollment.yearGroup).catch(err => {
+      console.warn('Failed to send email:', err.message);
+    });
 
     res.json({
       success: true,
@@ -270,7 +254,7 @@ router.put('/:id/approve', auth, authorize('admin', 'principal'), async (req, re
     console.error('Error approving enrollment:', error);
     res.status(500).json({
       success: false,
-      message: 'Server error',
+      message: 'Server error approving enrollment',
       error: error.message
     });
   }
@@ -313,21 +297,15 @@ router.put('/:id/decline', auth, authorize('admin', 'principal'), async (req, re
     enrollment.declineDate = new Date();
     await enrollment.save();
 
-    // Log decline to Google Sheets
-    try {
-      await logStatusChangeToSheets(enrollment, 'decline', { reason });
-    } catch (sheetsError) {
-      console.warn('Failed to log decline to Google Sheets:', sheetsError.message);
-    }
+    // Log decline to Google Sheets (non-blocking)
+    logStatusChangeToSheets(enrollment, 'decline', { reason }).catch(err => {
+      console.warn('Failed to log to Google Sheets:', err.message);
+    });
 
-    // Send rejection email
-    try {
-      await sendRejectionEmail(enrollment.email, enrollment.firstName, reason);
-      console.log('Rejection email sent to:', enrollment.email);
-    } catch (emailError) {
-      console.warn('Failed to send rejection email:', emailError.message);
-      // Don't fail the decline if email sending fails
-    }
+    // Send rejection email (non-blocking)
+    sendRejectionEmail(enrollment.email, enrollment.firstName, reason).catch(err => {
+      console.warn('Failed to send email:', err.message);
+    });
 
     res.json({
       success: true,
