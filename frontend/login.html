@@ -241,13 +241,6 @@
             transform: translateX(2px);
         }
 
-        .role-info {
-            font-size: 0.8rem;
-            color: #a0aec0;
-            text-align: center;
-            margin-top: 0.5rem;
-        }
-
         .error-message {
             background: #fed7d7;
             color: #c53030;
@@ -344,27 +337,13 @@
             
             <form id="login-form" class="login-form" onsubmit="handleLogin(event)">
                 <div class="input-group">
-                    <label><i class="fas fa-user"></i> Select Your Role</label>
-                    <select id="login-role" required onchange="updateRoleInfo()">
-                        <option value="">-- Choose your role --</option>
-                        <option value="admin">Administrator</option>
-                        <option value="principal">Principal</option>
-                        <option value="secretary">Secretary</option>
-                        <option value="teacher">Teacher</option>
-                        <option value="parent">Parent</option>
-                        <option value="student">Student</option>
-                    </select>
-                    <div class="role-info" id="role-info"></div>
-                </div>
-
-                <div class="input-group">
                     <label><i class="fas fa-envelope"></i> Email Address</label>
                     <input type="email" id="login-email" placeholder="your.email@school.ie" required autocomplete="username">
                 </div>
                 
                 <div class="input-group">
-                    <label><i class="fas fa-lock"></i> PIN Code</label>
-                    <input type="password" id="login-pin" placeholder="Enter your PIN" maxlength="6" required autocomplete="current-password">
+                    <label><i class="fas fa-lock"></i> Password</label>
+                    <input type="password" id="login-password" placeholder="Enter your password" required autocomplete="current-password">
                 </div>
                 
                 <button type="submit" class="btn-login-submit">
@@ -376,23 +355,23 @@
             <div class="login-divider">Quick Login (Demo)</div>
             
             <div class="quick-login-grid">
-                <button type="button" class="quick-login-btn" onclick="quickLogin('admin@schoolware.com', '1234', 'admin')">
+                <button type="button" class="quick-login-btn" onclick="quickLogin('admin@schoolware.com', '1234')">
                     <i class="fas fa-user-tie"></i>
                     <span>Admin (admin@schoolware.com)</span>
                 </button>
-                <button type="button" class="quick-login-btn" onclick="quickLogin('john.smith@schoolware.com', '1234', 'teacher')">
+                <button type="button" class="quick-login-btn" onclick="quickLogin('john.smith@schoolware.com', '1234')">
                     <i class="fas fa-chalkboard-teacher"></i>
                     <span>Teacher (john.smith@schoolware.com)</span>
                 </button>
-                <button type="button" class="quick-login-btn" onclick="quickLogin('james.wilson@student.schoolware.com', '1234', 'student')">
+                <button type="button" class="quick-login-btn" onclick="quickLogin('james.wilson@student.schoolware.com', '1234')">
                     <i class="fas fa-user-graduate"></i>
                     <span>Student (james.wilson@schoolware.com)</span>
                 </button>
-                <button type="button" class="quick-login-btn" onclick="quickLogin('parent.wilson@email.com', '1234', 'parent')">
+                <button type="button" class="quick-login-btn" onclick="quickLogin('parent.wilson@email.com', '1234')">
                     <i class="fas fa-user-friends"></i>
                     <span>Parent (parent.wilson@email.com)</span>
                 </button>
-                <button type="button" class="quick-login-btn" onclick="quickLogin('mary.johnson@schoolware.com', '1234', 'secretary')">
+                <button type="button" class="quick-login-btn" onclick="quickLogin('mary.johnson@schoolware.com', '1234')">
                     <i class="fas fa-headset"></i>
                     <span>Secretary (mary.johnson@schoolware.com)</span>
                 </button>
@@ -404,36 +383,14 @@
         const schoolName = "St. Patrick's Comprehensive";
         const apiBaseUrl = '/api';
 
-        function updateRoleInfo() {
-            const role = document.getElementById('login-role').value;
-            const infoEl = document.getElementById('role-info');
-            
-            const roleInfo = {
-                admin: 'Full system access with administrative powers',
-                principal: 'Principal access to all school data and reports',
-                secretary: 'Administrative and secretarial functions',
-                teacher: 'Access to your classes and student information',
-                parent: 'View your child\'s academic progress and attendance',
-                student: 'Access your timetable, assignments, and grades'
-            };
-
-            infoEl.textContent = roleInfo[role] || '';
-        }
-
         async function handleLogin(event) {
             event.preventDefault();
             
             const email = document.getElementById('login-email').value;
-            const pin = document.getElementById('login-pin').value;
-            const role = document.getElementById('login-role').value;
+            const password = document.getElementById('login-password').value;
             const submitBtn = document.querySelector('.btn-login-submit');
             const errorMsg = document.getElementById('error-msg');
             const successMsg = document.getElementById('success-msg');
-
-            if (!role) {
-                showError('Please select your role');
-                return;
-            }
 
             // Show loading state
             submitBtn.classList.add('loading');
@@ -447,8 +404,7 @@
                     },
                     body: JSON.stringify({
                         email,
-                        password: pin,
-                        role
+                        password
                     })
                 });
 
@@ -461,7 +417,7 @@
 
                 // Store token
                 localStorage.setItem('token', data.token);
-                localStorage.setItem('userRole', role);
+                localStorage.setItem('userRole', data.user.role);
                 localStorage.setItem('userId', data.user._id);
                 localStorage.setItem('userName', `${data.user.firstName} ${data.user.lastName}`);
 
@@ -482,11 +438,9 @@
             }
         }
 
-        async function quickLogin(email, pin, role) {
+        async function quickLogin(email, password) {
             document.getElementById('login-email').value = email;
-            document.getElementById('login-pin').value = pin;
-            document.getElementById('login-role').value = role;
-            updateRoleInfo();
+            document.getElementById('login-password').value = password;
             
             // Simulate form submission
             const form = document.getElementById('login-form');
