@@ -187,7 +187,9 @@ app.get('/shannoncomp/login', (req, res) => {
 
 app.get('/shannoncomp/enrolment', (req, res) => {
   res.sendFile(__dirname + '/frontend/enrolment.html');
-});Admin portal route
+});
+
+// Admin portal route
 app.get('/admin', (req, res) => {
   res.sendFile(__dirname + '/frontend/admin-portal.html');
 });
@@ -195,8 +197,6 @@ app.get('/admin', (req, res) => {
 app.get('/admin/*', (req, res) => {
   res.sendFile(__dirname + '/frontend/admin-portal.html');
 });
-
-// 
 
 // Dashboard routes (all serve index.html for client-side routing)
 app.get('/shannoncomp/*', (req, res) => {
