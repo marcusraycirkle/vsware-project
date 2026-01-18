@@ -1,0 +1,430 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Assessments - MISpal Parent Portal</title>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
+    <style>
+        :root {
+            --primary: #4F46E5;
+            --secondary: #10B981;
+            --danger: #EF4444;
+            --warning: #F59E0B;
+            --text-primary: #1F2937;
+            --text-secondary: #6B7280;
+            --bg-primary: #FFFFFF;
+            --bg-secondary: #F9FAFB;
+            --border: #E5E7EB;
+        }
+
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'Inter', sans-serif;
+            background: var(--bg-secondary);
+            color: var(--text-primary);
+        }
+
+        .assessments-page {
+            min-height: 100vh;
+            padding: 2rem;
+            max-width: 1200px;
+            margin: 0 auto;
+        }
+
+        .page-header {
+            background: white;
+            border-radius: 12px;
+            padding: 2rem;
+            margin-bottom: 2rem;
+            border: 1px solid var(--border);
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+
+        .page-title {
+            font-size: 2rem;
+            font-weight: 700;
+            color: var(--primary);
+        }
+
+        .back-btn {
+            padding: 0.75rem 1.5rem;
+            background: var(--text-secondary);
+            color: white;
+            border: none;
+            border-radius: 6px;
+            cursor: pointer;
+            font-weight: 600;
+        }
+
+        .assessment-type-selector {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(150px, 1fr));
+            gap: 1rem;
+            margin-bottom: 2rem;
+        }
+
+        .type-btn {
+            padding: 1rem;
+            background: white;
+            border: 2px solid var(--border);
+            border-radius: 8px;
+            cursor: pointer;
+            font-weight: 600;
+            transition: all 0.3s;
+            text-align: center;
+        }
+
+        .type-btn:hover,
+        .type-btn.active {
+            border-color: var(--primary);
+            background: var(--primary);
+            color: white;
+        }
+
+        .card {
+            background: white;
+            border-radius: 12px;
+            padding: 2rem;
+            border: 1px solid var(--border);
+            margin-bottom: 2rem;
+        }
+
+        .card-title {
+            font-size: 1.25rem;
+            font-weight: 700;
+            margin-bottom: 1.5rem;
+            color: var(--text-primary);
+        }
+
+        .assessment-item {
+            padding: 1.5rem;
+            background: var(--bg-secondary);
+            border-radius: 8px;
+            margin-bottom: 1rem;
+            cursor: pointer;
+            transition: all 0.3s;
+        }
+
+        .assessment-item:hover {
+            background: #E5E7EB;
+        }
+
+        .assessment-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: start;
+            margin-bottom: 1rem;
+        }
+
+        .assessment-name {
+            font-weight: 700;
+            font-size: 1.1rem;
+            color: var(--text-primary);
+        }
+
+        .assessment-date {
+            color: var(--text-secondary);
+            font-size: 0.9rem;
+        }
+
+        .assessment-details {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(150px, 1fr));
+            gap: 1rem;
+            margin-top: 1rem;
+        }
+
+        .detail-item {
+            display: flex;
+            flex-direction: column;
+        }
+
+        .detail-label {
+            font-size: 0.85rem;
+            color: var(--text-secondary);
+            font-weight: 600;
+            margin-bottom: 0.25rem;
+        }
+
+        .detail-value {
+            font-size: 1rem;
+            font-weight: 600;
+            color: var(--text-primary);
+        }
+
+        .grade-badge {
+            display: inline-block;
+            padding: 0.5rem 1rem;
+            border-radius: 6px;
+            font-weight: 700;
+            font-size: 0.9rem;
+        }
+
+        .grade-distinction {
+            background: #D1FAE5;
+            color: #065F46;
+        }
+
+        .grade-merit {
+            background: #DBEAFE;
+            color: #1E40AF;
+        }
+
+        .grade-achieved {
+            background: #FED7AA;
+            color: #92400E;
+        }
+
+        .grade-partial {
+            background: #FEE2E2;
+            color: #991B1B;
+        }
+
+        .grade-ng {
+            background: #E5E7EB;
+            color: #374151;
+        }
+
+        .year-selector {
+            display: flex;
+            gap: 0.75rem;
+            flex-wrap: wrap;
+            margin-bottom: 1.5rem;
+        }
+
+        .year-option {
+            padding: 0.5rem 1rem;
+            background: var(--bg-secondary);
+            border: 2px solid var(--border);
+            border-radius: 6px;
+            cursor: pointer;
+            font-weight: 600;
+            transition: all 0.3s;
+        }
+
+        .year-option:hover,
+        .year-option.active {
+            border-color: var(--primary);
+            background: var(--primary);
+            color: white;
+        }
+
+        .subject-result {
+            padding: 1.5rem;
+            border: 1px solid var(--border);
+            border-radius: 8px;
+            margin-bottom: 1rem;
+        }
+
+        .subject-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 1rem;
+        }
+
+        .subject-name {
+            font-weight: 700;
+            font-size: 1.1rem;
+        }
+
+        .percentage-display {
+            font-size: 1.5rem;
+            font-weight: 700;
+            color: var(--primary);
+        }
+
+        .teacher-comment {
+            background: var(--bg-secondary);
+            padding: 1rem;
+            border-radius: 6px;
+            margin-top: 1rem;
+            border-left: 4px solid var(--primary);
+        }
+
+        .comment-label {
+            font-weight: 600;
+            color: var(--text-secondary);
+            font-size: 0.85rem;
+            margin-bottom: 0.5rem;
+        }
+
+        .comment-text {
+            color: var(--text-primary);
+            line-height: 1.6;
+        }
+
+        .no-results {
+            text-align: center;
+            padding: 3rem;
+            color: var(--text-secondary);
+        }
+
+        @media (max-width: 768px) {
+            .assessment-details {
+                grid-template-columns: 1fr;
+            }
+
+            .subject-header {
+                flex-direction: column;
+                align-items: start;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="assessments-page">
+        <div class="page-header">
+            <div>
+                <h1 class="page-title"><i class="fas fa-file-alt"></i> Assessments</h1>
+            </div>
+            <button class="back-btn" onclick="window.history.back()">
+                <i class="fas fa-arrow-left"></i> Back
+            </button>
+        </div>
+
+        <!-- Assessment Type Selector -->
+        <div class="assessment-type-selector">
+            <button class="type-btn active" onclick="selectAssessmentType('cba')">
+                <i class="fas fa-tasks"></i><br>CBAs
+            </button>
+            <button class="type-btn" onclick="selectAssessmentType('term')">
+                <i class="fas fa-calendar"></i><br>Term Assessments
+            </button>
+            <button class="type-btn" onclick="selectAssessmentType('class')">
+                <i class="fas fa-book-open"></i><br>Class Assessments
+            </button>
+            <button class="type-btn" onclick="selectAssessmentType('state')">
+                <i class="fas fa-graduation-cap"></i><br>State Exams
+            </button>
+        </div>
+
+        <!-- CBA Section -->
+        <div id="cba-section" class="card">
+            <div class="card-title">Continuous Based Assessments</div>
+            <div class="no-results">
+                <p><i class="fas fa-info-circle"></i> No CBA results available yet</p>
+            </div>
+        </div>
+
+        <!-- Term Assessments Section -->
+        <div id="term-section" class="card" style="display: none;">
+            <div class="card-title">Term Assessments - Christmas 2025/2026</div>
+            
+            <div class="year-selector">
+                <button class="year-option active" onclick="selectYear('current')">
+                    Christmas 2025/2026
+                </button>
+                <button class="year-option" onclick="selectYear('previous')">
+                    Summer 2025
+                </button>
+            </div>
+
+            <div id="term-results">
+                <div class="subject-result">
+                    <div class="subject-header">
+                        <div>
+                            <div class="subject-name">Irish</div>
+                            <div class="detail-label" style="margin-top: 0.5rem;">Higher Level</div>
+                        </div>
+                        <div style="text-align: right;">
+                            <div class="percentage-display">68%</div>
+                            <span class="grade-badge grade-merit">Merit</span>
+                        </div>
+                    </div>
+                    <div class="detail-item">
+                        <span class="detail-label">Teacher:</span>
+                        <span class="detail-value">Cathy Keane</span>
+                    </div>
+                    <div class="teacher-comment">
+                        <div class="comment-label">Teacher Comment</div>
+                        <div class="comment-text">Cory is an excellent student. Cory is working well in Irish and has gradually improved since his previous class exam. Well done Cory! To improve revise vocabulary and grammar rules in copy.</div>
+                    </div>
+                </div>
+
+                <div class="subject-result">
+                    <div class="subject-header">
+                        <div>
+                            <div class="subject-name">English</div>
+                            <div class="detail-label" style="margin-top: 0.5rem;">Higher Level</div>
+                        </div>
+                        <div style="text-align: right;">
+                            <div class="percentage-display">44%</div>
+                            <span class="grade-badge grade-achieved">Achieved</span>
+                        </div>
+                    </div>
+                    <div class="detail-item">
+                        <span class="detail-label">Teacher:</span>
+                        <span class="detail-value">Eimear McMahon</span>
+                    </div>
+                    <div class="teacher-comment">
+                        <div class="comment-label">Teacher Comment</div>
+                        <div class="comment-text">Good effort shown in class. Continue to focus on essay writing structure and vocabulary expansion.</div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Class Assessments Section -->
+        <div id="class-section" class="card" style="display: none;">
+            <div class="card-title">Class Assessments</div>
+            <div class="no-results">
+                <p><i class="fas fa-info-circle"></i> No class assessment results available yet</p>
+            </div>
+        </div>
+
+        <!-- State Exams Section -->
+        <div id="state-section" class="card" style="display: none;">
+            <div class="card-title">State Exams</div>
+            <div class="no-results">
+                <p><i class="fas fa-info-circle"></i> No state exam results available yet</p>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        function selectAssessmentType(type) {
+            // Hide all sections
+            document.querySelectorAll('[id$="-section"]').forEach(el => {
+                el.style.display = 'none';
+            });
+
+            // Show selected section
+            document.getElementById(type + '-section').style.display = 'block';
+
+            // Update button states
+            document.querySelectorAll('.type-btn').forEach(btn => {
+                btn.classList.remove('active');
+            });
+            event.target.closest('.type-btn').classList.add('active');
+        }
+
+        function selectYear(period) {
+            document.querySelectorAll('.year-option').forEach(btn => {
+                btn.classList.remove('active');
+            });
+            event.target.classList.add('active');
+
+            console.log('Selected year:', period);
+        }
+
+        function getGradeBadge(percentage) {
+            if (percentage >= 85) return '<span class="grade-badge grade-distinction">Distinction</span>';
+            if (percentage >= 70) return '<span class="grade-badge grade-merit">Merit</span>';
+            if (percentage >= 55) return '<span class="grade-badge grade-merit">Merit</span>';
+            if (percentage >= 40) return '<span class="grade-badge grade-achieved">Achieved</span>';
+            if (percentage >= 20) return '<span class="grade-badge grade-partial">Partially Achieved</span>';
+            return '<span class="grade-badge grade-ng">Not Graded</span>';
+        }
+    </script>
+</body>
+</html>

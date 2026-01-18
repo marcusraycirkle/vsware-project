@@ -1,0 +1,458 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Attendance - MISpal Parent Portal</title>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="/styles.css">
+    <script src="https://cdn.jsdelivr.net/npm/chart.js@3.9.1/dist/chart.min.js"></script>
+    <style>
+        :root {
+            --primary: #4F46E5;
+            --secondary: #10B981;
+            --danger: #EF4444;
+            --warning: #F59E0B;
+            --text-primary: #1F2937;
+            --text-secondary: #6B7280;
+            --bg-primary: #FFFFFF;
+            --bg-secondary: #F9FAFB;
+            --border: #E5E7EB;
+        }
+
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'Inter', sans-serif;
+            background: var(--bg-secondary);
+            color: var(--text-primary);
+        }
+
+        .attendance-page {
+            min-height: 100vh;
+            padding: 2rem;
+        }
+
+        .page-header {
+            background: white;
+            border-radius: 12px;
+            padding: 2rem;
+            margin-bottom: 2rem;
+            border: 1px solid var(--border);
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+
+        .page-title {
+            font-size: 2rem;
+            font-weight: 700;
+            color: var(--primary);
+        }
+
+        .back-btn {
+            padding: 0.75rem 1.5rem;
+            background: var(--text-secondary);
+            color: white;
+            border: none;
+            border-radius: 6px;
+            cursor: pointer;
+            font-weight: 600;
+            transition: all 0.3s;
+        }
+
+        .back-btn:hover {
+            background: #4B5563;
+        }
+
+        .stats-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+            gap: 1.5rem;
+            margin-bottom: 2rem;
+        }
+
+        .stat-card {
+            background: white;
+            border-radius: 12px;
+            padding: 1.5rem;
+            border: 1px solid var(--border);
+            text-align: center;
+        }
+
+        .stat-value {
+            font-size: 2.5rem;
+            font-weight: 700;
+            color: var(--primary);
+            margin: 1rem 0;
+        }
+
+        .stat-label {
+            color: var(--text-secondary);
+            font-size: 0.9rem;
+        }
+
+        .content-grid {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 2rem;
+            margin-bottom: 2rem;
+        }
+
+        .card {
+            background: white;
+            border-radius: 12px;
+            padding: 1.5rem;
+            border: 1px solid var(--border);
+        }
+
+        .card-title {
+            font-size: 1.25rem;
+            font-weight: 700;
+            margin-bottom: 1.5rem;
+            color: var(--text-primary);
+        }
+
+        .chart-container {
+            position: relative;
+            height: 300px;
+            margin-bottom: 1rem;
+        }
+
+        .filters {
+            display: flex;
+            gap: 1rem;
+            flex-wrap: wrap;
+            margin-bottom: 1.5rem;
+        }
+
+        .filter-btn {
+            padding: 0.5rem 1rem;
+            background: var(--bg-secondary);
+            border: 2px solid var(--border);
+            border-radius: 6px;
+            cursor: pointer;
+            font-weight: 600;
+            transition: all 0.3s;
+        }
+
+        .filter-btn.active {
+            background: var(--primary);
+            color: white;
+            border-color: var(--primary);
+        }
+
+        .filter-btn:hover {
+            border-color: var(--primary);
+        }
+
+        .attendance-table {
+            width: 100%;
+            border-collapse: collapse;
+        }
+
+        .attendance-table th {
+            background: var(--bg-secondary);
+            padding: 1rem;
+            text-align: left;
+            font-weight: 700;
+            border-bottom: 2px solid var(--border);
+        }
+
+        .attendance-table td {
+            padding: 1rem;
+            border-bottom: 1px solid var(--border);
+        }
+
+        .status-badge {
+            display: inline-block;
+            padding: 0.25rem 0.75rem;
+            border-radius: 20px;
+            font-size: 0.85rem;
+            font-weight: 600;
+        }
+
+        .status-present {
+            background: #D1FAE5;
+            color: #065F46;
+        }
+
+        .status-absent {
+            background: #FEE2E2;
+            color: #991B1B;
+        }
+
+        .status-partial {
+            background: #FEF3C7;
+            color: #92400E;
+        }
+
+        .absence-form {
+            margin-top: 2rem;
+        }
+
+        .form-group {
+            margin-bottom: 1.5rem;
+        }
+
+        .form-label {
+            display: block;
+            font-weight: 600;
+            margin-bottom: 0.5rem;
+            color: var(--text-primary);
+        }
+
+        .form-input,
+        .form-select,
+        .form-textarea {
+            width: 100%;
+            padding: 0.75rem;
+            border: 1px solid var(--border);
+            border-radius: 6px;
+            font-size: 1rem;
+            font-family: 'Inter', sans-serif;
+        }
+
+        .form-textarea {
+            resize: vertical;
+            min-height: 100px;
+        }
+
+        .submit-btn {
+            padding: 0.75rem 2rem;
+            background: var(--primary);
+            color: white;
+            border: none;
+            border-radius: 6px;
+            cursor: pointer;
+            font-weight: 600;
+            transition: all 0.3s;
+        }
+
+        .submit-btn:hover {
+            background: #4338CA;
+        }
+
+        @media (max-width: 1024px) {
+            .content-grid {
+                grid-template-columns: 1fr;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="attendance-page">
+        <div class="page-header">
+            <div>
+                <h1 class="page-title"><i class="fas fa-clipboard-check"></i> Attendance</h1>
+            </div>
+            <button class="back-btn" onclick="window.history.back()">
+                <i class="fas fa-arrow-left"></i> Back
+            </button>
+        </div>
+
+        <!-- Summary Stats -->
+        <div class="stats-grid">
+            <div class="stat-card">
+                <div class="stat-label">Present Days</div>
+                <div class="stat-value" id="present-days">67</div>
+                <small style="color: var(--text-secondary);">out of 163</small>
+            </div>
+            <div class="stat-card">
+                <div class="stat-label">Absent Days</div>
+                <div class="stat-value" id="absent-days">12</div>
+                <small style="color: var(--text-secondary);">out of 163</small>
+            </div>
+            <div class="stat-card">
+                <div class="stat-label">Partial Absences</div>
+                <div class="stat-value" id="partial-days">4</div>
+                <small style="color: var(--text-secondary);">out of 163</small>
+            </div>
+            <div class="stat-card">
+                <div class="stat-label">Attendance Rate</div>
+                <div class="stat-value" id="attendance-rate">87%</div>
+                <small style="color: var(--text-secondary);">This year</small>
+            </div>
+        </div>
+
+        <!-- Charts and Details -->
+        <div class="content-grid">
+            <div class="card">
+                <div class="card-title">Attendance Overview</div>
+                <div class="chart-container">
+                    <canvas id="attendanceChart"></canvas>
+                </div>
+            </div>
+
+            <div class="card">
+                <div class="card-title">Attendance by Month</div>
+                <div class="chart-container">
+                    <canvas id="monthlyChart"></canvas>
+                </div>
+            </div>
+        </div>
+
+        <!-- Filters and Attendance Table -->
+        <div class="card">
+            <div class="card-title">Detailed Attendance Records</div>
+            
+            <div class="filters">
+                <button class="filter-btn active" onclick="filterAttendance('all')">All</button>
+                <button class="filter-btn" onclick="filterAttendance('present')">Present</button>
+                <button class="filter-btn" onclick="filterAttendance('absent')">Absent</button>
+                <button class="filter-btn" onclick="filterAttendance('partial')">Partial</button>
+            </div>
+
+            <table class="attendance-table">
+                <thead>
+                    <tr>
+                        <th>Date</th>
+                        <th>Day</th>
+                        <th>Status</th>
+                        <th>Notes</th>
+                    </tr>
+                </thead>
+                <tbody id="attendance-tbody">
+                    <tr>
+                        <td>18 Jan 2026</td>
+                        <td>Friday</td>
+                        <td><span class="status-badge status-present">Present</span></td>
+                        <td>-</td>
+                    </tr>
+                    <tr>
+                        <td>17 Jan 2026</td>
+                        <td>Thursday</td>
+                        <td><span class="status-badge status-absent">Absent</span></td>
+                        <td>Sick leave (approved)</td>
+                    </tr>
+                    <tr>
+                        <td>16 Jan 2026</td>
+                        <td>Wednesday</td>
+                        <td><span class="status-badge status-present">Present</span></td>
+                        <td>-</td>
+                    </tr>
+                </tbody>
+            </table>
+        </div>
+
+        <!-- Submit Absence Form -->
+        <div class="card absence-form">
+            <div class="card-title">Submit Absence Request</div>
+            
+            <form onsubmit="submitAbsence(event)">
+                <div class="form-group">
+                    <label class="form-label">Date</label>
+                    <input type="date" class="form-input" id="absence-date" required>
+                </div>
+
+                <div class="form-group">
+                    <label class="form-label">Absence Type</label>
+                    <select class="form-select" id="absence-type" required>
+                        <option value="">Select type</option>
+                        <option value="sick">Sick Leave</option>
+                        <option value="medical">Medical Appointment</option>
+                        <option value="family">Family Matter</option>
+                        <option value="other">Other</option>
+                    </select>
+                </div>
+
+                <div class="form-group">
+                    <label class="form-label">Duration</label>
+                    <select class="form-select" id="absence-duration" required>
+                        <option value="">Select duration</option>
+                        <option value="full">Full Day</option>
+                        <option value="morning">Morning Only</option>
+                        <option value="afternoon">Afternoon Only</option>
+                    </select>
+                </div>
+
+                <div class="form-group">
+                    <label class="form-label">Reason/Notes</label>
+                    <textarea class="form-textarea" id="absence-reason" placeholder="Provide any additional details..." required></textarea>
+                </div>
+
+                <button type="submit" class="submit-btn">
+                    <i class="fas fa-paper-plane"></i> Submit Request
+                </button>
+            </form>
+        </div>
+    </div>
+
+    <script>
+        // Initialize charts
+        const ctx1 = document.getElementById('attendanceChart').getContext('2d');
+        new Chart(ctx1, {
+            type: 'doughnut',
+            data: {
+                labels: ['Present', 'Absent', 'Partial'],
+                datasets: [{
+                    data: [67, 12, 4],
+                    backgroundColor: ['#10B981', '#EF4444', '#F59E0B'],
+                    borderColor: ['#D1FAE5', '#FEE2E2', '#FEF3C7'],
+                    borderWidth: 2
+                }]
+            },
+            options: {
+                responsive: true,
+                maintainAspectRatio: false,
+                plugins: {
+                    legend: {
+                        position: 'bottom'
+                    }
+                }
+            }
+        });
+
+        const ctx2 = document.getElementById('monthlyChart').getContext('2d');
+        new Chart(ctx2, {
+            type: 'bar',
+            data: {
+                labels: ['Aug', 'Sep', 'Oct', 'Nov', 'Dec', 'Jan'],
+                datasets: [{
+                    label: 'Attendance %',
+                    data: [88, 86, 87, 84, 84, 87],
+                    backgroundColor: '#4F46E5',
+                    borderRadius: 6
+                }]
+            },
+            options: {
+                responsive: true,
+                maintainAspectRatio: false,
+                scales: {
+                    y: {
+                        max: 100,
+                        min: 0
+                    }
+                }
+            }
+        });
+
+        function filterAttendance(type) {
+            // Update active filter
+            document.querySelectorAll('.filter-btn').forEach(btn => {
+                btn.classList.remove('active');
+            });
+            event.target.classList.add('active');
+
+            console.log(`Filtering attendance by: ${type}`);
+        }
+
+        function submitAbsence(event) {
+            event.preventDefault();
+            const date = document.getElementById('absence-date').value;
+            const type = document.getElementById('absence-type').value;
+            const duration = document.getElementById('absence-duration').value;
+            const reason = document.getElementById('absence-reason').value;
+
+            console.log('Submitting absence:', { date, type, duration, reason });
+            alert('Absence request submitted successfully! This will be sent to the secretary for approval.');
+            event.target.reset();
+        }
+    </script>
+</body>
+</html>
