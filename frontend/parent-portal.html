@@ -3,10 +3,9 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>MISpal Parent Portal</title>
+    <title>Parent Portal - MISpal</title>
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
     <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
-    <link rel="stylesheet" href="/styles.css">
     <style>
         :root {
             --primary: #4F46E5;
@@ -18,6 +17,7 @@
             --bg-primary: #FFFFFF;
             --bg-secondary: #F9FAFB;
             --border: #E5E7EB;
+            --shadow: 0 1px 3px rgba(0, 0, 0, 0.1);
             --transition: all 0.3s ease;
         }
 
@@ -28,67 +28,92 @@
         }
 
         body {
-            font-family: 'Inter', sans-serif;
+            font-family: 'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif;
             background: var(--bg-secondary);
             color: var(--text-primary);
             line-height: 1.6;
         }
 
         .parent-portal {
+            display: flex;
             min-height: 100vh;
+        }
+
+        /* ========== SIDEBAR ========== */
+        .sidebar {
+            width: 280px;
+            background: var(--primary);
+            color: white;
+            padding: 2rem 1.5rem;
+            overflow-y: auto;
+            position: fixed;
+            height: 100vh;
+            left: 0;
+            top: 0;
+            box-shadow: 2px 0 10px rgba(0, 0, 0, 0.1);
+        }
+
+        .sidebar-header {
+            margin-bottom: 2rem;
+            padding-bottom: 1.5rem;
+            border-bottom: 1px solid rgba(255, 255, 255, 0.2);
+        }
+
+        .sidebar-logo {
+            font-size: 1.8rem;
+            font-weight: 700;
+            margin-bottom: 0.5rem;
+            display: flex;
+            align-items: center;
+            gap: 0.75rem;
+        }
+
+        .sidebar-user {
+            font-size: 0.9rem;
+            opacity: 0.9;
+        }
+
+        .sidebar-nav {
             display: flex;
             flex-direction: column;
+            gap: 0.5rem;
+            margin-bottom: 30rem;
         }
 
-        /* ========== HEADER ========== */
-        .parent-header {
-            background: white;
-            border-bottom: 1px solid var(--border);
-            padding: 1.5rem 2rem;
-            display: flex;
-            justify-content: space-between;
-            align-items: center;
-            box-shadow: 0 1px 3px rgba(0, 0, 0, 0.05);
-        }
-
-        .parent-header-left {
-            display: flex;
-            align-items: center;
-            gap: 1rem;
-        }
-
-        .parent-logo {
-            width: 40px;
-            height: 40px;
-            background: linear-gradient(135deg, var(--primary), var(--secondary));
-            border-radius: 8px;
-            display: flex;
-            align-items: center;
-            justify-content: center;
+        .sidebar-nav-item {
+            padding: 0.75rem 1rem;
+            border-radius: 6px;
+            cursor: pointer;
+            background: rgba(255, 255, 255, 0.1);
+            border: none;
             color: white;
-            font-weight: bold;
-            font-size: 1.2rem;
+            font-weight: 500;
+            transition: var(--transition);
+            text-align: left;
+            font-size: 0.95rem;
         }
 
-        .parent-title {
-            font-size: 1.5rem;
-            font-weight: 700;
-            color: var(--primary);
+        .sidebar-nav-item:hover,
+        .sidebar-nav-item.active {
+            background: rgba(255, 255, 255, 0.2);
         }
 
-        .parent-header-right {
-            display: flex;
-            align-items: center;
-            gap: 2rem;
+        .sidebar-nav-item i {
+            width: 20px;
+            margin-right: 0.5rem;
         }
 
-        .user-greeting {
-            font-size: 1rem;
-            color: var(--text-secondary);
+        .sidebar-logout {
+            position: fixed;
+            bottom: 2rem;
+            left: 1.5rem;
+            right: calc(1.5rem + 280px);
+            width: 247px;
         }
 
         .logout-btn {
-            padding: 0.5rem 1rem;
+            width: 100%;
+            padding: 0.75rem 1rem;
             background: var(--danger);
             color: white;
             border: none;
@@ -103,552 +128,748 @@
         }
 
         /* ========== MAIN CONTENT ========== */
-        .parent-content {
+        .main-content {
+            margin-left: 280px;
             flex: 1;
+            overflow-y: auto;
             padding: 2rem;
-            max-width: 1400px;
-            margin: 0 auto;
-            width: 100%;
         }
 
-        /* ========== GREETING ========== */
-        .greeting-section {
-            background: white;
-            border-radius: 12px;
-            padding: 2rem;
+        .content-header {
             margin-bottom: 2rem;
+        }
+
+        .content-header h1 {
+            font-size: 2rem;
+            margin-bottom: 0.5rem;
+        }
+
+        .content-header p {
+            color: var(--text-secondary);
+        }
+
+        /* ========== TAB SYSTEM ========== */
+        .tab-container {
+            display: none;
+        }
+
+        .tab-container.active {
+            display: block;
+        }
+
+        /* ========== CARDS ========== */
+        .card {
+            background: var(--bg-primary);
+            border: 1px solid var(--border);
+            border-radius: 8px;
+            padding: 1.5rem;
+            margin-bottom: 1.5rem;
+            box-shadow: var(--shadow);
+            transition: var(--transition);
+        }
+
+        .card:hover {
+            box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
+        }
+
+        .card-title {
+            font-size: 1.1rem;
+            font-weight: 600;
+            margin-bottom: 1rem;
+            display: flex;
+            align-items: center;
+            gap: 0.75rem;
+        }
+
+        /* ========== GRID LAYOUTS ========== */
+        .grid-3 {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+            gap: 1.5rem;
+            margin-bottom: 1.5rem;
+        }
+
+        .stat-box {
+            background: var(--bg-secondary);
+            padding: 1.5rem;
+            border-radius: 6px;
+            text-align: center;
             border: 1px solid var(--border);
         }
 
-        .greeting-text {
+        .stat-value {
             font-size: 2rem;
             font-weight: 700;
             color: var(--primary);
             margin-bottom: 0.5rem;
         }
 
-        .greeting-subtext {
-            color: var(--text-secondary);
-            font-size: 1rem;
-        }
-
-        /* ========== STUDENT SELECTOR ========== */
-        .student-selector-section {
-            background: white;
-            border-radius: 12px;
-            padding: 1.5rem;
-            margin-bottom: 2rem;
-            border: 1px solid var(--border);
-        }
-
-        .student-selector-label {
+        .stat-label {
             font-size: 0.9rem;
-            font-weight: 600;
             color: var(--text-secondary);
-            margin-bottom: 0.75rem;
-            text-transform: uppercase;
-            letter-spacing: 0.5px;
         }
 
-        .student-selector {
-            display: flex;
-            gap: 0.75rem;
-            flex-wrap: wrap;
-        }
-
-        .student-btn {
-            padding: 0.75rem 1.25rem;
-            background: var(--bg-secondary);
-            border: 2px solid var(--border);
-            border-radius: 8px;
-            cursor: pointer;
-            font-weight: 600;
-            color: var(--text-primary);
-            transition: var(--transition);
-        }
-
-        .student-btn:hover {
-            border-color: var(--primary);
-            background: white;
-        }
-
-        .student-btn.active {
-            background: var(--primary);
-            color: white;
-            border-color: var(--primary);
-        }
-
-        /* ========== WIDGETS GRID ========== */
-        .widgets-grid {
-            display: grid;
-            grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
-            gap: 1.5rem;
-            margin-bottom: 2rem;
-        }
-
-        .widget {
-            background: white;
-            border-radius: 12px;
+        /* ========== LISTS ========== */
+        .list-item {
             padding: 1.5rem;
             border: 1px solid var(--border);
-            box-shadow: 0 1px 3px rgba(0, 0, 0, 0.05);
-            cursor: pointer;
+            border-radius: 6px;
+            margin-bottom: 1rem;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
             transition: var(--transition);
         }
 
-        .widget:hover {
-            transform: translateY(-4px);
-            box-shadow: 0 10px 25px rgba(0, 0, 0, 0.08);
+        .list-item:hover {
+            background: var(--bg-secondary);
         }
 
-        .widget-icon {
-            font-size: 2.5rem;
-            margin-bottom: 1rem;
+        .list-item-content h3 {
+            font-size: 1rem;
+            margin-bottom: 0.25rem;
         }
 
-        .widget-title {
-            font-size: 1.1rem;
-            font-weight: 700;
-            color: var(--text-primary);
-            margin-bottom: 0.5rem;
-        }
-
-        .widget-subtitle {
+        .list-item-content p {
             font-size: 0.85rem;
             color: var(--text-secondary);
-            margin-bottom: 1rem;
         }
 
-        .widget-action {
-            display: inline-block;
+        .badge {
             padding: 0.5rem 1rem;
+            border-radius: 20px;
+            font-size: 0.85rem;
+            font-weight: 600;
+        }
+
+        .badge-success {
+            background: var(--secondary);
+            color: white;
+        }
+
+        .badge-warning {
+            background: var(--warning);
+            color: white;
+        }
+
+        .badge-danger {
+            background: var(--danger);
+            color: white;
+        }
+
+        .badge-info {
             background: var(--primary);
             color: white;
-            border-radius: 6px;
-            text-decoration: none;
-            font-weight: 600;
-            font-size: 0.9rem;
-            border: none;
-            cursor: pointer;
-            transition: var(--transition);
-        }
-
-        .widget-action:hover {
-            background: #4338CA;
-        }
-
-        /* ========== NOTIFICATION CENTER ========== */
-        .notification-center {
-            background: white;
-            border-radius: 12px;
-            padding: 1.5rem;
-            border: 1px solid var(--border);
-            margin-bottom: 2rem;
-        }
-
-        .notification-header {
-            display: flex;
-            justify-content: space-between;
-            align-items: center;
-            margin-bottom: 1rem;
-        }
-
-        .notification-title {
-            font-size: 1.2rem;
-            font-weight: 700;
-            color: var(--text-primary);
-        }
-
-        .see-all-btn {
-            color: var(--primary);
-            text-decoration: none;
-            font-weight: 600;
-            cursor: pointer;
-            transition: var(--transition);
-        }
-
-        .see-all-btn:hover {
-            text-decoration: underline;
-        }
-
-        .notifications-list {
-            display: flex;
-            flex-direction: column;
-            gap: 0.75rem;
-        }
-
-        .notification-item-parent {
-            padding: 1rem;
-            background: var(--bg-secondary);
-            border-left: 4px solid var(--primary);
-            border-radius: 6px;
-            transition: var(--transition);
-        }
-
-        .notification-item-parent:hover {
-            background: #F3F4F6;
-        }
-
-        .notification-item-parent.info {
-            border-left-color: var(--primary);
-        }
-
-        .notification-item-parent.success {
-            border-left-color: var(--secondary);
-        }
-
-        .notification-item-parent.warning {
-            border-left-color: var(--warning);
-        }
-
-        .notification-item-parent.danger {
-            border-left-color: var(--danger);
-        }
-
-        .notification-item-content {
-            display: flex;
-            justify-content: space-between;
-            align-items: start;
-        }
-
-        .notification-text {
-            flex: 1;
-        }
-
-        .notification-text-main {
-            font-weight: 600;
-            color: var(--text-primary);
-            margin-bottom: 0.25rem;
-        }
-
-        .notification-text-sub {
-            font-size: 0.85rem;
-            color: var(--text-secondary);
-        }
-
-        .notification-time {
-            font-size: 0.8rem;
-            color: var(--text-secondary);
-            white-space: nowrap;
-            margin-left: 1rem;
-        }
-
-        .empty-notifications {
-            text-align: center;
-            padding: 2rem;
-            color: var(--text-secondary);
-        }
-
-        .mail-list {
-            display: flex;
-            flex-direction: column;
-            gap: 0.75rem;
-        }
-
-        .mail-item {
-            padding: 1rem;
-            background: var(--bg-secondary);
-            border-left: 4px solid var(--primary);
-            border-radius: 6px;
-            transition: all var(--transition);
-            cursor: pointer;
-        }
-
-        .mail-item:hover {
-            background: #F3F4F6;
-        }
-
-        .mail-header {
-            display: flex;
-            justify-content: space-between;
-            align-items: start;
-            margin-bottom: 0.5rem;
-        }
-
-        .mail-from {
-            font-weight: 600;
-            color: var(--text-primary);
-        }
-
-        .mail-date {
-            font-size: 0.8rem;
-            color: var(--text-secondary);
-        }
-
-        .mail-subject {
-            font-size: 0.95rem;
-            color: var(--text-primary);
-            margin-bottom: 0.25rem;
-        }
-
-        .mail-preview {
-            font-size: 0.85rem;
-            color: var(--text-secondary);
-        }
-
-        /* ========== CONTACT SECTION ========== */
-        .contact-section {
-            display: grid;
-            grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
-            gap: 1.5rem;
-            margin-bottom: 2rem;
-        }
-
-        .contact-card {
-            background: white;
-            border-radius: 12px;
-            padding: 1.5rem;
-            border: 1px solid var(--border);
-        }
-
-        .contact-card-title {
-            font-size: 1rem;
-            font-weight: 700;
-            color: var(--text-primary);
-            margin-bottom: 1rem;
-            display: flex;
-            align-items: center;
-            gap: 0.5rem;
-        }
-
-        .contact-info {
-            display: flex;
-            flex-direction: column;
-            gap: 0.75rem;
-        }
-
-        .contact-info-item {
-            font-size: 0.9rem;
-        }
-
-        .contact-label {
-            color: var(--text-secondary);
-            font-weight: 600;
-            display: block;
-            margin-bottom: 0.25rem;
-        }
-
-        .contact-value {
-            color: var(--text-primary);
-        }
-
-        /* ========== MODAL ========== */
-        .modal-parent {
-            display: none;
-            position: fixed;
-            top: 0;
-            left: 0;
-            width: 100%;
-            height: 100%;
-            background: rgba(0, 0, 0, 0.5);
-            z-index: 1000;
-            align-items: center;
-            justify-content: center;
-        }
-
-        .modal-parent.active {
-            display: flex;
-        }
-
-        .modal-content {
-            background: white;
-            border-radius: 12px;
-            padding: 2rem;
-            max-width: 500px;
-            width: 90%;
-            max-height: 80vh;
-            overflow-y: auto;
-        }
-
-        .modal-header {
-            font-size: 1.5rem;
-            font-weight: 700;
-            margin-bottom: 1.5rem;
-            color: var(--text-primary);
-        }
-
-        .modal-close {
-            position: absolute;
-            top: 1rem;
-            right: 1rem;
-            background: none;
-            border: none;
-            font-size: 1.5rem;
-            cursor: pointer;
-            color: var(--text-secondary);
-        }
-
-        /* ========== FOOTER ========== */
-        .parent-footer {
-            background: white;
-            border-top: 1px solid var(--border);
-            padding: 2rem;
-            text-align: center;
-            color: var(--text-secondary);
-            margin-top: auto;
         }
 
         /* ========== RESPONSIVE ========== */
         @media (max-width: 768px) {
-            .parent-header {
-                flex-direction: column;
-                gap: 1rem;
+            .sidebar {
+                width: 100%;
+                height: auto;
+                position: relative;
+                padding: 1rem;
             }
 
-            .widgets-grid {
-                grid-template-columns: 1fr;
+            .main-content {
+                margin-left: 0;
+                padding: 1rem;
             }
 
-            .contact-section {
-                grid-template-columns: 1fr;
+            .sidebar-logout {
+                position: static;
+                margin-top: 1rem;
             }
 
-            .greeting-text {
+            .sidebar-nav {
+                margin-bottom: 1rem;
+            }
+
+            .content-header h1 {
                 font-size: 1.5rem;
             }
 
-            .parent-content {
-                padding: 1rem;
+            .grid-3 {
+                grid-template-columns: 1fr;
             }
         }
     </style>
 </head>
 <body>
     <div class="parent-portal">
-        <!-- Header -->
-        <header class="parent-header">
-            <div class="parent-header-left">
-                <div class="parent-logo">
-                    <i class="fas fa-graduation-cap"></i>
+        <!-- SIDEBAR -->
+        <div class="sidebar">
+            <div class="sidebar-header">
+                <div class="sidebar-logo">
+                    <i class="fas fa-graduation-cap"></i> MISpal
                 </div>
-                <div class="parent-title">MISpal</div>
+                <div class="sidebar-user" id="sidebar-user">Parent User</div>
             </div>
-            <div class="parent-header-right">
-                <div class="user-greeting" id="user-greeting">Welcome</div>
-                <button class="logout-btn" id="parent-logout-btn">
+
+            <div class="sidebar-nav">
+                <button class="sidebar-nav-item active" onclick="switchTab(event, 'dashboard')">
+                    <i class="fas fa-home"></i> Dashboard
+                </button>
+                <button class="sidebar-nav-item" onclick="switchTab(event, 'children')">
+                    <i class="fas fa-users"></i> My Children
+                </button>
+                <button class="sidebar-nav-item" onclick="switchTab(event, 'attendance')">
+                    <i class="fas fa-calendar-check"></i> Attendance
+                </button>
+                <button class="sidebar-nav-item" onclick="switchTab(event, 'grades')">
+                    <i class="fas fa-chart-bar"></i> Grades & Reports
+                </button>
+                <button class="sidebar-nav-item" onclick="switchTab(event, 'behavior')">
+                    <i class="fas fa-heart"></i> Behavior
+                </button>
+                <button class="sidebar-nav-item" onclick="switchTab(event, 'messages')">
+                    <i class="fas fa-envelope"></i> Messages
+                </button>
+                <button class="sidebar-nav-item" onclick="switchTab(event, 'payments')">
+                    <i class="fas fa-receipt"></i> Payments
+                </button>
+                <button class="sidebar-nav-item" onclick="switchTab(event, 'calendar')">
+                    <i class="fas fa-calendar-alt"></i> School Calendar
+                </button>
+            </div>
+
+            <div class="sidebar-logout">
+                <button class="logout-btn" onclick="handleLogout()">
                     <i class="fas fa-sign-out-alt"></i> Logout
                 </button>
             </div>
-        </header>
-
-        <!-- Main Content -->
-        <div class="parent-content">
-            <!-- Greeting Section -->
-            <div class="greeting-section">
-                <div class="greeting-text" id="greeting-message">Good Morning, Parent</div>
-                <div class="greeting-subtext">Welcome to your child's school portal</div>
-            </div>
-
-            <!-- Student Selector -->
-            <div class="student-selector-section">
-                <div class="student-selector-label">Select Student</div>
-                <div class="student-selector" id="student-selector">
-                    <!-- Student buttons will be populated here -->
-                </div>
-            </div>
-
-            <!-- Notification Center -->
-            <div class="notification-center">
-                <div class="notification-header">
-                    <div class="notification-title">
-                        <i class="fas fa-bell"></i> Notifications
-                    </div>
-                    <button class="see-all-btn" id="see-all-notifications">See All</button>
-                </div>
-                <div class="notifications-list" id="notifications-list">
-                    <div class="empty-notifications">
-                        <p>No new notifications</p>
-                    </div>
-                </div>
-            </div>
-
-            <!-- Mail Section -->
-            <div class="card" id="mail-section">
-                <div class="card-header">
-                    <div style="display: flex; align-items: center; gap: 0.75rem;">
-                        <i class="fas fa-envelope" style="font-size: 1.3rem; color: var(--primary);"></i>
-                        <div>
-                            <h3 style="margin: 0; font-size: 1.1rem;">Messages</h3>
-                            <p style="margin: 0.25rem 0 0; font-size: 0.85rem; color: var(--text-secondary);">School messages and communications</p>
-                        </div>
-                    </div>
-                    <a href="/parent-messages.html" class="see-all-btn">View All</a>
-                </div>
-                <div id="mail-list" class="mail-list">
-                    <div class="empty-notifications">
-                        <p>No new messages</p>
-                    </div>
-                </div>
-            </div>
-
-            <!-- Contact Section -->
-            <div class="contact-section">
-                <div class="contact-card">
-                    <div class="contact-card-title">
-                        <i class="fas fa-user"></i> Your Contact Details
-                    </div>
-                    <div class="contact-info">
-                        <div class="contact-info-item">
-                            <span class="contact-label">Name:</span>
-                            <span class="contact-value" id="parent-name">Parent Name</span>
-                        </div>
-                        <div class="contact-info-item">
-                            <span class="contact-label">Email:</span>
-                            <span class="contact-value" id="parent-email">parent@email.com</span>
-                        </div>
-                        <div class="contact-info-item">
-                            <span class="contact-label">Phone:</span>
-                            <span class="contact-value" id="parent-phone">+353 1 234 5678</span>
-                        </div>
-                    </div>
-                </div>
-
-                <div class="contact-card">
-                    <div class="contact-card-title">
-                        <i class="fas fa-shield-alt"></i> Backup Guardian
-                    </div>
-                    <div class="contact-info">
-                        <div class="contact-info-item">
-                            <span class="contact-label">Name:</span>
-                            <span class="contact-value" id="guardian-name">Guardian Name</span>
-                        </div>
-                        <div class="contact-info-item">
-                            <span class="contact-label">Email:</span>
-                            <span class="contact-value" id="guardian-email">guardian@email.com</span>
-                        </div>
-                        <div class="contact-info-item">
-                            <span class="contact-label">Phone:</span>
-                            <span class="contact-value" id="guardian-phone">+353 1 234 5678</span>
-                        </div>
-                    </div>
-                </div>
-            </div>
-
-            <!-- Main Features Grid -->
-            <div class="widgets-grid" id="features-grid">
-                <!-- Features will be populated here -->
-            </div>
         </div>
 
-        <!-- Footer -->
-        <footer class="parent-footer">
-            <p>&copy; 2024 Cirkle Development | MISpal School Administration Software</p>
-        </footer>
-    </div>
+        <!-- MAIN CONTENT -->
+        <div class="main-content">
+            <!-- DASHBOARD TAB -->
+            <div id="dashboard" class="tab-container active">
+                <div class="content-header">
+                    <h1><i class="fas fa-home"></i> Dashboard</h1>
+                    <p>Welcome back! Here's your children's overview.</p>
+                </div>
 
-    <!-- Modals -->
-    <div class="modal-parent" id="all-notifications-modal">
-        <div class="modal-content">
-            <button class="modal-close" onclick="closeNotificationsModal()">
-                <i class="fas fa-times"></i>
-            </button>
-            <div class="modal-header">All Notifications</div>
-            <div class="notifications-list" id="all-notifications-list">
-                <!-- All notifications will be populated here -->
+                <div class="grid-3">
+                    <div class="stat-box">
+                        <div class="stat-value">2</div>
+                        <div class="stat-label">Children Enrolled</div>
+                    </div>
+                    <div class="stat-box">
+                        <div class="stat-value">96%</div>
+                        <div class="stat-label">Avg Attendance</div>
+                    </div>
+                    <div class="stat-box">
+                        <div class="stat-value">A-</div>
+                        <div class="stat-label">Avg Grade</div>
+                    </div>
+                </div>
+
+                <div class="card">
+                    <div class="card-title"><i class="fas fa-bell"></i> Recent Activities</div>
+                    <div class="list-item">
+                        <div class="list-item-content">
+                            <h3>James Wilson - Mathematics Exam</h3>
+                            <p>Excellent performance: 92/100 - A</p>
+                        </div>
+                        <span class="badge badge-success">Today</span>
+                    </div>
+                    <div class="list-item">
+                        <div class="list-item-content">
+                            <h3>Emma Davis - Science Project</h3>
+                            <p>Project submitted on time with excellent work</p>
+                        </div>
+                        <span class="badge badge-success">Yesterday</span>
+                    </div>
+                    <div class="list-item">
+                        <div class="list-item-content">
+                            <h3>James Wilson - Attendance</h3>
+                            <p>Absent from PE class - Medical appointment (excused)</p>
+                        </div>
+                        <span class="badge badge-info">2 days ago</span>
+                    </div>
+                    <div class="list-item">
+                        <div class="list-item-content">
+                            <h3>Emma Davis - Class Participation</h3>
+                            <p>Excellent contribution to group discussion</p>
+                        </div>
+                        <span class="badge badge-success">3 days ago</span>
+                    </div>
+                </div>
+            </div>
+
+            <!-- CHILDREN TAB -->
+            <div id="children" class="tab-container">
+                <div class="content-header">
+                    <h1><i class="fas fa-users"></i> My Children</h1>
+                    <p>Monitor your children's progress and activities.</p>
+                </div>
+
+                <div class="card">
+                    <div class="card-title"><i class="fas fa-user-graduate"></i> James Wilson (Year 12)</div>
+                    <div class="grid-3">
+                        <div class="stat-box">
+                            <div class="stat-value">96%</div>
+                            <div class="stat-label">Attendance Rate</div>
+                        </div>
+                        <div class="stat-box">
+                            <div class="stat-value">A</div>
+                            <div class="stat-label">Current Grade</div>
+                        </div>
+                        <div class="stat-box">
+                            <div class="stat-value">8</div>
+                            <div class="stat-label">Positive Notes</div>
+                        </div>
+                    </div>
+                    <div style="margin-top: 1rem; padding-top: 1rem; border-top: 1px solid var(--border);">
+                        <p><strong>Contact:</strong> john.smith@schoolware.com | <strong>House:</strong> Gryffindor | <strong>Form:</strong> 12A</p>
+                    </div>
+                </div>
+
+                <div class="card">
+                    <div class="card-title"><i class="fas fa-user-graduate"></i> Emma Davis (Year 10)</div>
+                    <div class="grid-3">
+                        <div class="stat-box">
+                            <div class="stat-value">94%</div>
+                            <div class="stat-label">Attendance Rate</div>
+                        </div>
+                        <div class="stat-box">
+                            <div class="stat-value">A</div>
+                            <div class="stat-label">Current Grade</div>
+                        </div>
+                        <div class="stat-box">
+                            <div class="stat-value">6</div>
+                            <div class="stat-label">Positive Notes</div>
+                        </div>
+                    </div>
+                    <div style="margin-top: 1rem; padding-top: 1rem; border-top: 1px solid var(--border);">
+                        <p><strong>Contact:</strong> emma.davis@student.schoolware.com | <strong>House:</strong> Ravenclaw | <strong>Form:</strong> 10B</p>
+                    </div>
+                </div>
+            </div>
+
+            <!-- ATTENDANCE TAB -->
+            <div id="attendance" class="tab-container">
+                <div class="content-header">
+                    <h1><i class="fas fa-calendar-check"></i> Attendance Records</h1>
+                    <p>Monitor your children's attendance and absences.</p>
+                </div>
+
+                <div class="card">
+                    <div class="card-title"><i class="fas fa-user-graduate"></i> James Wilson (Year 12) - 96% Overall</div>
+                    <div class="list-item">
+                        <div class="list-item-content">
+                            <h3>Friday, January 17, 2026</h3>
+                            <p>Present - All 6 classes attended</p>
+                        </div>
+                        <span class="badge badge-success">✓ Present</span>
+                    </div>
+                    <div class="list-item">
+                        <div class="list-item-content">
+                            <h3>Thursday, January 16, 2026</h3>
+                            <p>Late arrival - 5 mins late to Morning Assembly</p>
+                        </div>
+                        <span class="badge badge-warning">⏱ Late</span>
+                    </div>
+                    <div class="list-item">
+                        <div class="list-item-content">
+                            <h3>Wednesday, January 15, 2026</h3>
+                            <p>Present - All 6 classes attended</p>
+                        </div>
+                        <span class="badge badge-success">✓ Present</span>
+                    </div>
+                    <div class="list-item">
+                        <div class="list-item-content">
+                            <h3>Tuesday, January 14, 2026</h3>
+                            <p>Present - All 6 classes attended</p>
+                        </div>
+                        <span class="badge badge-success">✓ Present</span>
+                    </div>
+                </div>
+
+                <div class="card">
+                    <div class="card-title"><i class="fas fa-user-graduate"></i> Emma Davis (Year 10) - 94% Overall</div>
+                    <div class="list-item">
+                        <div class="list-item-content">
+                            <h3>Friday, January 17, 2026</h3>
+                            <p>Present - All 5 classes attended</p>
+                        </div>
+                        <span class="badge badge-success">✓ Present</span>
+                    </div>
+                    <div class="list-item">
+                        <div class="list-item-content">
+                            <h3>Wednesday, January 15, 2026</h3>
+                            <p>Absent - Medical appointment (Excused)</p>
+                        </div>
+                        <span class="badge badge-info">📋 Excused</span>
+                    </div>
+                    <div class="list-item">
+                        <div class="list-item-content">
+                            <h3>Tuesday, January 14, 2026</h3>
+                            <p>Present - All 5 classes attended</p>
+                        </div>
+                        <span class="badge badge-success">✓ Present</span>
+                    </div>
+                </div>
+            </div>
+
+            <!-- GRADES TAB -->
+            <div id="grades" class="tab-container">
+                <div class="content-header">
+                    <h1><i class="fas fa-chart-bar"></i> Grades & Reports</h1>
+                    <p>Review your children's academic performance.</p>
+                </div>
+
+                <div class="card">
+                    <div class="card-title"><i class="fas fa-user-graduate"></i> James Wilson (Year 12) - Average: A (90)</div>
+                    <div class="list-item">
+                        <div class="list-item-content">
+                            <h3>Mathematics</h3>
+                            <p>Term 3 Assessment - Excellent progress</p>
+                        </div>
+                        <span class="badge badge-success">92/100 - A</span>
+                    </div>
+                    <div class="list-item">
+                        <div class="list-item-content">
+                            <h3>English Literature</h3>
+                            <p>Term 3 Assessment - Strong writing skills</p>
+                        </div>
+                        <span class="badge badge-success">88/100 - B+</span>
+                    </div>
+                    <div class="list-item">
+                        <div class="list-item-content">
+                            <h3>Science</h3>
+                            <p>Term 3 Assessment - Excellent understanding</p>
+                        </div>
+                        <span class="badge badge-success">90/100 - A</span>
+                    </div>
+                    <div class="list-item">
+                        <div class="list-item-content">
+                            <h3>History</h3>
+                            <p>Term 3 Assessment - Good analysis</p>
+                        </div>
+                        <span class="badge badge-success">85/100 - B+</span>
+                    </div>
+                    <div class="list-item">
+                        <div class="list-item-content">
+                            <h3>Geography</h3>
+                            <p>Term 3 Assessment - Solid performance</p>
+                        </div>
+                        <span class="badge badge-success">87/100 - B+</span>
+                    </div>
+                </div>
+
+                <div class="card">
+                    <div class="card-title"><i class="fas fa-user-graduate"></i> Emma Davis (Year 10) - Average: A (88)</div>
+                    <div class="list-item">
+                        <div class="list-item-content">
+                            <h3>Mathematics</h3>
+                            <p>Term 3 Assessment - Outstanding work</p>
+                        </div>
+                        <span class="badge badge-success">91/100 - A</span>
+                    </div>
+                    <div class="list-item">
+                        <div class="list-item-content">
+                            <h3>Science</h3>
+                            <p>Term 3 Assessment - Great project work</p>
+                        </div>
+                        <span class="badge badge-success">89/100 - B+</span>
+                    </div>
+                    <div class="list-item">
+                        <div class="list-item-content">
+                            <h3>English</h3>
+                            <p>Term 3 Assessment - Excellent essay</p>
+                        </div>
+                        <span class="badge badge-success">87/100 - B+</span>
+                    </div>
+                    <div class="list-item">
+                        <div class="list-item-content">
+                            <h3>French</h3>
+                            <p>Term 3 Assessment - Good progress</p>
+                        </div>
+                        <span class="badge badge-success">85/100 - B</span>
+                    </div>
+                </div>
+            </div>
+
+            <!-- BEHAVIOR TAB -->
+            <div id="behavior" class="tab-container">
+                <div class="content-header">
+                    <h1><i class="fas fa-heart"></i> Behavior & Conduct</h1>
+                    <p>Your children's behavioral records and notes.</p>
+                </div>
+
+                <div class="card">
+                    <div class="card-title"><i class="fas fa-user-graduate"></i> James Wilson - Excellent Conduct</div>
+                    <div class="list-item">
+                        <div class="list-item-content">
+                            <h3>Excellent Teamwork</h3>
+                            <p>January 15 - Group project participation in Science</p>
+                        </div>
+                        <span class="badge badge-success">Positive</span>
+                    </div>
+                    <div class="list-item">
+                        <div class="list-item-content">
+                            <h3>Class Participation</h3>
+                            <p>January 10 - Active in Mathematics discussion, showing great initiative</p>
+                        </div>
+                        <span class="badge badge-success">Positive</span>
+                    </div>
+                    <div class="list-item">
+                        <div class="list-item-content">
+                            <h3>Help to Peers</h3>
+                            <p>January 5 - Assisted struggling classmates with homework</p>
+                        </div>
+                        <span class="badge badge-success">Positive</span>
+                    </div>
+                    <div class="list-item">
+                        <div class="list-item-content">
+                            <h3>Minor Late Submission</h3>
+                            <p>January 3 - Late homework submission (one day late)</p>
+                        </div>
+                        <span class="badge badge-warning">Note</span>
+                    </div>
+                </div>
+
+                <div class="card">
+                    <div class="card-title"><i class="fas fa-user-graduate"></i> Emma Davis - Excellent Conduct</div>
+                    <div class="list-item">
+                        <div class="list-item-content">
+                            <h3>Excellent Work Ethic</h3>
+                            <p>January 16 - Science project submission with outstanding effort</p>
+                        </div>
+                        <span class="badge badge-success">Positive</span>
+                    </div>
+                    <div class="list-item">
+                        <div class="list-item-content">
+                            <h3>Class Helper</h3>
+                            <p>January 12 - Assisted peers with understanding complex concepts</p>
+                        </div>
+                        <span class="badge badge-success">Positive</span>
+                    </div>
+                    <div class="list-item">
+                        <div class="list-item-content">
+                            <h3>Great Leadership</h3>
+                            <p>January 8 - Led group presentation with confidence</p>
+                        </div>
+                        <span class="badge badge-success">Positive</span>
+                    </div>
+                </div>
+            </div>
+
+            <!-- MESSAGES TAB -->
+            <div id="messages" class="tab-container">
+                <div class="content-header">
+                    <h1><i class="fas fa-envelope"></i> Messages</h1>
+                    <p>Communications from teachers and school staff.</p>
+                </div>
+
+                <div class="card">
+                    <div class="list-item">
+                        <div class="list-item-content">
+                            <h3>From: Mr. Smith (Mathematics)</h3>
+                            <p>James is doing excellent work in Mathematics. His problem-solving skills are outstanding. Keep it up!</p>
+                        </div>
+                        <span class="badge badge-success">New</span>
+                    </div>
+                    <div class="list-item">
+                        <div class="list-item-content">
+                            <h3>From: Ms. Johnson (English)</h3>
+                            <p>Great essay submission from Emma. Well written with excellent analysis!</p>
+                        </div>
+                        <span class="badge badge-info">Read</span>
+                    </div>
+                    <div class="list-item">
+                        <div class="list-item-content">
+                            <h3>From: School Administration</h3>
+                            <p>Term 3 assessment schedule has been updated. Please see attached calendar.</p>
+                        </div>
+                        <span class="badge badge-info">Read</span>
+                    </div>
+                    <div class="list-item">
+                        <div class="list-item-content">
+                            <h3>From: Dr. Williams (Science)</h3>
+                            <p>Reminder: Science field trip is January 25. Please confirm attendance and consent.</p>
+                        </div>
+                        <span class="badge badge-warning">Action Needed</span>
+                    </div>
+                    <div class="list-item">
+                        <div class="list-item-content">
+                            <h3>From: PE Department</h3>
+                            <p>Sports day is coming up on February 14. Students should start training.</p>
+                        </div>
+                        <span class="badge badge-info">Read</span>
+                    </div>
+                </div>
+            </div>
+
+            <!-- PAYMENTS TAB -->
+            <div id="payments" class="tab-container">
+                <div class="content-header">
+                    <h1><i class="fas fa-receipt"></i> Payments & School Fees</h1>
+                    <p>Manage school fees and payment history.</p>
+                </div>
+
+                <div class="card">
+                    <div class="card-title"><i class="fas fa-exclamation-triangle"></i> Outstanding Fees</div>
+                    <div class="list-item">
+                        <div class="list-item-content">
+                            <h3>Term 3 Tuition - James Wilson</h3>
+                            <p>Due: January 31, 2026</p>
+                        </div>
+                        <span class="badge badge-warning">€4,500</span>
+                    </div>
+                    <div class="list-item">
+                        <div class="list-item-content">
+                            <h3>Term 3 Tuition - Emma Davis</h3>
+                            <p>Due: January 31, 2026</p>
+                        </div>
+                        <span class="badge badge-warning">€4,500</span>
+                    </div>
+                </div>
+
+                <div class="card">
+                    <div class="card-title"><i class="fas fa-check-circle"></i> Payment History</div>
+                    <div class="list-item">
+                        <div class="list-item-content">
+                            <h3>Term 2 Tuition Payment</h3>
+                            <p>Paid: October 15, 2025</p>
+                        </div>
+                        <span class="badge badge-success">€9,000 Paid</span>
+                    </div>
+                    <div class="list-item">
+                        <div class="list-item-content">
+                            <h3>Term 1 Tuition Payment</h3>
+                            <p>Paid: July 10, 2025</p>
+                        </div>
+                        <span class="badge badge-success">€9,000 Paid</span>
+                    </div>
+                    <div class="list-item">
+                        <div class="list-item-content">
+                            <h3>Activity Fees (Both Children)</h3>
+                            <p>Paid: June 5, 2025</p>
+                        </div>
+                        <span class="badge badge-success">€1,200 Paid</span>
+                    </div>
+                </div>
+            </div>
+
+            <!-- CALENDAR TAB -->
+            <div id="calendar" class="tab-container">
+                <div class="content-header">
+                    <h1><i class="fas fa-calendar-alt"></i> School Calendar</h1>
+                    <p>Important dates, events, and holidays.</p>
+                </div>
+
+                <div class="card">
+                    <div class="card-title">Upcoming Events</div>
+                    <div class="list-item">
+                        <div class="list-item-content">
+                            <h3>Science Field Trip</h3>
+                            <p>January 25, 2026 - Natural History Museum</p>
+                        </div>
+                        <span class="badge badge-info">📋 Register</span>
+                    </div>
+                    <div class="list-item">
+                        <div class="list-item-content">
+                            <h3>Parent-Teacher Conferences</h3>
+                            <p>February 5-6, 2026 - Individual meetings with all teachers</p>
+                        </div>
+                        <span class="badge badge-info">📅 Schedule</span>
+                    </div>
+                    <div class="list-item">
+                        <div class="list-item-content">
+                            <h3>School Sports Day</h3>
+                            <p>February 14, 2026 - Athletic competitions and events</p>
+                        </div>
+                        <span class="badge badge-info">🏃 Participate</span>
+                    </div>
+                    <div class="list-item">
+                        <div class="list-item-content">
+                            <h3>Winter Concert</h3>
+                            <p>February 21, 2026 - Musical performances by students</p>
+                        </div>
+                        <span class="badge badge-info">🎵 Attend</span>
+                    </div>
+                </div>
+
+                <div class="card">
+                    <div class="card-title">Holidays & Breaks</div>
+                    <div class="list-item">
+                        <div class="list-item-content">
+                            <h3>Term 3 Ends</h3>
+                            <p>March 28, 2026</p>
+                        </div>
+                        <span class="badge badge-success">🎓 End of Term</span>
+                    </div>
+                    <div class="list-item">
+                        <div class="list-item-content">
+                            <h3>Easter Holidays</h3>
+                            <p>March 29 - April 18, 2026 (3 weeks)</p>
+                        </div>
+                        <span class="badge badge-success">🌷 Holiday</span>
+                    </div>
+                    <div class="list-item">
+                        <div class="list-item-content">
+                            <h3>Term 4 Begins</h3>
+                            <p>April 19, 2026</p>
+                        </div>
+                        <span class="badge badge-info">📚 New Term</span>
+                    </div>
+                    <div class="list-item">
+                        <div class="list-item-content">
+                            <h3>Summer Half-Term Break</h3>
+                            <p>May 24 - May 31, 2026 (1 week)</p>
+                        </div>
+                        <span class="badge badge-success">☀️ Holiday</span>
+                    </div>
+                </div>
             </div>
         </div>
     </div>
 
-    <script src="/parent-portal.js"></script>
+    <script>
+        // Initialize on page load
+        document.addEventListener('DOMContentLoaded', function() {
+            const user = JSON.parse(localStorage.getItem('user') || '{}');
+            if (!user.role || user.role !== 'Parent') {
+                window.location.href = '/shannoncomp/login';
+                return;
+            }
+            
+            // Set user name
+            const userName = user.name || 'Parent User';
+            document.getElementById('sidebar-user').textContent = userName;
+        });
+
+        function switchTab(e, tabName) {
+            e.preventDefault();
+            
+            // Hide all tabs
+            document.querySelectorAll('.tab-container').forEach(tab => {
+                tab.classList.remove('active');
+            });
+
+            // Remove active from nav items
+            document.querySelectorAll('.sidebar-nav-item').forEach(item => {
+                item.classList.remove('active');
+            });
+
+            // Show selected tab
+            const tabEl = document.getElementById(tabName);
+            if (tabEl) {
+                tabEl.classList.add('active');
+            }
+
+            // Mark nav item as active
+            e.target.closest('.sidebar-nav-item').classList.add('active');
+        }
+
+        function handleLogout() {
+            if (confirm('Are you sure you want to logout?')) {
+                localStorage.clear();
+                window.location.href = '/shannoncomp/login';
+            }
+        }
+    </script>
 </body>
 </html>

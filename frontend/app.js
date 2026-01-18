@@ -408,13 +408,21 @@ async function apiCall(endpoint, options = {}) {
         
         // Handle 401 Unauthorized - token expired or invalid
         if (response.status === 401) {
-            localStorage.removeItem('auth_token');
-            localStorage.removeItem('current_user');
-            authToken = null;
-            currentUser = null;
-            showError('Session expired. Please login again.');
-            setTimeout(() => showLandingPage(), 1500);
-            throw new Error('Unauthorized');
+            // Check if using demo token - don't logout on demo
+            const token = localStorage.getItem('token');
+            if (!token || !token.startsWith('demo_token_')) {
+                localStorage.removeItem('auth_token');
+                localStorage.removeItem('current_user');
+                localStorage.removeItem('token');
+                authToken = null;
+                currentUser = null;
+                showError('Session expired. Please login again.');
+                setTimeout(() => {
+                    localStorage.clear();
+                    window.location.href = '/shannoncomp/login';
+                }, 1500);
+                throw new Error('Unauthorized');
+            }
         }
         
         // Handle 429 Too Many Requests

@@ -3,10 +3,9 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>MISpal Student Portal</title>
+    <title>Student Portal - MISpal</title>
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
     <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
-    <link rel="stylesheet" href="/styles.css">
     <style>
         :root {
             --primary: #4F46E5;
@@ -18,6 +17,7 @@
             --bg-primary: #FFFFFF;
             --bg-secondary: #F9FAFB;
             --border: #E5E7EB;
+            --shadow: 0 1px 3px rgba(0, 0, 0, 0.1);
             --transition: all 0.3s ease;
         }
 
@@ -28,67 +28,92 @@
         }
 
         body {
-            font-family: 'Inter', sans-serif;
+            font-family: 'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif;
             background: var(--bg-secondary);
             color: var(--text-primary);
             line-height: 1.6;
         }
 
         .student-portal {
+            display: flex;
             min-height: 100vh;
+        }
+
+        /* ========== SIDEBAR ========== */
+        .sidebar {
+            width: 280px;
+            background: var(--primary);
+            color: white;
+            padding: 2rem 1.5rem;
+            overflow-y: auto;
+            position: fixed;
+            height: 100vh;
+            left: 0;
+            top: 0;
+            box-shadow: 2px 0 10px rgba(0, 0, 0, 0.1);
+        }
+
+        .sidebar-header {
+            margin-bottom: 2rem;
+            padding-bottom: 1.5rem;
+            border-bottom: 1px solid rgba(255, 255, 255, 0.2);
+        }
+
+        .sidebar-logo {
+            font-size: 1.8rem;
+            font-weight: 700;
+            margin-bottom: 0.5rem;
+            display: flex;
+            align-items: center;
+            gap: 0.75rem;
+        }
+
+        .sidebar-user {
+            font-size: 0.9rem;
+            opacity: 0.9;
+        }
+
+        .sidebar-nav {
             display: flex;
             flex-direction: column;
+            gap: 0.5rem;
+            margin-bottom: 20rem;
         }
 
-        /* ========== HEADER ========== */
-        .student-header {
-            background: white;
-            border-bottom: 1px solid var(--border);
-            padding: 1.5rem 2rem;
-            display: flex;
-            justify-content: space-between;
-            align-items: center;
-            box-shadow: 0 1px 3px rgba(0, 0, 0, 0.05);
-        }
-
-        .student-header-left {
-            display: flex;
-            align-items: center;
-            gap: 1rem;
-        }
-
-        .student-logo {
-            width: 40px;
-            height: 40px;
-            background: linear-gradient(135deg, var(--primary), var(--secondary));
-            border-radius: 8px;
-            display: flex;
-            align-items: center;
-            justify-content: center;
+        .sidebar-nav-item {
+            padding: 0.75rem 1rem;
+            border-radius: 6px;
+            cursor: pointer;
+            background: rgba(255, 255, 255, 0.1);
+            border: none;
             color: white;
-            font-weight: bold;
-            font-size: 1.2rem;
+            font-weight: 500;
+            transition: var(--transition);
+            text-align: left;
+            font-size: 0.95rem;
         }
 
-        .student-title {
-            font-size: 1.5rem;
-            font-weight: 700;
-            color: var(--primary);
+        .sidebar-nav-item:hover,
+        .sidebar-nav-item.active {
+            background: rgba(255, 255, 255, 0.2);
         }
 
-        .student-header-right {
-            display: flex;
-            align-items: center;
-            gap: 2rem;
+        .sidebar-nav-item i {
+            width: 20px;
+            margin-right: 0.5rem;
         }
 
-        .user-greeting {
-            font-size: 1rem;
-            color: var(--text-secondary);
+        .sidebar-logout {
+            position: fixed;
+            bottom: 2rem;
+            left: 1.5rem;
+            right: calc(1.5rem + 280px);
+            width: 247px;
         }
 
         .logout-btn {
-            padding: 0.5rem 1rem;
+            width: 100%;
+            padding: 0.75rem 1rem;
             background: var(--danger);
             color: white;
             border: none;
@@ -102,461 +127,704 @@
             background: #DC2626;
         }
 
-        /* ========== NAVIGATION ========== */
-        .student-nav {
-            display: flex;
-            gap: 1rem;
-            border-bottom: 1px solid var(--border);
-            background: white;
-            padding: 0 2rem;
-            overflow-x: auto;
-        }
-
-        .nav-item {
-            padding: 1rem 1.5rem;
-            border: none;
-            background: none;
-            cursor: pointer;
-            color: var(--text-secondary);
-            font-weight: 600;
-            transition: var(--transition);
-            white-space: nowrap;
-            position: relative;
-        }
-
-        .nav-item.active {
-            color: var(--primary);
-        }
-
-        .nav-item.active::after {
-            content: '';
-            position: absolute;
-            bottom: -1px;
-            left: 0;
-            right: 0;
-            height: 3px;
-            background: var(--primary);
-        }
-
-        .nav-item:hover {
-            color: var(--primary);
-        }
-
-        /* ========== CONTENT AREA ========== */
-        .student-content {
+        /* ========== MAIN CONTENT ========== */
+        .main-content {
+            margin-left: 280px;
             flex: 1;
+            overflow-y: auto;
             padding: 2rem;
-            max-width: 1200px;
-            margin: 0 auto;
-            width: 100%;
         }
 
-        .page-header {
+        .content-header {
             margin-bottom: 2rem;
         }
 
-        .page-header h1 {
+        .content-header h1 {
             font-size: 2rem;
             margin-bottom: 0.5rem;
         }
 
-        .page-header p {
+        .content-header p {
             color: var(--text-secondary);
         }
 
-        /* ========== DASHBOARD ========== */
-        .dashboard-grid {
-            display: grid;
-            grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
-            gap: 1.5rem;
-            margin-bottom: 2rem;
-        }
-
-        .dashboard-card {
-            background: white;
-            border-radius: 8px;
-            padding: 1.5rem;
-            border: 1px solid var(--border);
-            box-shadow: 0 1px 3px rgba(0, 0, 0, 0.05);
-            transition: var(--transition);
-        }
-
-        .dashboard-card:hover {
-            box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
-        }
-
-        .card-icon {
-            font-size: 2rem;
-            margin-bottom: 1rem;
-            color: var(--primary);
-        }
-
-        .card-label {
-            color: var(--text-secondary);
-            font-size: 0.9rem;
-            margin-bottom: 0.5rem;
-        }
-
-        .card-value {
-            font-size: 1.8rem;
-            font-weight: 700;
-            color: var(--text-primary);
-        }
-
-        /* ========== SECTION CONTENT ========== */
-        .section-content {
+        /* ========== TAB SYSTEM ========== */
+        .tab-container {
             display: none;
         }
 
-        .section-content.active {
+        .tab-container.active {
             display: block;
         }
 
-        .content-list {
-            background: white;
-            border-radius: 8px;
+        /* ========== CARDS ========== */
+        .card {
+            background: var(--bg-primary);
             border: 1px solid var(--border);
-            overflow: hidden;
+            border-radius: 8px;
+            padding: 1.5rem;
+            margin-bottom: 1.5rem;
+            box-shadow: var(--shadow);
+            transition: var(--transition);
         }
 
+        .card:hover {
+            box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
+        }
+
+        .card-title {
+            font-size: 1.1rem;
+            font-weight: 600;
+            margin-bottom: 1rem;
+            display: flex;
+            align-items: center;
+            gap: 0.75rem;
+        }
+
+        /* ========== GRID LAYOUTS ========== */
+        .grid-4 {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+            gap: 1.5rem;
+            margin-bottom: 1.5rem;
+        }
+
+        .stat-box {
+            background: var(--bg-secondary);
+            padding: 1.5rem;
+            border-radius: 6px;
+            text-align: center;
+            border: 1px solid var(--border);
+        }
+
+        .stat-value {
+            font-size: 2rem;
+            font-weight: 700;
+            color: var(--primary);
+            margin-bottom: 0.5rem;
+        }
+
+        .stat-label {
+            font-size: 0.9rem;
+            color: var(--text-secondary);
+        }
+
+        /* ========== LISTS ========== */
         .list-item {
             padding: 1.5rem;
-            border-bottom: 1px solid var(--border);
+            border: 1px solid var(--border);
+            border-radius: 6px;
+            margin-bottom: 1rem;
             display: flex;
             justify-content: space-between;
             align-items: center;
             transition: var(--transition);
         }
 
-        .list-item:last-child {
-            border-bottom: none;
-        }
-
         .list-item:hover {
             background: var(--bg-secondary);
         }
 
-        .list-item-title {
+        .list-item-content h3 {
+            font-size: 1rem;
+            margin-bottom: 0.25rem;
+        }
+
+        .list-item-content p {
+            font-size: 0.85rem;
+            color: var(--text-secondary);
+        }
+
+        .badge {
+            padding: 0.5rem 1rem;
+            border-radius: 20px;
+            font-size: 0.85rem;
             font-weight: 600;
-            color: var(--text-primary);
         }
 
-        .list-item-detail {
-            color: var(--text-secondary);
-            font-size: 0.9rem;
-            margin-top: 0.25rem;
+        .badge-success {
+            background: var(--secondary);
+            color: white;
         }
 
-        /* ========== EMPTY STATE ========== */
-        .empty-state {
-            text-align: center;
-            padding: 3rem 2rem;
-            color: var(--text-secondary);
+        .badge-warning {
+            background: var(--warning);
+            color: white;
         }
 
-        .empty-state i {
-            font-size: 3rem;
-            margin-bottom: 1rem;
-            opacity: 0.3;
+        .badge-danger {
+            background: var(--danger);
+            color: white;
         }
 
-        /* ========== FOOTER ========== */
-        .student-footer {
-            background: white;
-            border-top: 1px solid var(--border);
-            padding: 2rem;
-            text-align: center;
-            color: var(--text-secondary);
-            font-size: 0.9rem;
-            margin-top: auto;
-        }
-
-        /* ========== LOADING ========== */
-        .loading {
-            text-align: center;
-            padding: 2rem;
-            color: var(--text-secondary);
-        }
-
-        .spinner {
-            display: inline-block;
-            width: 40px;
-            height: 40px;
-            border: 4px solid var(--bg-secondary);
-            border-top-color: var(--primary);
-            border-radius: 50%;
-            animation: spin 1s linear infinite;
-        }
-
-        @keyframes spin {
-            to { transform: rotate(360deg); }
+        .badge-info {
+            background: var(--primary);
+            color: white;
         }
 
         /* ========== RESPONSIVE ========== */
         @media (max-width: 768px) {
-            .student-header {
-                flex-direction: column;
-                gap: 1rem;
-            }
-
-            .student-content {
+            .sidebar {
+                width: 100%;
+                height: auto;
+                position: relative;
                 padding: 1rem;
             }
 
-            .page-header h1 {
+            .main-content {
+                margin-left: 0;
+                padding: 1rem;
+            }
+
+            .sidebar-logout {
+                position: static;
+                margin-top: 1rem;
+            }
+
+            .sidebar-nav {
+                margin-bottom: 1rem;
+            }
+
+            .content-header h1 {
                 font-size: 1.5rem;
             }
 
-            .dashboard-grid {
-                grid-template-columns: 1fr;
+            .grid-4 {
+                grid-template-columns: 1fr 1fr;
             }
         }
     </style>
 </head>
 <body>
     <div class="student-portal">
-        <!-- Header -->
-        <div class="student-header">
-            <div class="student-header-left">
-                <div class="student-logo">
-                    <i class="fas fa-graduation-cap"></i>
+        <!-- SIDEBAR -->
+        <div class="sidebar">
+            <div class="sidebar-header">
+                <div class="sidebar-logo">
+                    <i class="fas fa-graduation-cap"></i> MISpal
                 </div>
-                <div>
-                    <div class="student-title">MISpal</div>
-                    <div class="user-greeting" id="user-greeting">Loading...</div>
-                </div>
+                <div class="sidebar-user" id="sidebar-user">Student User</div>
             </div>
-            <div class="student-header-right">
+
+            <div class="sidebar-nav">
+                <button class="sidebar-nav-item active" onclick="switchTab(event, 'dashboard')">
+                    <i class="fas fa-home"></i> Dashboard
+                </button>
+                <button class="sidebar-nav-item" onclick="switchTab(event, 'attendance')">
+                    <i class="fas fa-calendar-check"></i> Attendance
+                </button>
+                <button class="sidebar-nav-item" onclick="switchTab(event, 'grades')">
+                    <i class="fas fa-chart-bar"></i> Grades
+                </button>
+                <button class="sidebar-nav-item" onclick="switchTab(event, 'timetable')">
+                    <i class="fas fa-calendar"></i> Timetable
+                </button>
+                <button class="sidebar-nav-item" onclick="switchTab(event, 'homework')">
+                    <i class="fas fa-book"></i> Homework
+                </button>
+                <button class="sidebar-nav-item" onclick="switchTab(event, 'behavior')">
+                    <i class="fas fa-heart"></i> Behavior
+                </button>
+                <button class="sidebar-nav-item" onclick="switchTab(event, 'messages')">
+                    <i class="fas fa-envelope"></i> Messages
+                </button>
+                <button class="sidebar-nav-item" onclick="switchTab(event, 'resources')">
+                    <i class="fas fa-book-open"></i> Resources
+                </button>
+            </div>
+
+            <div class="sidebar-logout">
                 <button class="logout-btn" onclick="handleLogout()">
                     <i class="fas fa-sign-out-alt"></i> Logout
                 </button>
             </div>
         </div>
 
-        <!-- Navigation -->
-        <div class="student-nav">
-            <button class="nav-item active" data-tab="dashboard" onclick="switchTab('dashboard')">
-                <i class="fas fa-home"></i> Dashboard
-            </button>
-            <button class="nav-item" data-tab="attendance" onclick="switchTab('attendance')">
-                <i class="fas fa-calendar-check"></i> Attendance
-            </button>
-            <button class="nav-item" data-tab="grades" onclick="switchTab('grades')">
-                <i class="fas fa-chart-bar"></i> Grades
-            </button>
-            <button class="nav-item" data-tab="timetable" onclick="switchTab('timetable')">
-                <i class="fas fa-calendar"></i> Timetable
-            </button>
-            <button class="nav-item" data-tab="messages" onclick="switchTab('messages')">
-                <i class="fas fa-envelope"></i> Messages
-            </button>
-        </div>
-
-        <!-- Content -->
-        <div class="student-content">
-            <!-- Dashboard Section -->
-            <div id="dashboard-section" class="section-content active">
-                <div class="page-header">
-                    <h1><i class="fas fa-home"></i> My Dashboard</h1>
-                    <p>Welcome to your academic hub</p>
+        <!-- MAIN CONTENT -->
+        <div class="main-content">
+            <!-- DASHBOARD TAB -->
+            <div id="dashboard" class="tab-container active">
+                <div class="content-header">
+                    <h1><i class="fas fa-home"></i> Dashboard</h1>
+                    <p>Welcome! Here's your academic overview.</p>
                 </div>
 
-                <div class="dashboard-grid">
-                    <div class="dashboard-card">
-                        <div class="card-icon"><i class="fas fa-calendar-check"></i></div>
-                        <div class="card-label">Attendance Rate</div>
-                        <div class="card-value" id="attendance-rate">95%</div>
+                <div class="grid-4">
+                    <div class="stat-box">
+                        <div class="stat-value">96%</div>
+                        <div class="stat-label">Attendance Rate</div>
                     </div>
-                    <div class="dashboard-card">
-                        <div class="card-icon"><i class="fas fa-star"></i></div>
-                        <div class="card-label">Average Grade</div>
-                        <div class="card-value" id="average-grade">A</div>
+                    <div class="stat-box">
+                        <div class="stat-value">A</div>
+                        <div class="stat-label">Current Grade</div>
                     </div>
-                    <div class="dashboard-card">
-                        <div class="card-icon"><i class="fas fa-thumbs-up"></i></div>
-                        <div class="card-label">Positive Behaviors</div>
-                        <div class="card-value" id="positive-behaviors">12</div>
+                    <div class="stat-box">
+                        <div class="stat-value">8</div>
+                        <div class="stat-label">Positive Notes</div>
                     </div>
-                    <div class="dashboard-card">
-                        <div class="card-icon"><i class="fas fa-book"></i></div>
-                        <div class="card-label">Classes This Week</div>
-                        <div class="card-value" id="classes-week">20</div>
+                    <div class="stat-box">
+                        <div class="stat-value">2</div>
+                        <div class="stat-label">Pending Homework</div>
+                    </div>
+                </div>
+
+                <div class="card">
+                    <div class="card-title"><i class="fas fa-clock"></i> Upcoming Classes Today</div>
+                    <div class="list-item">
+                        <div class="list-item-content">
+                            <h3>Mathematics - Room 101</h3>
+                            <p>09:00 AM - 10:30 AM with Mr. Smith</p>
+                        </div>
+                        <span class="badge badge-info">Next</span>
+                    </div>
+                    <div class="list-item">
+                        <div class="list-item-content">
+                            <h3>English - Room 205</h3>
+                            <p>10:45 AM - 12:15 PM with Ms. Johnson</p>
+                        </div>
+                        <span class="badge badge-info">Today</span>
+                    </div>
+                    <div class="list-item">
+                        <div class="list-item-content">
+                            <h3>Science Lab - Room 301</h3>
+                            <p>02:00 PM - 03:30 PM with Dr. Williams</p>
+                        </div>
+                        <span class="badge badge-info">Today</span>
+                    </div>
+                </div>
+
+                <div class="card">
+                    <div class="card-title"><i class="fas fa-bell"></i> Recent Activity</div>
+                    <div class="list-item">
+                        <div class="list-item-content">
+                            <h3>Grade Posted: Mathematics Exam</h3>
+                            <p>92/100 (A) - Excellent work! - Today</p>
+                        </div>
+                        <span class="badge badge-success">New</span>
+                    </div>
+                    <div class="list-item">
+                        <div class="list-item-content">
+                            <h3>Message from Mr. Smith</h3>
+                            <p>Great performance in today's class! Keep it up. - 2 hours ago</p>
+                        </div>
+                        <span class="badge badge-success">Positive</span>
+                    </div>
+                    <div class="list-item">
+                        <div class="list-item-content">
+                            <h3>Homework Assigned</h3>
+                            <p>Science Project Due Tomorrow - Dr. Williams</p>
+                        </div>
+                        <span class="badge badge-warning">Due Tomorrow</span>
                     </div>
                 </div>
             </div>
 
-            <!-- Attendance Section -->
-            <div id="attendance-section" class="section-content">
-                <div class="page-header">
+            <!-- ATTENDANCE TAB -->
+            <div id="attendance" class="tab-container">
+                <div class="content-header">
                     <h1><i class="fas fa-calendar-check"></i> Attendance</h1>
-                    <p>Your attendance history</p>
+                    <p>Your attendance record - Currently at 96%</p>
                 </div>
 
-                <div class="content-list" id="attendance-list">
+                <div class="card">
                     <div class="list-item">
-                        <div>
-                            <div class="list-item-title">Mathematics</div>
-                            <div class="list-item-detail">Monday, 09:00 AM</div>
+                        <div class="list-item-content">
+                            <h3>Friday, January 17, 2026</h3>
+                            <p>Present - All classes attended</p>
                         </div>
-                        <span style="color: var(--secondary);"><i class="fas fa-check-circle"></i> Present</span>
+                        <span class="badge badge-success">✓ Present</span>
                     </div>
                     <div class="list-item">
-                        <div>
-                            <div class="list-item-title">English</div>
-                            <div class="list-item-detail">Monday, 10:30 AM</div>
+                        <div class="list-item-content">
+                            <h3>Thursday, January 16, 2026</h3>
+                            <p>Late - 5 mins late to assembly</p>
                         </div>
-                        <span style="color: var(--secondary);"><i class="fas fa-check-circle"></i> Present</span>
+                        <span class="badge badge-warning">⏱ Late</span>
                     </div>
                     <div class="list-item">
-                        <div>
-                            <div class="list-item-title">Science</div>
-                            <div class="list-item-detail">Monday, 02:00 PM</div>
+                        <div class="list-item-content">
+                            <h3>Wednesday, January 15, 2026</h3>
+                            <p>Present - All classes attended</p>
                         </div>
-                        <span style="color: var(--warning);"><i class="fas fa-clock"></i> Late</span>
-                    </div>
-                </div>
-            </div>
-
-            <!-- Grades Section -->
-            <div id="grades-section" class="section-content">
-                <div class="page-header">
-                    <h1><i class="fas fa-chart-bar"></i> Grades</h1>
-                    <p>Your academic performance</p>
-                </div>
-
-                <div class="content-list" id="grades-list">
-                    <div class="list-item">
-                        <div>
-                            <div class="list-item-title">Mathematics</div>
-                            <div class="list-item-detail">Term 1 Assessment</div>
-                        </div>
-                        <strong style="color: var(--primary);">92/100 - A</strong>
+                        <span class="badge badge-success">✓ Present</span>
                     </div>
                     <div class="list-item">
-                        <div>
-                            <div class="list-item-title">English</div>
-                            <div class="list-item-detail">Term 1 Assessment</div>
+                        <div class="list-item-content">
+                            <h3>Tuesday, January 14, 2026</h3>
+                            <p>Present - All classes attended</p>
                         </div>
-                        <strong style="color: var(--primary);">88/100 - A</strong>
+                        <span class="badge badge-success">✓ Present</span>
                     </div>
                     <div class="list-item">
-                        <div>
-                            <div class="list-item-title">Science</div>
-                            <div class="list-item-detail">Term 1 Assessment</div>
+                        <div class="list-item-content">
+                            <h3>Monday, January 13, 2026</h3>
+                            <p>Present - All classes attended</p>
                         </div>
-                        <strong style="color: var(--primary);">85/100 - B+</strong>
+                        <span class="badge badge-success">✓ Present</span>
                     </div>
                 </div>
             </div>
 
-            <!-- Timetable Section -->
-            <div id="timetable-section" class="section-content">
-                <div class="page-header">
-                    <h1><i class="fas fa-calendar"></i> Timetable</h1>
-                    <p>Your weekly class schedule</p>
+            <!-- GRADES TAB -->
+            <div id="grades" class="tab-container">
+                <div class="content-header">
+                    <h1><i class="fas fa-chart-bar"></i> Your Grades</h1>
+                    <p>Term 3 assessments and results - Average: A (90)</p>
                 </div>
 
-                <div class="content-list" id="timetable-list">
+                <div class="card">
                     <div class="list-item">
-                        <div>
-                            <div class="list-item-title">Mathematics - Room 101</div>
-                            <div class="list-item-detail">Monday & Wednesday, 09:00 AM - 10:30 AM</div>
+                        <div class="list-item-content">
+                            <h3>Mathematics</h3>
+                            <p>Term 3 Assessment - Strong performance</p>
                         </div>
-                        <span style="color: var(--primary);"><i class="fas fa-chalkboard-user"></i> Mr. Smith</span>
+                        <span class="badge badge-success">92/100 - A</span>
                     </div>
                     <div class="list-item">
-                        <div>
-                            <div class="list-item-title">English - Room 205</div>
-                            <div class="list-item-detail">Tuesday & Thursday, 10:45 AM - 12:15 PM</div>
+                        <div class="list-item-content">
+                            <h3>English Literature</h3>
+                            <p>Term 3 Assessment - Good analysis</p>
                         </div>
-                        <span style="color: var(--primary);"><i class="fas fa-chalkboard-user"></i> Ms. Johnson</span>
+                        <span class="badge badge-success">88/100 - B+</span>
                     </div>
                     <div class="list-item">
-                        <div>
-                            <div class="list-item-title">Science Lab - Room 301</div>
-                            <div class="list-item-detail">Friday, 01:00 PM - 03:00 PM</div>
+                        <div class="list-item-content">
+                            <h3>Science</h3>
+                            <p>Term 3 Assessment - Excellent understanding</p>
                         </div>
-                        <span style="color: var(--primary);"><i class="fas fa-chalkboard-user"></i> Dr. Williams</span>
+                        <span class="badge badge-success">90/100 - A</span>
+                    </div>
+                    <div class="list-item">
+                        <div class="list-item-content">
+                            <h3>History</h3>
+                            <p>Term 3 Assessment - Good effort</p>
+                        </div>
+                        <span class="badge badge-success">85/100 - B+</span>
+                    </div>
+                    <div class="list-item">
+                        <div class="list-item-content">
+                            <h3>Geography</h3>
+                            <p>Term 3 Assessment - Solid work</p>
+                        </div>
+                        <span class="badge badge-success">87/100 - B+</span>
                     </div>
                 </div>
             </div>
 
-            <!-- Messages Section -->
-            <div id="messages-section" class="section-content">
-                <div class="page-header">
+            <!-- TIMETABLE TAB -->
+            <div id="timetable" class="tab-container">
+                <div class="content-header">
+                    <h1><i class="fas fa-calendar"></i> Your Timetable</h1>
+                    <p>Weekly class schedule</p>
+                </div>
+
+                <div class="card">
+                    <div class="card-title"><i class="fas fa-calendar-alt"></i> Monday</div>
+                    <div class="list-item">
+                        <div class="list-item-content">
+                            <h3>09:00 - 10:30 | Mathematics</h3>
+                            <p>Room 101 - Mr. Smith</p>
+                        </div>
+                    </div>
+                    <div class="list-item">
+                        <div class="list-item-content">
+                            <h3>10:45 - 12:15 | English</h3>
+                            <p>Room 205 - Ms. Johnson</p>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="card">
+                    <div class="card-title"><i class="fas fa-calendar-alt"></i> Wednesday</div>
+                    <div class="list-item">
+                        <div class="list-item-content">
+                            <h3>09:00 - 10:30 | Mathematics</h3>
+                            <p>Room 101 - Mr. Smith</p>
+                        </div>
+                    </div>
+                    <div class="list-item">
+                        <div class="list-item-content">
+                            <h3>02:00 - 03:30 | Science Lab</h3>
+                            <p>Room 301 - Dr. Williams</p>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="card">
+                    <div class="card-title"><i class="fas fa-calendar-alt"></i> Friday</div>
+                    <div class="list-item">
+                        <div class="list-item-content">
+                            <h3>01:00 - 03:00 | Science Lab</h3>
+                            <p>Room 301 - Dr. Williams</p>
+                        </div>
+                    </div>
+                    <div class="list-item">
+                        <div class="list-item-content">
+                            <h3>03:30 - 05:00 | Sports</h3>
+                            <p>Sports Field - PE Department</p>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- HOMEWORK TAB -->
+            <div id="homework" class="tab-container">
+                <div class="content-header">
+                    <h1><i class="fas fa-book"></i> Homework & Assignments</h1>
+                    <p>Your homework tasks and due dates</p>
+                </div>
+
+                <div class="card">
+                    <div class="card-title"><i class="fas fa-exclamation-circle"></i> Due Soon</div>
+                    <div class="list-item">
+                        <div class="list-item-content">
+                            <h3>Science Project Report</h3>
+                            <p>Due: Tomorrow (January 19) - Dr. Williams</p>
+                        </div>
+                        <span class="badge badge-danger">Tomorrow!</span>
+                    </div>
+                    <div class="list-item">
+                        <div class="list-item-content">
+                            <h3>Mathematics Problem Set (Chapter 5)</h3>
+                            <p>Due: January 20 - Mr. Smith</p>
+                        </div>
+                        <span class="badge badge-warning">Due Soon</span>
+                    </div>
+                </div>
+
+                <div class="card">
+                    <div class="card-title"><i class="fas fa-check-circle"></i> Other Assignments</div>
+                    <div class="list-item">
+                        <div class="list-item-content">
+                            <h3>English Essay: "Climate Change"</h3>
+                            <p>Due: January 25 - Ms. Johnson</p>
+                        </div>
+                        <span class="badge badge-info">1 week</span>
+                    </div>
+                    <div class="list-item">
+                        <div class="list-item-content">
+                            <h3>History Project: Medieval Period</h3>
+                            <p>Due: February 1 - Mr. Evans</p>
+                        </div>
+                        <span class="badge badge-info">2 weeks</span>
+                    </div>
+                    <div class="list-item">
+                        <div class="list-item-content">
+                            <h3>Geography Map Exercise</h3>
+                            <p>Due: January 30 - Mrs. Taylor</p>
+                        </div>
+                        <span class="badge badge-info">1+ weeks</span>
+                    </div>
+                </div>
+
+                <div class="card">
+                    <div class="card-title"><i class="fas fa-archive"></i> Completed</div>
+                    <div class="list-item">
+                        <div class="list-item-content">
+                            <h3>Biology Worksheet</h3>
+                            <p>Completed: January 16 - Dr. Williams</p>
+                        </div>
+                        <span class="badge badge-success">✓ Done</span>
+                    </div>
+                    <div class="list-item">
+                        <div class="list-item-content">
+                            <h3>French Dialogue Practice</h3>
+                            <p>Completed: January 15 - Mme. Dupont</p>
+                        </div>
+                        <span class="badge badge-success">✓ Done</span>
+                    </div>
+                </div>
+            </div>
+
+            <!-- BEHAVIOR TAB -->
+            <div id="behavior" class="tab-container">
+                <div class="content-header">
+                    <h1><i class="fas fa-heart"></i> Behavior & Notes</h1>
+                    <p>Your conduct and feedback from teachers</p>
+                </div>
+
+                <div class="card">
+                    <div class="card-title"><i class="fas fa-thumbs-up"></i> Positive Notes</div>
+                    <div class="list-item">
+                        <div class="list-item-content">
+                            <h3>Excellent Teamwork</h3>
+                            <p>Group project participation - January 15</p>
+                        </div>
+                        <span class="badge badge-success">Positive</span>
+                    </div>
+                    <div class="list-item">
+                        <div class="list-item-content">
+                            <h3>Class Participation</h3>
+                            <p>Active in Mathematics discussion - January 10</p>
+                        </div>
+                        <span class="badge badge-success">Positive</span>
+                    </div>
+                    <div class="list-item">
+                        <div class="list-item-content">
+                            <h3>Help to Peers</h3>
+                            <p>Assisted classmates with homework - January 5</p>
+                        </div>
+                        <span class="badge badge-success">Positive</span>
+                    </div>
+                </div>
+
+                <div class="card">
+                    <div class="card-title"><i class="fas fa-star"></i> Overall Assessment</div>
+                    <p style="margin-bottom: 1rem; color: var(--text-secondary);">You are maintaining excellent conduct. Keep up the good work and continue participating actively in class!</p>
+                    <div style="display: flex; gap: 1rem;">
+                        <div style="flex: 1; background: var(--bg-secondary); padding: 1rem; border-radius: 6px; text-align: center;">
+                            <div style="font-weight: 700; color: var(--primary); margin-bottom: 0.5rem;">Outstanding</div>
+                            <div style="font-size: 0.9rem; color: var(--text-secondary);">Conduct Rating</div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- MESSAGES TAB -->
+            <div id="messages" class="tab-container">
+                <div class="content-header">
                     <h1><i class="fas fa-envelope"></i> Messages</h1>
-                    <p>Communications from teachers and administrators</p>
+                    <p>Communications from teachers and school</p>
                 </div>
 
-                <div class="content-list" id="messages-list">
+                <div class="card">
                     <div class="list-item">
-                        <div>
-                            <div class="list-item-title">Great work on your essay!</div>
-                            <div class="list-item-detail">From: Ms. Johnson - 2 days ago</div>
+                        <div class="list-item-content">
+                            <h3>From: Mr. Smith (Mathematics)</h3>
+                            <p>Excellent work on your exam! Your problem-solving approach shows great understanding.</p>
                         </div>
-                        <span style="color: var(--secondary);"><i class="fas fa-star"></i> Important</span>
+                        <span class="badge badge-success">New</span>
                     </div>
                     <div class="list-item">
-                        <div>
-                            <div class="list-item-title">Upcoming exam schedule</div>
-                            <div class="list-item-detail">From: Admin - 5 days ago</div>
+                        <div class="list-item-content">
+                            <h3>From: Ms. Johnson (English)</h3>
+                            <p>Great essay submission! Well structured and well written. Keep this standard.</p>
                         </div>
+                        <span class="badge badge-info">Read</span>
                     </div>
                     <div class="list-item">
-                        <div>
-                            <div class="list-item-title">Lab safety reminder</div>
-                            <div class="list-item-detail">From: Dr. Williams - 1 week ago</div>
+                        <div class="list-item-content">
+                            <h3>From: School Administration</h3>
+                            <p>Science field trip on January 25. Remember to bring your consent form.</p>
                         </div>
+                        <span class="badge badge-warning">Action Needed</span>
+                    </div>
+                    <div class="list-item">
+                        <div class="list-item-content">
+                            <h3>From: Dr. Williams (Science)</h3>
+                            <p>Project submission deadline has been extended to January 19.</p>
+                        </div>
+                        <span class="badge badge-info">Read</span>
+                    </div>
+                </div>
+            </div>
+
+            <!-- RESOURCES TAB -->
+            <div id="resources" class="tab-container">
+                <div class="content-header">
+                    <h1><i class="fas fa-book-open"></i> Learning Resources</h1>
+                    <p>Study materials and helpful resources</p>
+                </div>
+
+                <div class="card">
+                    <div class="card-title"><i class="fas fa-video"></i> Video Tutorials</div>
+                    <div class="list-item">
+                        <div class="list-item-content">
+                            <h3>Mathematics - Quadratic Equations</h3>
+                            <p>Comprehensive tutorial on solving quadratic equations</p>
+                        </div>
+                        <span class="badge badge-info">Watch</span>
+                    </div>
+                    <div class="list-item">
+                        <div class="list-item-content">
+                            <h3>Science - The Water Cycle</h3>
+                            <p>Interactive explanation of the water cycle</p>
+                        </div>
+                        <span class="badge badge-info">Watch</span>
+                    </div>
+                </div>
+
+                <div class="card">
+                    <div class="card-title"><i class="fas fa-file-pdf"></i> Study Guides</div>
+                    <div class="list-item">
+                        <div class="list-item-content">
+                            <h3>Mathematics Study Guide - Chapter 5</h3>
+                            <p>Summary of key concepts and practice problems</p>
+                        </div>
+                        <span class="badge badge-info">Download</span>
+                    </div>
+                    <div class="list-item">
+                        <div class="list-item-content">
+                            <h3>English Literature - Shakespeare Overview</h3>
+                            <p>Study notes for upcoming Shakespeare unit</p>
+                        </div>
+                        <span class="badge badge-info">Download</span>
+                    </div>
+                </div>
+
+                <div class="card">
+                    <div class="card-title"><i class="fas fa-external-link-alt"></i> Online Tools</div>
+                    <div class="list-item">
+                        <div class="list-item-content">
+                            <h3>Khan Academy</h3>
+                            <p>Free learning videos for all subjects</p>
+                        </div>
+                        <span class="badge badge-info">Visit</span>
+                    </div>
+                    <div class="list-item">
+                        <div class="list-item-content">
+                            <h3>Wolfram Alpha Calculator</h3>
+                            <p>Advanced math and science problem solver</p>
+                        </div>
+                        <span class="badge badge-info">Visit</span>
                     </div>
                 </div>
             </div>
         </div>
-
-        <!-- Footer -->
-        <footer class="student-footer">
-            <p>&copy; 2024 Cirkle Development | MISpal School Administration Software</p>
-        </footer>
     </div>
 
     <script>
         // Initialize on page load
         document.addEventListener('DOMContentLoaded', function() {
-            const user = JSON.parse(localStorage.getItem('user'));
-            if (!user || user.role !== 'Student') {
+            const user = JSON.parse(localStorage.getItem('user') || '{}');
+            if (!user.role || user.role !== 'Student') {
                 window.location.href = '/shannoncomp/login';
                 return;
             }
             
-            // Set user greeting
-            const userName = user.name || 'Student';
-            document.getElementById('user-greeting').textContent = userName;
+            // Set user name
+            const userName = user.name || 'Student User';
+            document.getElementById('sidebar-user').textContent = userName;
         });
 
-        function switchTab(tabName) {
-            // Hide all sections
-            document.querySelectorAll('.section-content').forEach(section => {
-                section.classList.remove('active');
+        function switchTab(e, tabName) {
+            e.preventDefault();
+            
+            // Hide all tabs
+            document.querySelectorAll('.tab-container').forEach(tab => {
+                tab.classList.remove('active');
             });
 
-            // Remove active class from all nav items
-            document.querySelectorAll('.nav-item').forEach(item => {
+            // Remove active from nav items
+            document.querySelectorAll('.sidebar-nav-item').forEach(item => {
                 item.classList.remove('active');
             });
 
-            // Show selected section
-            const sectionId = tabName + '-section';
-            const section = document.getElementById(sectionId);
-            if (section) {
-                section.classList.add('active');
+            // Show selected tab
+            const tabEl = document.getElementById(tabName);
+            if (tabEl) {
+                tabEl.classList.add('active');
             }
 
-            // Add active class to clicked nav item
-            event.target.closest('.nav-item').classList.add('active');
+            // Mark nav item as active
+            e.target.closest('.sidebar-nav-item').classList.add('active');
         }
 
         function handleLogout() {
-            localStorage.clear();
-            window.location.href = '/shannoncomp/login';
+            if (confirm('Are you sure you want to logout?')) {
+                localStorage.clear();
+                window.location.href = '/shannoncomp/login';
+            }
         }
     </script>
 </body>
