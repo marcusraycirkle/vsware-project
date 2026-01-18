@@ -196,7 +196,12 @@ router.put('/:id/approve', auth, authorize('admin', 'principal'), async (req, re
         phoneNumber: enrollment.phone,
         address: enrollment.address || {}
       });
-      await user.save();
+      try {
+        await user.save();
+      } catch (userError) {
+        console.error('Error creating user:', userError);
+        throw new Error(`Failed to create user account: ${userError.message}`);
+      }
     }
 
     // Create student profile
@@ -221,7 +226,12 @@ router.put('/:id/approve', auth, authorize('admin', 'principal'), async (req, re
       notes: enrollment.notes ? [{ content: enrollment.notes, createdBy: req.userId, createdAt: new Date() }] : []
     });
 
-    await student.save();
+    try {
+      await student.save();
+    } catch (studentError) {
+      console.error('Error creating student:', studentError);
+      throw new Error(`Failed to create student profile: ${studentError.message}`);
+    }
 
     // Link student to user
     user.studentProfile = student._id;
