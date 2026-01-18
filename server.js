@@ -207,8 +207,8 @@ app.get('/shannoncomp/login', (req, res) => {
   res.sendFile(path.join(__dirname, 'frontend', 'login.html'));
 });
 
-app.get('/admin/*', (req, res) => {
-  res.sendFile(path.join(__dirname, 'frontend', 'admin-portal.html'));
+app.get('/shannoncomp/enrolment', (req, res) => {
+  res.sendFile(path.join(__dirname, 'frontend', 'enrolment.html'));
 });
 
 // Dashboard routes (all serve index.html for client-side routing)

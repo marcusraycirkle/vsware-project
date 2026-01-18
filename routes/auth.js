@@ -23,7 +23,7 @@ router.post('/register', [
   body('password').isLength({ min: 6 }),
   body('firstName').trim().notEmpty(),
   body('lastName').trim().notEmpty(),
-  body('role').isIn(['admin', 'principal', 'teacher', 'parent', 'student'])
+  body('role').isIn(['admin', 'principal', 'secretary', 'teacher', 'parent', 'student'])
 ], async (req, res) => {
   try {
     // Validate input
