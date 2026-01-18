@@ -1,4 +1,4 @@
-// MISpal Custom Loading Animation - Logo Reveal/Unreveal
+// MISpal Custom Loading Animation - Video-based Loading Screen
 class LoadingAnimation {
   constructor() {
     this.isAnimating = false;
@@ -7,23 +7,22 @@ class LoadingAnimation {
   }
   
   init() {
-    // Create loading overlay
+    // Create loading overlay with video
     const overlay = document.createElement('div');
     overlay.id = 'mispal-loading';
     overlay.className = 'mispal-loading-overlay';
     overlay.innerHTML = `
       <div class="loading-content">
-        <div class="logo-reveal-container">
-          <img src="/mispal-logo.png" alt="MISpal" class="loading-logo" id="loading-logo-img">
-          <div class="logo-reveal-mask" id="logo-reveal-mask"></div>
-        </div>
-        <div class="loading-text">Loading
-          <span class="loading-dot">.</span>
-          <span class="loading-dot">.</span>
-          <span class="loading-dot">.</span>
+        <video id="loading-video-overlay" playsinline muted autoplay style="width: 100%; height: 100%; object-fit: cover; position: absolute; top: 0; left: 0;">
+          <source src="/videoloadtest2.mp4" type="video/mp4">
+        </video>
+        <div class="loading-fallback" style="display: none; position: absolute; top: 0; left: 0; width: 100%; height: 100%; background: linear-gradient(135deg, #667eea 0%, #764ba2 100%); flex-direction: column; align-items: center; justify-content: center;">
+          <div style="font-size: 3rem; margin-bottom: 2rem;">📚</div>
+          <div style="color: white; font-size: 1.2rem; font-weight: 500;">Loading MISpal...</div>
         </div>
       </div>
     `;
+    overlay.style.cssText = 'position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: #000; z-index: 9999; display: none; align-items: center; justify-content: center; opacity: 0; transition: opacity 0.3s ease;';
     document.body.appendChild(overlay);
   }
   
@@ -34,67 +33,39 @@ class LoadingAnimation {
       return this.show();
     }
     
-    overlay.classList.add('visible');
+    overlay.style.display = 'flex';
+    setTimeout(() => {
+      overlay.style.opacity = '1';
+    }, 10);
+    
     this.isAnimating = true;
-    this.startAnimation();
+    
+    // Try to play the video
+    const videoOverlay = document.getElementById('loading-video-overlay');
+    if (videoOverlay) {
+      videoOverlay.play().catch(err => {
+        console.log('Video autoplay failed, showing fallback');
+        const fallback = overlay.querySelector('.loading-fallback');
+        if (fallback) {
+          fallback.style.display = 'flex';
+          videoOverlay.style.display = 'none';
+        }
+      });
+    }
   }
   
   hide() {
     const overlay = document.getElementById('mispal-loading');
     if (overlay) {
+      overlay.style.opacity = '0';
       setTimeout(() => {
-        overlay.classList.remove('visible');
+        overlay.style.display = 'none';
         this.isAnimating = false;
         if (this.animationFrame) {
           cancelAnimationFrame(this.animationFrame);
         }
-      }, 100);
+      }, 300);
     }
-  }
-  
-  async startAnimation() {
-    while (this.isAnimating) {
-      await this.animateReveal();
-      if (!this.isAnimating) break;
-      await this.pause(800);
-      await this.animateUnreveal();
-      if (!this.isAnimating) break;
-      await this.pause(500);
-    }
-  }
-  
-  animateReveal() {
-    return new Promise(resolve => {
-      const mask = document.getElementById('logo-reveal-mask');
-      if (!mask) {
-        resolve();
-        return;
-      }
-      
-      mask.style.transition = 'width 1.5s cubic-bezier(0.65, 0, 0.35, 1)';
-      mask.style.width = '0%';
-      
-      setTimeout(resolve, 1500);
-    });
-  }
-  
-  animateUnreveal() {
-    return new Promise(resolve => {
-      const mask = document.getElementById('logo-reveal-mask');
-      if (!mask) {
-        resolve();
-        return;
-      }
-      
-      mask.style.transition = 'width 1.5s cubic-bezier(0.65, 0, 0.35, 1)';
-      mask.style.width = '100%';
-      
-      setTimeout(resolve, 1500);
-    });
-  }
-  
-  pause(ms) {
-    return new Promise(resolve => setTimeout(resolve, ms));
   }
 }
 

@@ -2,11 +2,15 @@ const videoEl = document.getElementById('loading-video');
 const fallbackLoader = document.getElementById('fallback-loader');
 let videoEnded = false;
 let videoLoaded = false;
+let isInitialLoad = !sessionStorage.getItem('pageLoaded');
 
-// Handle video end
+// Handle video end - only redirect if it's a page refresh/second time
 videoEl.addEventListener('ended', () => {
     videoEnded = true;
-    redirectToLanding();
+    // If this is an initial load, loop the video until redirect happens
+    if (!isInitialLoad) {
+        redirectToLanding();
+    }
 });
 
 // Handle video error (fallback if video not found)
@@ -34,23 +38,17 @@ videoEl.addEventListener('canplay', () => {
     });
 });
 
-// Timeout failsafe - if nothing happens in 15 seconds, go to landing page
+// Timeout failsafe
+// For initial load: play full video cycle then redirect
+// For refresh: redirect after 10 seconds max (video will be shown as loading overlay)
+const timeoutDuration = isInitialLoad ? 15000 : 10000;
 setTimeout(() => {
-    if (!videoEnded) {
-        redirectToLanding();
-    }
-}, 15000);
+    redirectToLanding();
+}, timeoutDuration);
 
 function redirectToLanding() {
-    // Check if user came from a refresh/back navigation
-    if (sessionStorage.getItem('loadingShown')) {
-        // Already showed loading once this session, skip to home
-        window.location.pathname = '/home';
-        return;
-    }
-    
-    // Mark that we showed loading
-    sessionStorage.setItem('loadingShown', 'true');
+    // Mark that we've loaded the page
+    sessionStorage.setItem('pageLoaded', 'true');
     
     // Redirect to home/landing page
     window.location.pathname = '/home';

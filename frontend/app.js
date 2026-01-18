@@ -107,15 +107,7 @@ function showLoginPage() {
     if (dashboard) dashboard.classList.add('hidden');
 }
 
-function showDashboard() {
-    const landingPage = document.getElementById('landing-page');
-    const loginPage = document.getElementById('login-page');
-    const dashboard = document.getElementById('dashboard');
-    
-    if (landingPage) landingPage.style.display = 'none';
-    if (loginPage) loginPage.style.display = 'none';
-    if (dashboard) dashboard.classList.remove('hidden');
-}
+
 
 function setupEventListeners() {
     const loginForm = document.getElementById('login-form');
@@ -181,7 +173,7 @@ async function login(email, pin) {
             headers: {
                 'Content-Type': 'application/json'
             },
-            body: JSON.stringify({ email, pin })
+            body: JSON.stringify({ email, password: pin })
         });
         
         const data = await response.json();
