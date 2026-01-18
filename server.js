@@ -6,6 +6,7 @@ const rateLimit = require('express-rate-limit');
 const dotenv = require('dotenv');
 const http = require('http');
 const socketIO = require('socket.io');
+const path = require('path');
 
 // Load environment variables
 dotenv.config();
@@ -22,6 +23,12 @@ async function connectToDatabase() {
   if (mongoose.connection.readyState === 1) {
     cachedDb = mongoose.connection;
     return cachedDb;
+  }
+
+  // Check if MongoDB URI is set
+  if (!process.env.MONGODB_URI) {
+    console.warn('⚠️  MONGODB_URI not set - database connection will be skipped');
+    throw new Error('MONGODB_URI environment variable is not set');
   }
 
   await mongoose.connect(process.env.MONGODB_URI, {
@@ -90,30 +97,9 @@ if (process.env.NODE_ENV !== 'production' && process.env.VERCEL !== '1') {
 // Middleware
 app.use(helmet());
 
-// Middleware to ensure DB connection on each request (MUST BE EARLY)
-app.use(async (req, res, next) => {
-  try {
-    await connectToDatabase();
-    next();
-  } catch (error) {
-    console.error('Database connection error:', error);
-    // For health check, allow it to pass even if DB fails
-    if (req.path === '/api/health') {
-      return res.json({ status: 'WARNING', message: 'API is running but DB is unavailable', dbState: mongoose.connection.readyState });
-    }
-    // For static files and home pages, allow them to load even without DB
-    if (req.path === '/' || req.path === '/home' || req.path === '/selector' || req.path.includes('/admin') || req.path.includes('/.')) {
-      next();
-    } else {
-      res.status(500).json({ message: 'Database connection failed', error: error.message });
-    }
-  }
-});
-
-// CORS configuration for production
+// CORS configuration for production - MUST be early
 const corsOptions = {
   origin: function (origin, callback) {
-    // Allow all origins for now since frontend can be anywhere
     callback(null, true);
   },
   credentials: true,
@@ -125,6 +111,16 @@ app.use(cors(corsOptions));
 
 app.use(express.json());
 app.use(express.urlencoded({ extended: true }));
+
+// Serve static files FIRST (before any middleware that could fail)
+app.use(express.static(path.join(__dirname, 'frontend'), {
+  maxAge: '1h',
+  setHeaders: (res, filePath) => {
+    if (filePath.endsWith('.html')) {
+      res.set('Cache-Control', 'no-cache, no-store, must-revalidate');
+    }
+  }
+}));
 
 // Add cache control and security headers
 app.use((req, res, next) => {
@@ -148,16 +144,22 @@ app.use((req, res, next) => {
   next();
 });
 
-// Serve static files from frontend directory
-app.use(express.static('frontend', {
-  maxAge: '1h', // Cache other static files for 1 hour
-  setHeaders: (res, path) => {
-    // Don't cache HTML files
-    if (path.endsWith('.html')) {
-      res.set('Cache-Control', 'no-cache, no-store, must-revalidate');
-    }
+// Middleware to ensure DB connection on each request (AFTER static files)
+app.use(async (req, res, next) => {
+  // Skip DB connection for health check and certain paths
+  if (req.path === '/api/health' || req.path === '/' || req.path === '/home' || req.path === '/selector') {
+    return next();
   }
-}));
+  
+  try {
+    await connectToDatabase();
+    next();
+  } catch (error) {
+    console.error('Database connection error:', error.message);
+    // Allow next middleware to handle
+    next();
+  }
+});
 
 // Rate limiting
 const limiter = rateLimit({
@@ -219,9 +221,9 @@ app.get('/shannoncomp/*', (req, res) => {
   res.sendFile(__dirname + '/frontend/index.html');
 });
 
-// Root redirects to home
+// Root serves index.html directly (no redirect needed)
 app.get('/', (req, res) => {
-  res.redirect('/home');
+  res.sendFile(path.join(__dirname, 'frontend', 'index.html'));
 });
 
 // Catch all 404 - serve landing page (this should be LAST)
