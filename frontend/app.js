@@ -4390,14 +4390,6 @@ async function loadParentDashboard() {
         hideLoading();
     }
 }
-            </div>
-        `;
-    } catch (error) {
-        hideLoading();
-        console.error('Error loading parent dashboard:', error);
-        showError('Failed to load dashboard');
-    }
-}
 
 // ========== PERSONAL TIMETABLE ==========
 async function loadMyPersonalTimetable() {
