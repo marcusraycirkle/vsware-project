@@ -333,7 +333,7 @@
 </head>
 <body>
     <div class="login-wrapper">
-        <a class="login-back-btn" onclick="window.location.pathname = '/selector'">
+        <a class="login-back-btn" id="login-back-btn">
             <i class="fas fa-arrow-left"></i> Back to Schools
         </a>
         
@@ -397,6 +397,16 @@
             const pin = document.getElementById('login-pin').value;
             login(email, pin);
         }
+        
+        // Add event listener for back button
+        document.addEventListener('DOMContentLoaded', () => {
+            const backBtn = document.getElementById('login-back-btn');
+            if (backBtn) {
+                backBtn.addEventListener('click', () => {
+                    window.location.pathname = '/selector';
+                });
+            }
+        });
     </script>
 </body>
 </html>
