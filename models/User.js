@@ -19,16 +19,40 @@ const userSchema = new mongoose.Schema({
   },
   role: {
     type: String,
-    enum: ['admin', 'principal', 'teacher', 'parent', 'student'],
+    enum: ['Admin', 'Principal', 'Teacher', 'Parent', 'Student', 'Secretary'],
     required: true
+  },
+  name: {
+    type: String
   },
   firstName: {
-    type: String,
-    required: true
+    type: String
   },
   lastName: {
+    type: String
+  },
+  // Role hierarchy for teachers: Avg, Mid, High, HR
+  roleHierarchy: {
     type: String,
-    required: true
+    enum: ['Avg', 'Mid', 'High', 'HR', 'Principal', 'Secretary', 'Parent', 'Student'],
+    default: null
+  },
+  permissionLevel: {
+    type: String,
+    default: 'General'
+  },
+  department: {
+    type: String,
+    default: null
+  },
+  designation: {
+    type: String,
+    default: null
+  },
+  createdBy: {
+    type: mongoose.Schema.Types.ObjectId,
+    ref: 'User',
+    default: null
   },
   profileImage: {
     type: String,

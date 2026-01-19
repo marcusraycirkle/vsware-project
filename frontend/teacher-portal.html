@@ -1,0 +1,494 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta http-equiv="Cache-Control" content="no-cache, no-store, must-revalidate">
+    <title>MISpal - Teacher Dashboard</title>
+    <link rel="icon" href="/mispal-logo.png" type="image/png">
+    <link rel="shortcut icon" href="/mispal-logo.png" type="image/png">
+    <link rel="stylesheet" href="/admin-styles.css">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800;900&display=swap" rel="stylesheet">
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+</head>
+<body>
+    <!-- Main Teacher Container -->
+    <div id="teacher-portal" class="admin-portal">
+        
+        <!-- Top Navigation Bar -->
+        <header class="admin-header">
+            <div class="header-left">
+                <button class="sidebar-toggle" id="sidebar-toggle-btn">
+                    <i class="fas fa-bars"></i>
+                </button>
+                <div class="school-brand">
+                    <img src="/mispal-logo.png" alt="MISpal" class="brand-logo" onerror="this.style.display='none'">
+                    <div class="brand-info">
+                        <h1 class="school-name">St. Patrick's Comprehensive</h1>
+                        <span class="portal-type">Teacher Portal</span>
+                    </div>
+                </div>
+            </div>
+            
+            <div class="header-center">
+                <div class="search-bar">
+                    <i class="fas fa-search"></i>
+                    <input type="text" placeholder="Search students, classes, assignments..." id="global-search">
+                </div>
+            </div>
+            
+            <div class="header-right">
+                <button class="icon-btn notification-btn" id="notification-btn">
+                    <i class="fas fa-bell"></i>
+                    <span class="badge">3</span>
+                </button>
+                
+                <div class="user-menu" id="user-menu-btn">
+                    <div class="user-avatar">
+                        <i class="fas fa-user-tie"></i>
+                    </div>
+                    <div class="user-info">
+                        <span class="user-name">John Smith</span>
+                        <span class="user-role">Teacher</span>
+                    </div>
+                    <i class="fas fa-chevron-down"></i>
+                </div>
+            </div>
+        </header>
+
+        <div class="admin-main">
+            <!-- Sidebar Navigation -->
+            <aside class="admin-sidebar" id="admin-sidebar">
+                <nav class="sidebar-nav">
+                    <div class="nav-section">
+                        <div class="nav-section-title">Main</div>
+                        <a href="#" class="nav-item active" data-page="dashboard">
+                            <i class="fas fa-th-large"></i>
+                            <span>Dashboard</span>
+                        </a>
+                        <a href="#" class="nav-item" data-page="classes">
+                            <i class="fas fa-door-open"></i>
+                            <span>My Classes</span>
+                            <span class="count">4</span>
+                        </a>
+                        <a href="#" class="nav-item" data-page="calendar">
+                            <i class="fas fa-calendar-alt"></i>
+                            <span>Calendar</span>
+                        </a>
+                    </div>
+
+                    <div class="nav-section">
+                        <div class="nav-section-title">Academic</div>
+                        <a href="#" class="nav-item" data-page="attendance">
+                            <i class="fas fa-calendar-check"></i>
+                            <span>Attendance</span>
+                        </a>
+                        <a href="#" class="nav-item" data-page="assessments">
+                            <i class="fas fa-file-alt"></i>
+                            <span>Assessments</span>
+                        </a>
+                        <a href="#" class="nav-item" data-page="grades">
+                            <i class="fas fa-chart-bar"></i>
+                            <span>Grades</span>
+                        </a>
+                        <a href="#" class="nav-item" data-page="behavior">
+                            <i class="fas fa-heart"></i>
+                            <span>Behavior</span>
+                        </a>
+                    </div>
+
+                    <div class="nav-section">
+                        <div class="nav-section-title">Communication</div>
+                        <a href="#" class="nav-item" data-page="messages">
+                            <i class="fas fa-envelope"></i>
+                            <span>Messages</span>
+                            <span class="badge-mini">5</span>
+                        </a>
+                        <a href="#" class="nav-item" data-page="announcements">
+                            <i class="fas fa-bullhorn"></i>
+                            <span>Announcements</span>
+                        </a>
+                    </div>
+
+                    <div class="nav-section">
+                        <div class="nav-section-title">Resources</div>
+                        <a href="#" class="nav-item" data-page="assignments">
+                            <i class="fas fa-tasks"></i>
+                            <span>Assignments</span>
+                        </a>
+                        <a href="#" class="nav-item" data-page="materials">
+                            <i class="fas fa-book"></i>
+                            <span>Course Materials</span>
+                        </a>
+                        <a href="#" class="nav-item" data-page="settings">
+                            <i class="fas fa-cog"></i>
+                            <span>Settings</span>
+                        </a>
+                    </div>
+                </nav>
+
+                <div class="sidebar-footer">
+                    <div class="upgrade-card">
+                        <i class="fas fa-lightbulb"></i>
+                        <h4>Teaching Tips</h4>
+                        <p>Check documentation for best practices</p>
+                        <button class="upgrade-btn">Learn More</button>
+                    </div>
+                </div>
+            </aside>
+
+            <!-- Main Content Area -->
+            <main class="admin-content" id="admin-content">
+                <!-- Dashboard Page (Default) -->
+                <div id="page-dashboard" class="page-content active">
+                    <div class="page-header">
+                        <div>
+                            <h2 class="page-title">Dashboard</h2>
+                            <p class="page-subtitle">Welcome back, here's your teaching overview</p>
+                        </div>
+                    </div>
+
+                    <!-- Stats Grid -->
+                    <div class="stats-grid">
+                        <div class="stat-card blue">
+                            <div class="stat-icon">
+                                <i class="fas fa-user-graduate"></i>
+                            </div>
+                            <div class="stat-info">
+                                <span class="stat-label">Total Students</span>
+                                <span class="stat-value">128</span>
+                                <span class="stat-change positive">
+                                    <i class="fas fa-arrow-up"></i> Across 4 classes
+                                </span>
+                            </div>
+                        </div>
+
+                        <div class="stat-card green">
+                            <div class="stat-icon">
+                                <i class="fas fa-calendar-check"></i>
+                            </div>
+                            <div class="stat-info">
+                                <span class="stat-label">Attendance Rate</span>
+                                <span class="stat-value">94.5%</span>
+                                <span class="stat-change positive">
+                                    <i class="fas fa-arrow-up"></i> 2.1% vs last week
+                                </span>
+                            </div>
+                        </div>
+
+                        <div class="stat-card orange">
+                            <div class="stat-icon">
+                                <i class="fas fa-file-alt"></i>
+                            </div>
+                            <div class="stat-info">
+                                <span class="stat-label">Pending Assessments</span>
+                                <span class="stat-value">12</span>
+                                <span class="stat-change neutral">
+                                    <i class="fas fa-clock"></i> This week
+                                </span>
+                            </div>
+                        </div>
+
+                        <div class="stat-card purple">
+                            <div class="stat-icon">
+                                <i class="fas fa-envelope"></i>
+                            </div>
+                            <div class="stat-info">
+                                <span class="stat-label">Messages</span>
+                                <span class="stat-value">5</span>
+                                <span class="stat-change neutral">
+                                    <i class="fas fa-minus"></i> Unread
+                                </span>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Main Content Grid with Attendance & Notifications Side by Side -->
+                    <div class="dashboard-grid-two">
+                        <!-- Attendance with Pie Chart -->
+                        <div class="dashboard-card">
+                            <div class="card-header">
+                                <h3><i class="fas fa-calendar-check"></i> Attendance Overview</h3>
+                                <select id="class-select" class="btn-text">
+                                    <option value="all">All Classes</option>
+                                    <option value="class1">Year 12A</option>
+                                    <option value="class2">Year 12B</option>
+                                    <option value="class3">Year 11A</option>
+                                    <option value="class4">Year 10C</option>
+                                </select>
+                            </div>
+                            <div style="position: relative; height: 300px; margin: 1.5rem 0;">
+                                <canvas id="attendance-chart"></canvas>
+                            </div>
+                            <div class="attendance-stats">
+                                <div class="attendance-stat-item">
+                                    <span class="stat-dot present"></span>
+                                    <span>Present: 120 (93.8%)</span>
+                                </div>
+                                <div class="attendance-stat-item">
+                                    <span class="stat-dot absent"></span>
+                                    <span>Absent: 5 (3.9%)</span>
+                                </div>
+                                <div class="attendance-stat-item">
+                                    <span class="stat-dot late"></span>
+                                    <span>Late: 3 (2.3%)</span>
+                                </div>
+                            </div>
+                        </div>
+
+                        <!-- Notifications -->
+                        <div class="dashboard-card">
+                            <div class="card-header">
+                                <h3><i class="fas fa-bell"></i> Notifications</h3>
+                                <button class="btn-text">Mark All Read</button>
+                            </div>
+                            <div class="notification-list" id="notification-list">
+                                <div class="notification-item unread">
+                                    <div class="notification-icon info">
+                                        <i class="fas fa-info-circle"></i>
+                                    </div>
+                                    <div class="notification-content">
+                                        <p><strong>New Assignment Due</strong></p>
+                                        <p class="notification-detail">Year 12A Mathematics assignment due Friday</p>
+                                        <span class="notification-time">2 hours ago</span>
+                                    </div>
+                                </div>
+                                <div class="notification-item unread">
+                                    <div class="notification-icon success">
+                                        <i class="fas fa-check-circle"></i>
+                                    </div>
+                                    <div class="notification-content">
+                                        <p><strong>Grades Submitted</strong></p>
+                                        <p class="notification-detail">Year 11A term grades have been approved</p>
+                                        <span class="notification-time">1 day ago</span>
+                                    </div>
+                                </div>
+                                <div class="notification-item">
+                                    <div class="notification-icon warning">
+                                        <i class="fas fa-exclamation-triangle"></i>
+                                    </div>
+                                    <div class="notification-content">
+                                        <p><strong>Low Attendance Alert</strong></p>
+                                        <p class="notification-detail">5 students in Year 10C below 90%</p>
+                                        <span class="notification-time">3 days ago</span>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Recent Activity & Upcoming Classes -->
+                    <div class="dashboard-grid">
+                        <!-- Recent Activity -->
+                        <div class="dashboard-card">
+                            <div class="card-header">
+                                <h3><i class="fas fa-history"></i> Recent Activity</h3>
+                                <button class="btn-text">View All</button>
+                            </div>
+                            <div class="activity-list" id="recent-activity">
+                                <div class="activity-item">
+                                    <div class="activity-icon blue">
+                                        <i class="fas fa-check-circle"></i>
+                                    </div>
+                                    <div class="activity-content">
+                                        <p><strong>Attendance marked</strong></p>
+                                        <p class="activity-detail">Year 12A morning attendance submitted</p>
+                                        <span class="activity-time">2 hours ago</span>
+                                    </div>
+                                </div>
+                                <div class="activity-item">
+                                    <div class="activity-icon green">
+                                        <i class="fas fa-star"></i>
+                                    </div>
+                                    <div class="activity-content">
+                                        <p><strong>Behavior note added</strong></p>
+                                        <p class="activity-detail">Positive note for Emma Davis - excellent participation</p>
+                                        <span class="activity-time">4 hours ago</span>
+                                    </div>
+                                </div>
+                                <div class="activity-item">
+                                    <div class="activity-icon purple">
+                                        <i class="fas fa-file-alt"></i>
+                                    </div>
+                                    <div class="activity-content">
+                                        <p><strong>Assessment submitted</strong></p>
+                                        <p class="activity-detail">Year 11A Mathematics test grades entered</p>
+                                        <span class="activity-time">1 day ago</span>
+                                    </div>
+                                </div>
+                                <div class="activity-item">
+                                    <div class="activity-icon orange">
+                                        <i class="fas fa-envelope"></i>
+                                    </div>
+                                    <div class="activity-content">
+                                        <p><strong>Message from admin</strong></p>
+                                        <p class="activity-detail">Reminder: Submit Term 3 grades by Friday</p>
+                                        <span class="activity-time">2 days ago</span>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+
+                        <!-- Upcoming Classes -->
+                        <div class="dashboard-card">
+                            <div class="card-header">
+                                <h3><i class="fas fa-calendar"></i> Today's Schedule</h3>
+                                <span class="badge-mini">4 classes</span>
+                            </div>
+                            <div class="schedule-list">
+                                <div class="schedule-item">
+                                    <div class="schedule-time">09:00 - 10:00</div>
+                                    <div class="schedule-content">
+                                        <p><strong>Year 12A - Mathematics</strong></p>
+                                        <p class="schedule-detail">Room 302 | 32 students</p>
+                                    </div>
+                                    <button class="btn-text"><i class="fas fa-arrow-right"></i></button>
+                                </div>
+                                <div class="schedule-item">
+                                    <div class="schedule-time">10:15 - 11:15</div>
+                                    <div class="schedule-content">
+                                        <p><strong>Year 12B - Mathematics</strong></p>
+                                        <p class="schedule-detail">Room 304 | 30 students</p>
+                                    </div>
+                                    <button class="btn-text"><i class="fas fa-arrow-right"></i></button>
+                                </div>
+                                <div class="schedule-item">
+                                    <div class="schedule-time">13:00 - 14:00</div>
+                                    <div class="schedule-content">
+                                        <p><strong>Year 11A - Mathematics</strong></p>
+                                        <p class="schedule-detail">Room 301 | 28 students</p>
+                                    </div>
+                                    <button class="btn-text"><i class="fas fa-arrow-right"></i></button>
+                                </div>
+                                <div class="schedule-item">
+                                    <div class="schedule-time">14:15 - 15:15</div>
+                                    <div class="schedule-content">
+                                        <p><strong>Year 10C - Mathematics</strong></p>
+                                        <p class="schedule-detail">Room 205 | 26 students</p>
+                                    </div>
+                                    <button class="btn-text"><i class="fas fa-arrow-right"></i></button>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Placeholder Pages -->
+                <div id="page-classes" class="page-content">
+                    <div class="page-header">
+                        <h2 class="page-title">My Classes</h2>
+                        <p class="page-subtitle">Manage your teaching classes</p>
+                    </div>
+                    <div class="dashboard-card">
+                        <p>Classes content goes here</p>
+                    </div>
+                </div>
+
+                <div id="page-attendance" class="page-content">
+                    <div class="page-header">
+                        <h2 class="page-title">Attendance</h2>
+                        <p class="page-subtitle">Manage student attendance records</p>
+                    </div>
+                    <div class="dashboard-card">
+                        <p>Attendance management content goes here</p>
+                    </div>
+                </div>
+
+                <div id="page-assessments" class="page-content">
+                    <div class="page-header">
+                        <h2 class="page-title">Assessments</h2>
+                        <p class="page-subtitle">Create and manage student assessments</p>
+                    </div>
+                    <div class="dashboard-card">
+                        <p>Assessments content goes here</p>
+                    </div>
+                </div>
+
+                <div id="page-messages" class="page-content">
+                    <div class="page-header">
+                        <h2 class="page-title">Messages</h2>
+                        <p class="page-subtitle">Communicate with parents and students</p>
+                    </div>
+                    <div class="dashboard-card">
+                        <p>Messages content goes here</p>
+                    </div>
+                </div>
+            </main>
+        </div>
+    </div>
+
+    <!-- User Menu Dropdown -->
+    <div class="dropdown-menu" id="user-dropdown">
+        <a href="#" class="dropdown-item">
+            <i class="fas fa-user"></i> My Profile
+        </a>
+        <a href="#" class="dropdown-item">
+            <i class="fas fa-cog"></i> Settings
+        </a>
+        <a href="#" class="dropdown-item">
+            <i class="fas fa-envelope"></i> Email Preferences
+        </a>
+        <hr class="dropdown-divider">
+        <a href="#" class="dropdown-item" id="logout-link">
+            <i class="fas fa-sign-out-alt"></i> Logout
+        </a>
+    </div>
+
+    <script src="/admin-portal.js"></script>
+    <script>
+        // Initialize attendance pie chart
+        function initAttendanceChart() {
+            const ctx = document.getElementById('attendance-chart');
+            if (ctx) {
+                new Chart(ctx, {
+                    type: 'doughnut',
+                    data: {
+                        labels: ['Present', 'Absent', 'Late'],
+                        datasets: [{
+                            data: [120, 5, 3],
+                            backgroundColor: [
+                                '#10B981',
+                                '#EF4444',
+                                '#F59E0B'
+                            ],
+                            borderColor: '#fff',
+                            borderWidth: 2
+                        }]
+                    },
+                    options: {
+                        responsive: true,
+                        maintainAspectRatio: false,
+                        plugins: {
+                            legend: {
+                                position: 'bottom',
+                                labels: {
+                                    padding: 15,
+                                    font: { size: 12 }
+                                }
+                            }
+                        }
+                    }
+                });
+            }
+        }
+
+        // Initialize on page load
+        document.addEventListener('DOMContentLoaded', function() {
+            const user = JSON.parse(localStorage.getItem('user') || '{}');
+            if (!user.role || user.role !== 'Teacher') {
+                window.location.href = '/shannoncomp/login';
+                return;
+            }
+            
+            // Update user name
+            const userNameEl = document.querySelector('.user-name');
+            if (userNameEl && user.name) {
+                userNameEl.textContent = user.name;
+            }
+            
+            initAttendanceChart();
+        });
+    </script>
+</body>
+</html>

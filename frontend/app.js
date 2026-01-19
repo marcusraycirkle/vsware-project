@@ -323,14 +323,13 @@ function simulateDemoLogin(email, pin) {
     try {
         showLoading();
         
-        // Demo users database
+        // Production accounts database
         const demoUsers = {
-            'admin@schoolware.com': { email: 'admin@schoolware.com', role: 'Admin', name: 'Admin User', permissionLevel: 'Principal' },
-            'john.smith@schoolware.com': { email: 'john.smith@schoolware.com', role: 'Teacher', name: 'John Smith', permissionLevel: 'Teacher' },
-            'james.wilson@student.schoolware.com': { email: 'james.wilson@student.schoolware.com', role: 'Student', name: 'James Wilson', permissionLevel: 'Student' },
-            'parent.wilson@email.com': { email: 'parent.wilson@email.com', role: 'Parent', name: 'Parent Wilson', permissionLevel: 'Parent' },
-            'mary.johnson@schoolware.com': { email: 'mary.johnson@schoolware.com', role: 'Secretary', name: 'Mary Johnson', permissionLevel: 'Secretary' },
-            'emma.davis@student.schoolware.com': { email: 'emma.davis@student.schoolware.com', role: 'Student', name: 'Emma Davis', permissionLevel: 'Student' }
+            'mary.costello@shannoncomp.ie': { email: 'mary.costello@shannoncomp.ie', role: 'Principal', name: 'Mary Costello', permissionLevel: 'Principal', roleHierarchy: 'Principal' },
+            'caseyashecontact@gmail.com': { email: 'caseyashecontact@gmail.com', role: 'Secretary', name: 'Casey Ashe', permissionLevel: 'Secretary', roleHierarchy: 'Secretary' },
+            '24zuzannafrankowska@shannoncomp.ie': { email: '24zuzannafrankowska@shannoncomp.ie', role: 'Student', name: 'Zuzanna Frankowska', permissionLevel: 'Student', roleHierarchy: 'Student' },
+            '24corykilmartin@shannoncomp.ie': { email: '24corykilmartin@shannoncomp.ie', role: 'Teacher', name: 'Cory Kilmartin', permissionLevel: 'Teacher', roleHierarchy: 'Mid' },
+            'marcusray@cirkledevelopment.co.uk': { email: 'marcusray@cirkledevelopment.co.uk', role: 'Parent', name: 'Marcus Ray', permissionLevel: 'Parent', roleHierarchy: 'Parent' }
         };
         
         const user = demoUsers[email];
@@ -371,7 +370,7 @@ function simulateDemoLogin(email, pin) {
             }, 500);
         } else {
             hideLoading();
-            showError('Invalid demo credentials. Use PIN: 1234');
+            showError('Invalid credentials. Please check your email and PIN.');
         }
     } catch (error) {
         hideLoading();

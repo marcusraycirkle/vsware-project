@@ -6,6 +6,9 @@
     <title>Parent Portal - MISpal</title>
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
     <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
+    <link rel="icon" href="/mispal-logo.png" type="image/png">
+    <link rel="shortcut icon" href="/mispal-logo.png" type="image/png">
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
     <style>
         :root {
             --primary: #4F46E5;
@@ -35,133 +38,131 @@
         }
 
         .parent-portal {
-            display: flex;
             min-height: 100vh;
-        }
-
-        /* ========== SIDEBAR ========== */
-        .sidebar {
-            width: 280px;
-            background: var(--primary);
-            color: white;
-            padding: 2rem 1.5rem;
-            overflow-y: auto;
-            position: fixed;
-            height: 100vh;
-            left: 0;
-            top: 0;
-            box-shadow: 2px 0 10px rgba(0, 0, 0, 0.1);
-        }
-
-        .sidebar-header {
-            margin-bottom: 2rem;
-            padding-bottom: 1.5rem;
-            border-bottom: 1px solid rgba(255, 255, 255, 0.2);
-        }
-
-        .sidebar-logo {
-            font-size: 1.8rem;
-            font-weight: 700;
-            margin-bottom: 0.5rem;
-            display: flex;
-            align-items: center;
-            gap: 0.75rem;
-        }
-
-        .sidebar-user {
-            font-size: 0.9rem;
-            opacity: 0.9;
-        }
-
-        .sidebar-nav {
             display: flex;
             flex-direction: column;
-            gap: 0.5rem;
-            margin-bottom: 30rem;
         }
 
-        .sidebar-nav-item {
-            padding: 0.75rem 1rem;
-            border-radius: 6px;
-            cursor: pointer;
-            background: rgba(255, 255, 255, 0.1);
-            border: none;
+        /* ========== HEADER ========== */
+        .parent-header {
+            background: white;
+            border-bottom: 1px solid var(--border);
+            padding: 1.5rem 2rem;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            box-shadow: 0 1px 3px rgba(0, 0, 0, 0.05);
+        }
+
+        .header-left {
+            display: flex;
+            align-items: center;
+            gap: 1rem;
+        }
+
+        .header-logo {
+            width: 50px;
+            height: 50px;
+            background: linear-gradient(135deg, var(--primary) 0%, var(--secondary) 100%);
+            border-radius: 0.5rem;
+            display: flex;
+            align-items: center;
+            justify-content: center;
             color: white;
-            font-weight: 500;
-            transition: var(--transition);
-            text-align: left;
-            font-size: 0.95rem;
+            font-size: 1.5rem;
+            font-weight: 700;
+            overflow: hidden;
         }
 
-        .sidebar-nav-item:hover,
-        .sidebar-nav-item.active {
-            background: rgba(255, 255, 255, 0.2);
-        }
-
-        .sidebar-nav-item i {
-            width: 20px;
-            margin-right: 0.5rem;
-        }
-
-        .sidebar-logout {
-            position: fixed;
-            bottom: 2rem;
-            left: 1.5rem;
-            right: calc(1.5rem + 280px);
-            width: 247px;
-        }
-
-        .logout-btn {
+        .header-logo img {
             width: 100%;
-            padding: 0.75rem 1rem;
-            background: var(--danger);
-            color: white;
-            border: none;
-            border-radius: 6px;
-            cursor: pointer;
-            font-weight: 600;
-            transition: var(--transition);
+            height: 100%;
+            object-fit: cover;
         }
 
-        .logout-btn:hover {
-            background: #DC2626;
+        .header-brand h1 {
+            font-size: 1.25rem;
+            font-weight: 700;
+            color: var(--text-primary);
+            margin: 0;
         }
 
-        /* ========== MAIN CONTENT ========== */
-        .main-content {
-            margin-left: 280px;
-            flex: 1;
-            overflow-y: auto;
-            padding: 2rem;
-        }
-
-        .content-header {
-            margin-bottom: 2rem;
-        }
-
-        .content-header h1 {
-            font-size: 2rem;
-            margin-bottom: 0.5rem;
-        }
-
-        .content-header p {
+        .header-brand p {
+            font-size: 0.8rem;
             color: var(--text-secondary);
         }
 
-        /* ========== TAB SYSTEM ========== */
-        .tab-container {
+        .header-right {
+            display: flex;
+            align-items: center;
+            gap: 1.5rem;
+        }
+
+        .user-menu-btn {
+            display: flex;
+            align-items: center;
+            gap: 0.75rem;
+            background: var(--bg-secondary);
+            padding: 0.5rem 1rem;
+            border-radius: 0.5rem;
+            cursor: pointer;
+            transition: var(--transition);
+            border: 1px solid var(--border);
+        }
+
+        .user-menu-btn:hover {
+            background: var(--border);
+        }
+
+        .user-avatar {
+            width: 32px;
+            height: 32px;
+            background: linear-gradient(135deg, var(--primary) 0%, var(--secondary) 100%);
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            color: white;
+            font-size: 1rem;
+        }
+
+        .user-name {
+            font-weight: 500;
+            font-size: 0.9rem;
+        }
+
+        /* ========== MAIN CONTENT ========== */
+        .portal-content {
+            flex: 1;
+            padding: 2rem;
+            max-width: 1400px;
+            margin: 0 auto;
+            width: 100%;
+        }
+
+        .content-section {
             display: none;
         }
 
-        .tab-container.active {
+        .content-section.active {
             display: block;
         }
 
-        /* ========== CARDS ========== */
+        .section-title {
+            font-size: 1.3rem;
+            font-weight: 700;
+            margin-bottom: 1.5rem;
+            display: flex;
+            align-items: center;
+            gap: 0.75rem;
+            color: var(--text-primary);
+        }
+
+        /* Cards */
         .card {
             background: var(--bg-primary);
             border: 1px solid var(--border);
-            border-radius: 8px;
+            border-radius: 0.75rem;
             padding: 1.5rem;
             margin-bottom: 1.5rem;
             box-shadow: var(--shadow);
@@ -173,7 +174,7 @@
         }
 
         .card-title {
-            font-size: 1.1rem;
+            font-size: 1rem;
             font-weight: 600;
             margin-bottom: 1rem;
             display: flex;
@@ -181,654 +182,677 @@
             gap: 0.75rem;
         }
 
-        /* ========== GRID LAYOUTS ========== */
-        .grid-3 {
+        /* Student Cards Grid */
+        .student-grid {
             display: grid;
-            grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+            grid-template-columns: repeat(auto-fill, minmax(280px, 1fr));
             gap: 1.5rem;
-            margin-bottom: 1.5rem;
+            margin-bottom: 2rem;
         }
 
-        .stat-box {
-            background: var(--bg-secondary);
-            padding: 1.5rem;
-            border-radius: 6px;
-            text-align: center;
+        .student-card {
+            background: white;
+            border-radius: 0.75rem;
+            overflow: hidden;
+            box-shadow: var(--shadow);
             border: 1px solid var(--border);
-        }
-
-        .stat-value {
-            font-size: 2rem;
-            font-weight: 700;
-            color: var(--primary);
-            margin-bottom: 0.5rem;
-        }
-
-        .stat-label {
-            font-size: 0.9rem;
-            color: var(--text-secondary);
-        }
-
-        /* ========== LISTS ========== */
-        .list-item {
-            padding: 1.5rem;
-            border: 1px solid var(--border);
-            border-radius: 6px;
-            margin-bottom: 1rem;
-            display: flex;
-            justify-content: space-between;
-            align-items: center;
             transition: var(--transition);
+            cursor: pointer;
         }
 
-        .list-item:hover {
-            background: var(--bg-secondary);
+        .student-card:hover {
+            box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
+            transform: translateY(-2px);
         }
 
-        .list-item-content h3 {
-            font-size: 1rem;
+        .student-card-header {
+            background: linear-gradient(135deg, var(--primary) 0%, var(--secondary) 100%);
+            color: white;
+            padding: 1.5rem;
+        }
+
+        .student-avatar {
+            width: 50px;
+            height: 50px;
+            background: rgba(255, 255, 255, 0.2);
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 1.5rem;
+            margin-bottom: 0.75rem;
+        }
+
+        .student-card-header h3 {
+            font-size: 1.1rem;
+            font-weight: 600;
             margin-bottom: 0.25rem;
         }
 
-        .list-item-content p {
+        .student-card-header p {
+            font-size: 0.85rem;
+            opacity: 0.9;
+        }
+
+        .student-card-body {
+            padding: 1.5rem;
+        }
+
+        .student-stat {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            padding: 0.75rem 0;
+            border-bottom: 1px solid var(--border);
+        }
+
+        .student-stat:last-child {
+            border-bottom: none;
+        }
+
+        .student-stat-label {
+            color: var(--text-secondary);
+            font-size: 0.9rem;
+        }
+
+        .student-stat-value {
+            font-weight: 600;
+            font-size: 1rem;
+            color: var(--primary);
+        }
+
+        /* Options Grid */
+        .options-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fill, minmax(150px, 1fr));
+            gap: 1.5rem;
+            margin-bottom: 2rem;
+        }
+
+        .option-card {
+            background: white;
+            border-radius: 0.75rem;
+            padding: 2rem 1.5rem;
+            text-align: center;
+            box-shadow: var(--shadow);
+            border: 1px solid var(--border);
+            cursor: pointer;
+            transition: var(--transition);
+            text-decoration: none;
+            color: inherit;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            gap: 0.75rem;
+        }
+
+        .option-card:hover {
+            box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
+            transform: translateY(-4px);
+            border-color: var(--primary);
+        }
+
+        .option-icon {
+            width: 60px;
+            height: 60px;
+            border-radius: 0.5rem;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 1.75rem;
+            color: white;
+        }
+
+        .option-card.green .option-icon { background: #10B981; }
+        .option-card.blue .option-icon { background: #3B82F6; }
+        .option-card.cyan .option-icon { background: #06B6D4; }
+        .option-card.pink .option-icon { background: #EC4899; }
+        .option-card.purple .option-icon { background: #8B5CF6; }
+        .option-card.red .option-icon { background: #EF4444; }
+        .option-card.orange .option-icon { background: #F59E0B; }
+        .option-card.teal .option-icon { background: #14B8A6; }
+
+        .option-title {
+            font-weight: 600;
+            font-size: 0.9rem;
+        }
+
+        .option-description {
+            font-size: 0.75rem;
+            color: var(--text-secondary);
+        }
+
+        /* Notifications List */
+        .notification-item {
+            padding: 1rem;
+            border-bottom: 1px solid var(--border);
+            display: flex;
+            gap: 1rem;
+            align-items: flex-start;
+        }
+
+        .notification-item:last-child {
+            border-bottom: none;
+        }
+
+        .notification-badge {
+            width: 40px;
+            height: 40px;
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 1rem;
+            color: white;
+            flex-shrink: 0;
+        }
+
+        .notification-badge.info { background: var(--primary); }
+        .notification-badge.success { background: var(--secondary); }
+        .notification-badge.warning { background: var(--warning); }
+
+        .notification-content h4 {
+            font-size: 0.95rem;
+            margin-bottom: 0.25rem;
+        }
+
+        .notification-content p {
+            font-size: 0.85rem;
+            color: var(--text-secondary);
+            margin-bottom: 0.25rem;
+        }
+
+        .notification-time {
+            font-size: 0.75rem;
+            color: var(--text-secondary);
+        }
+
+        /* Contact Details */
+        .contact-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+            gap: 1.5rem;
+        }
+
+        .contact-item {
+            display: flex;
+            gap: 1rem;
+            align-items: flex-start;
+        }
+
+        .contact-icon {
+            width: 40px;
+            height: 40px;
+            background: var(--bg-secondary);
+            border-radius: 0.5rem;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            color: var(--primary);
+            font-size: 1.25rem;
+            flex-shrink: 0;
+        }
+
+        .contact-info h4 {
+            font-size: 0.9rem;
+            font-weight: 600;
+            margin-bottom: 0.25rem;
+        }
+
+        .contact-info p {
             font-size: 0.85rem;
             color: var(--text-secondary);
         }
 
-        .badge {
-            padding: 0.5rem 1rem;
-            border-radius: 20px;
-            font-size: 0.85rem;
-            font-weight: 600;
+        /* Dropdown Menu */
+        .dropdown-menu {
+            position: absolute;
+            top: 60px;
+            right: 2rem;
+            background: white;
+            border: 1px solid var(--border);
+            border-radius: 0.5rem;
+            box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
+            min-width: 200px;
+            z-index: 1000;
+            display: none;
         }
 
-        .badge-success {
-            background: var(--secondary);
-            color: white;
+        .dropdown-menu.active {
+            display: block;
         }
 
-        .badge-warning {
-            background: var(--warning);
-            color: white;
+        .dropdown-item {
+            display: flex;
+            align-items: center;
+            gap: 0.75rem;
+            padding: 0.75rem 1rem;
+            color: var(--text-primary);
+            text-decoration: none;
+            border: none;
+            background: none;
+            cursor: pointer;
+            width: 100%;
+            text-align: left;
+            font-size: 0.9rem;
+            transition: var(--transition);
         }
 
-        .badge-danger {
+        .dropdown-item:hover {
+            background: var(--bg-secondary);
+            color: var(--primary);
+        }
+
+        .dropdown-divider {
+            height: 1px;
+            background: var(--border);
+            margin: 0.5rem 0;
+            border: none;
+        }
+
+        .logout-btn {
+            padding: 0.75rem 1.5rem;
             background: var(--danger);
             color: white;
+            border: none;
+            border-radius: 0.5rem;
+            cursor: pointer;
+            font-weight: 600;
+            transition: var(--transition);
+            display: flex;
+            align-items: center;
+            gap: 0.5rem;
         }
 
-        .badge-info {
+        .logout-btn:hover {
+            background: #DC2626;
+        }
+
+        .back-btn {
             background: var(--primary);
             color: white;
+            padding: 0.75rem 1.5rem;
+            border: none;
+            border-radius: 0.5rem;
+            cursor: pointer;
+            font-weight: 600;
+            display: flex;
+            align-items: center;
+            gap: 0.5rem;
+            margin-top: 1rem;
         }
 
-        /* ========== RESPONSIVE ========== */
+        .back-btn:hover {
+            background: #4338CA;
+        }
+
+        /* Empty State */
+        .empty-state {
+            text-align: center;
+            padding: 2rem;
+            color: var(--text-secondary);
+        }
+
+        /* Responsive */
         @media (max-width: 768px) {
-            .sidebar {
+            .parent-header {
+                flex-direction: column;
+                gap: 1rem;
+                text-align: center;
+            }
+
+            .header-right {
                 width: 100%;
-                height: auto;
-                position: relative;
+                justify-content: center;
+            }
+
+            .portal-content {
                 padding: 1rem;
             }
 
-            .main-content {
-                margin-left: 0;
-                padding: 1rem;
-            }
-
-            .sidebar-logout {
-                position: static;
-                margin-top: 1rem;
-            }
-
-            .sidebar-nav {
-                margin-bottom: 1rem;
-            }
-
-            .content-header h1 {
-                font-size: 1.5rem;
-            }
-
-            .grid-3 {
+            .student-grid,
+            .options-grid {
                 grid-template-columns: 1fr;
+            }
+
+            .section-title {
+                font-size: 1.1rem;
             }
         }
     </style>
 </head>
 <body>
     <div class="parent-portal">
-        <!-- SIDEBAR -->
-        <div class="sidebar">
-            <div class="sidebar-header">
-                <div class="sidebar-logo">
-                    <i class="fas fa-graduation-cap"></i> MISpal
+        <!-- Header -->
+        <header class="parent-header">
+            <div class="header-left">
+                <div class="header-logo">
+                    <img src="/mispal-logo.png" alt="MISpal" onerror="this.parentElement.innerHTML='<i class=&#34;fas fa-graduation-cap&#34;></i>'">
                 </div>
-                <div class="sidebar-user" id="sidebar-user">Parent User</div>
+                <div class="header-brand">
+                    <h1>MISpal</h1>
+                    <p>Parent Dashboard</p>
+                </div>
             </div>
-
-            <div class="sidebar-nav">
-                <button class="sidebar-nav-item active" onclick="switchTab(event, 'dashboard')">
-                    <i class="fas fa-home"></i> Dashboard
-                </button>
-                <button class="sidebar-nav-item" onclick="switchTab(event, 'children')">
-                    <i class="fas fa-users"></i> My Children
-                </button>
-                <button class="sidebar-nav-item" onclick="switchTab(event, 'attendance')">
-                    <i class="fas fa-calendar-check"></i> Attendance
-                </button>
-                <button class="sidebar-nav-item" onclick="switchTab(event, 'grades')">
-                    <i class="fas fa-chart-bar"></i> Grades & Reports
-                </button>
-                <button class="sidebar-nav-item" onclick="switchTab(event, 'behavior')">
-                    <i class="fas fa-heart"></i> Behavior
-                </button>
-                <button class="sidebar-nav-item" onclick="switchTab(event, 'messages')">
-                    <i class="fas fa-envelope"></i> Messages
-                </button>
-                <button class="sidebar-nav-item" onclick="switchTab(event, 'payments')">
-                    <i class="fas fa-receipt"></i> Payments
-                </button>
-                <button class="sidebar-nav-item" onclick="switchTab(event, 'calendar')">
-                    <i class="fas fa-calendar-alt"></i> School Calendar
+            
+            <div class="header-right">
+                <button class="user-menu-btn" id="user-menu-trigger">
+                    <div class="user-avatar">
+                        <i class="fas fa-user"></i>
+                    </div>
+                    <span class="user-name" id="user-display-name">Parent User</span>
+                    <i class="fas fa-chevron-down"></i>
                 </button>
             </div>
+        </header>
 
-            <div class="sidebar-logout">
-                <button class="logout-btn" onclick="handleLogout()">
-                    <i class="fas fa-sign-out-alt"></i> Logout
-                </button>
-            </div>
-        </div>
-
-        <!-- MAIN CONTENT -->
-        <div class="main-content">
-            <!-- DASHBOARD TAB -->
-            <div id="dashboard" class="tab-container active">
-                <div class="content-header">
-                    <h1><i class="fas fa-home"></i> Dashboard</h1>
-                    <p>Welcome back! Here's your children's overview.</p>
-                </div>
-
-                <div class="grid-3">
-                    <div class="stat-box">
-                        <div class="stat-value">2</div>
-                        <div class="stat-label">Children Enrolled</div>
-                    </div>
-                    <div class="stat-box">
-                        <div class="stat-value">96%</div>
-                        <div class="stat-label">Avg Attendance</div>
-                    </div>
-                    <div class="stat-box">
-                        <div class="stat-value">A-</div>
-                        <div class="stat-label">Avg Grade</div>
-                    </div>
-                </div>
-
+        <!-- Main Content -->
+        <div class="portal-content">
+            <!-- Dashboard Section -->
+            <div id="dashboard-section" class="content-section active">
+                <!-- School Notices -->
+                <h2 class="section-title">
+                    <i class="fas fa-bell"></i> School Notices
+                </h2>
                 <div class="card">
-                    <div class="card-title"><i class="fas fa-bell"></i> Recent Activities</div>
-                    <div class="list-item">
-                        <div class="list-item-content">
-                            <h3>James Wilson - Mathematics Exam</h3>
-                            <p>Excellent performance: 92/100 - A</p>
+                    <div style="display: flex; align-items: center; gap: 1rem;">
+                        <div style="width: 48px; height: 48px; background: var(--bg-secondary); border-radius: 0.5rem; display: flex; align-items: center; justify-content: center; color: var(--primary); font-size: 1.5rem; flex-shrink: 0;">
+                            <i class="fas fa-info-circle"></i>
                         </div>
-                        <span class="badge badge-success">Today</span>
-                    </div>
-                    <div class="list-item">
-                        <div class="list-item-content">
-                            <h3>Emma Davis - Science Project</h3>
-                            <p>Project submitted on time with excellent work</p>
-                        </div>
-                        <span class="badge badge-success">Yesterday</span>
-                    </div>
-                    <div class="list-item">
-                        <div class="list-item-content">
-                            <h3>James Wilson - Attendance</h3>
-                            <p>Absent from PE class - Medical appointment (excused)</p>
-                        </div>
-                        <span class="badge badge-info">2 days ago</span>
-                    </div>
-                    <div class="list-item">
-                        <div class="list-item-content">
-                            <h3>Emma Davis - Class Participation</h3>
-                            <p>Excellent contribution to group discussion</p>
-                        </div>
-                        <span class="badge badge-success">3 days ago</span>
+                        <p>No active notices at this time.</p>
                     </div>
                 </div>
-            </div>
 
-            <!-- CHILDREN TAB -->
-            <div id="children" class="tab-container">
-                <div class="content-header">
-                    <h1><i class="fas fa-users"></i> My Children</h1>
-                    <p>Monitor your children's progress and activities.</p>
+                <!-- Your Students -->
+                <h2 class="section-title">
+                    <i class="fas fa-user-graduate"></i> Your Students
+                </h2>
+                <div class="student-grid">
+                    <div class="student-card" onclick="navigateSection('profile', 'James Wilson', 'Year 12 | Form 12A')">
+                        <div class="student-card-header">
+                            <div class="student-avatar">
+                                <i class="fas fa-user"></i>
+                            </div>
+                            <h3>James Wilson</h3>
+                            <p>Year 12 | Form 12A</p>
+                        </div>
+                        <div class="student-card-body">
+                            <div class="student-stat">
+                                <span class="student-stat-label">Attendance</span>
+                                <span class="student-stat-value">96%</span>
+                            </div>
+                            <div class="student-stat">
+                                <span class="student-stat-label">Current Grade</span>
+                                <span class="student-stat-value">A</span>
+                            </div>
+                            <div class="student-stat">
+                                <span class="student-stat-label">House</span>
+                                <span class="student-stat-value">Gryffindor</span>
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="student-card" onclick="navigateSection('profile', 'Emma Davis', 'Year 10 | Form 10B')">
+                        <div class="student-card-header">
+                            <div class="student-avatar">
+                                <i class="fas fa-user"></i>
+                            </div>
+                            <h3>Emma Davis</h3>
+                            <p>Year 10 | Form 10B</p>
+                        </div>
+                        <div class="student-card-body">
+                            <div class="student-stat">
+                                <span class="student-stat-label">Attendance</span>
+                                <span class="student-stat-value">94%</span>
+                            </div>
+                            <div class="student-stat">
+                                <span class="student-stat-label">Current Grade</span>
+                                <span class="student-stat-value">A</span>
+                            </div>
+                            <div class="student-stat">
+                                <span class="student-stat-label">House</span>
+                                <span class="student-stat-value">Ravenclaw</span>
+                            </div>
+                        </div>
+                    </div>
                 </div>
 
+                <!-- Notifications -->
+                <h2 class="section-title">
+                    <i class="fas fa-bell"></i> Notifications
+                </h2>
                 <div class="card">
-                    <div class="card-title"><i class="fas fa-user-graduate"></i> James Wilson (Year 12)</div>
-                    <div class="grid-3">
-                        <div class="stat-box">
-                            <div class="stat-value">96%</div>
-                            <div class="stat-label">Attendance Rate</div>
-                        </div>
-                        <div class="stat-box">
-                            <div class="stat-value">A</div>
-                            <div class="stat-label">Current Grade</div>
-                        </div>
-                        <div class="stat-box">
-                            <div class="stat-value">8</div>
-                            <div class="stat-label">Positive Notes</div>
-                        </div>
-                    </div>
-                    <div style="margin-top: 1rem; padding-top: 1rem; border-top: 1px solid var(--border);">
-                        <p><strong>Contact:</strong> john.smith@schoolware.com | <strong>House:</strong> Gryffindor | <strong>Form:</strong> 12A</p>
+                    <div class="empty-state">
+                        <p>Nothing to report!</p>
+                        <p style="font-size: 0.9rem;">Notifications related to your students will appear here when available.</p>
                     </div>
                 </div>
 
+                <!-- Your Contact Details -->
+                <h2 class="section-title">
+                    <i class="fas fa-user"></i> Your Contact Details
+                </h2>
                 <div class="card">
-                    <div class="card-title"><i class="fas fa-user-graduate"></i> Emma Davis (Year 10)</div>
-                    <div class="grid-3">
-                        <div class="stat-box">
-                            <div class="stat-value">94%</div>
-                            <div class="stat-label">Attendance Rate</div>
+                    <div class="contact-grid">
+                        <div class="contact-item">
+                            <div class="contact-icon">
+                                <i class="fas fa-phone"></i>
+                            </div>
+                            <div class="contact-info">
+                                <h4>Telephone</h4>
+                                <p>+353 1 XXX XXXX</p>
+                            </div>
                         </div>
-                        <div class="stat-box">
-                            <div class="stat-value">A</div>
-                            <div class="stat-label">Current Grade</div>
+                        <div class="contact-item">
+                            <div class="contact-icon">
+                                <i class="fas fa-envelope"></i>
+                            </div>
+                            <div class="contact-info">
+                                <h4>Email</h4>
+                                <p id="contact-email">parent.email@example.com</p>
+                            </div>
                         </div>
-                        <div class="stat-box">
-                            <div class="stat-value">6</div>
-                            <div class="stat-label">Positive Notes</div>
-                        </div>
-                    </div>
-                    <div style="margin-top: 1rem; padding-top: 1rem; border-top: 1px solid var(--border);">
-                        <p><strong>Contact:</strong> emma.davis@student.schoolware.com | <strong>House:</strong> Ravenclaw | <strong>Form:</strong> 10B</p>
                     </div>
                 </div>
             </div>
 
-            <!-- ATTENDANCE TAB -->
-            <div id="attendance" class="tab-container">
-                <div class="content-header">
-                    <h1><i class="fas fa-calendar-check"></i> Attendance Records</h1>
-                    <p>Monitor your children's attendance and absences.</p>
-                </div>
-
-                <div class="card">
-                    <div class="card-title"><i class="fas fa-user-graduate"></i> James Wilson (Year 12) - 96% Overall</div>
-                    <div class="list-item">
-                        <div class="list-item-content">
-                            <h3>Friday, January 17, 2026</h3>
-                            <p>Present - All 6 classes attended</p>
-                        </div>
-                        <span class="badge badge-success">✓ Present</span>
+            <!-- Student Profile Section -->
+            <div id="profile-section" class="content-section">
+                <div style="background: linear-gradient(135deg, var(--primary) 0%, var(--secondary) 100%); color: white; padding: 2rem; border-radius: 0.75rem; margin-bottom: 2rem; display: flex; align-items: center; gap: 1.5rem;">
+                    <div style="width: 80px; height: 80px; background: rgba(255, 255, 255, 0.2); border-radius: 50%; display: flex; align-items: center; justify-content: center; font-size: 2rem;">
+                        <i class="fas fa-user"></i>
                     </div>
-                    <div class="list-item">
-                        <div class="list-item-content">
-                            <h3>Thursday, January 16, 2026</h3>
-                            <p>Late arrival - 5 mins late to Morning Assembly</p>
-                        </div>
-                        <span class="badge badge-warning">⏱ Late</span>
-                    </div>
-                    <div class="list-item">
-                        <div class="list-item-content">
-                            <h3>Wednesday, January 15, 2026</h3>
-                            <p>Present - All 6 classes attended</p>
-                        </div>
-                        <span class="badge badge-success">✓ Present</span>
-                    </div>
-                    <div class="list-item">
-                        <div class="list-item-content">
-                            <h3>Tuesday, January 14, 2026</h3>
-                            <p>Present - All 6 classes attended</p>
-                        </div>
-                        <span class="badge badge-success">✓ Present</span>
+                    <div>
+                        <h2 id="profile-name" style="font-size: 1.75rem; margin-bottom: 0.5rem;">James Wilson</h2>
+                        <p id="profile-details">Year 12 | Form 12A</p>
                     </div>
                 </div>
 
-                <div class="card">
-                    <div class="card-title"><i class="fas fa-user-graduate"></i> Emma Davis (Year 10) - 94% Overall</div>
-                    <div class="list-item">
-                        <div class="list-item-content">
-                            <h3>Friday, January 17, 2026</h3>
-                            <p>Present - All 5 classes attended</p>
-                        </div>
-                        <span class="badge badge-success">✓ Present</span>
-                    </div>
-                    <div class="list-item">
-                        <div class="list-item-content">
-                            <h3>Wednesday, January 15, 2026</h3>
-                            <p>Absent - Medical appointment (Excused)</p>
-                        </div>
-                        <span class="badge badge-info">📋 Excused</span>
-                    </div>
-                    <div class="list-item">
-                        <div class="list-item-content">
-                            <h3>Tuesday, January 14, 2026</h3>
-                            <p>Present - All 5 classes attended</p>
-                        </div>
-                        <span class="badge badge-success">✓ Present</span>
-                    </div>
+                <h2 class="section-title">Pick an area to explore</h2>
+
+                <div class="options-grid">
+                    <button class="option-card green" onclick="navigateSection('attendance')">
+                        <div class="option-icon"><i class="fas fa-check-circle"></i></div>
+                        <div class="option-title">Attendance</div>
+                        <div class="option-description">Monitor attendance</div>
+                    </button>
+
+                    <button class="option-card blue" onclick="navigateSection('assessment')">
+                        <div class="option-icon"><i class="fas fa-list-ul"></i></div>
+                        <div class="option-title">Assessment</div>
+                        <div class="option-description">View academic records</div>
+                    </button>
+
+                    <button class="option-card cyan" onclick="navigateSection('support')">
+                        <div class="option-icon"><i class="fas fa-lock"></i></div>
+                        <div class="option-title">Student Support</div>
+                        <div class="option-description">Monitor support</div>
+                    </button>
+
+                    <button class="option-card pink" onclick="navigateSection('behavior')">
+                        <div class="option-icon"><i class="fas fa-thumbs-up"></i></div>
+                        <div class="option-title">Behaviour</div>
+                        <div class="option-description">Track behavior</div>
+                    </button>
+
+                    <button class="option-card purple" onclick="navigateSection('timetable')">
+                        <div class="option-icon"><i class="fas fa-calendar"></i></div>
+                        <div class="option-title">Timetable</div>
+                        <div class="option-description">View timetable</div>
+                    </button>
+
+                    <button class="option-card red" onclick="navigateSection('personal')">
+                        <div class="option-icon"><i class="fas fa-user"></i></div>
+                        <div class="option-title">Personal Info</div>
+                        <div class="option-description">Update info</div>
+                    </button>
+
+                    <button class="option-card orange" onclick="navigateSection('fees')">
+                        <div class="option-icon"><i class="fas fa-wallet"></i></div>
+                        <div class="option-title">Fees</div>
+                        <div class="option-description">View fees</div>
+                    </button>
+
+                    <button class="option-card teal" onclick="navigateSection('options')">
+                        <div class="option-icon"><i class="fas fa-sliders-h"></i></div>
+                        <div class="option-title">Student Options</div>
+                        <div class="option-description">Submit preferences</div>
+                    </button>
+
+                    <button class="option-card pink" onclick="navigateSection('permissions')">
+                        <div class="option-icon"><i class="fas fa-clipboard"></i></div>
+                        <div class="option-title">Permission Slips</div>
+                        <div class="option-description">Approve slips</div>
+                    </button>
+
+                    <button class="option-card blue" onclick="navigateSection('books')">
+                        <div class="option-icon"><i class="fas fa-book"></i></div>
+                        <div class="option-title">Book & Supply Hub</div>
+                        <div class="option-description">Manage books</div>
+                    </button>
                 </div>
             </div>
 
-            <!-- GRADES TAB -->
-            <div id="grades" class="tab-container">
-                <div class="content-header">
-                    <h1><i class="fas fa-chart-bar"></i> Grades & Reports</h1>
-                    <p>Review your children's academic performance.</p>
-                </div>
-
+            <!-- Detail Sections -->
+            <div id="attendance-section" class="content-section">
+                <h2 class="section-title"><i class="fas fa-calendar-check"></i> Attendance</h2>
                 <div class="card">
-                    <div class="card-title"><i class="fas fa-user-graduate"></i> James Wilson (Year 12) - Average: A (90)</div>
-                    <div class="list-item">
-                        <div class="list-item-content">
-                            <h3>Mathematics</h3>
-                            <p>Term 3 Assessment - Excellent progress</p>
+                    <h3 style="margin-bottom: 1rem; font-weight: 600;">Attendance Overview</h3>
+                    <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 2rem; align-items: center;">
+                        <div style="position: relative; height: 250px;">
+                            <canvas id="attendance-pie-chart"></canvas>
                         </div>
-                        <span class="badge badge-success">92/100 - A</span>
-                    </div>
-                    <div class="list-item">
-                        <div class="list-item-content">
-                            <h3>English Literature</h3>
-                            <p>Term 3 Assessment - Strong writing skills</p>
+                        <div>
+                            <div style="margin-bottom: 1.5rem;">
+                                <div style="display: flex; align-items: center; gap: 0.75rem; margin-bottom: 1rem;">
+                                    <span style="width: 12px; height: 12px; background: #10B981; border-radius: 2px;"></span>
+                                    <span style="font-weight: 500;">Present: 120 (93.8%)</span>
+                                </div>
+                                <div style="display: flex; align-items: center; gap: 0.75rem; margin-bottom: 1rem;">
+                                    <span style="width: 12px; height: 12px; background: #EF4444; border-radius: 2px;"></span>
+                                    <span style="font-weight: 500;">Absent: 5 (3.9%)</span>
+                                </div>
+                                <div style="display: flex; align-items: center; gap: 0.75rem;">
+                                    <span style="width: 12px; height: 12px; background: #F59E0B; border-radius: 2px;"></span>
+                                    <span style="font-weight: 500;">Late: 3 (2.3%)</span>
+                                </div>
+                            </div>
+                            <p style="color: var(--text-secondary); font-size: 0.9rem;">Overall Attendance Rate: <strong style="color: var(--primary); font-size: 1.1rem;">94.5%</strong></p>
                         </div>
-                        <span class="badge badge-success">88/100 - B+</span>
-                    </div>
-                    <div class="list-item">
-                        <div class="list-item-content">
-                            <h3>Science</h3>
-                            <p>Term 3 Assessment - Excellent understanding</p>
-                        </div>
-                        <span class="badge badge-success">90/100 - A</span>
-                    </div>
-                    <div class="list-item">
-                        <div class="list-item-content">
-                            <h3>History</h3>
-                            <p>Term 3 Assessment - Good analysis</p>
-                        </div>
-                        <span class="badge badge-success">85/100 - B+</span>
-                    </div>
-                    <div class="list-item">
-                        <div class="list-item-content">
-                            <h3>Geography</h3>
-                            <p>Term 3 Assessment - Solid performance</p>
-                        </div>
-                        <span class="badge badge-success">87/100 - B+</span>
                     </div>
                 </div>
-
-                <div class="card">
-                    <div class="card-title"><i class="fas fa-user-graduate"></i> Emma Davis (Year 10) - Average: A (88)</div>
-                    <div class="list-item">
-                        <div class="list-item-content">
-                            <h3>Mathematics</h3>
-                            <p>Term 3 Assessment - Outstanding work</p>
-                        </div>
-                        <span class="badge badge-success">91/100 - A</span>
-                    </div>
-                    <div class="list-item">
-                        <div class="list-item-content">
-                            <h3>Science</h3>
-                            <p>Term 3 Assessment - Great project work</p>
-                        </div>
-                        <span class="badge badge-success">89/100 - B+</span>
-                    </div>
-                    <div class="list-item">
-                        <div class="list-item-content">
-                            <h3>English</h3>
-                            <p>Term 3 Assessment - Excellent essay</p>
-                        </div>
-                        <span class="badge badge-success">87/100 - B+</span>
-                    </div>
-                    <div class="list-item">
-                        <div class="list-item-content">
-                            <h3>French</h3>
-                            <p>Term 3 Assessment - Good progress</p>
-                        </div>
-                        <span class="badge badge-success">85/100 - B</span>
-                    </div>
-                </div>
+                <button class="back-btn" onclick="navigateSection('dashboard')"><i class="fas fa-arrow-left"></i> Back to Dashboard</button>
             </div>
 
-            <!-- BEHAVIOR TAB -->
-            <div id="behavior" class="tab-container">
-                <div class="content-header">
-                    <h1><i class="fas fa-heart"></i> Behavior & Conduct</h1>
-                    <p>Your children's behavioral records and notes.</p>
-                </div>
-
+            <div id="assessment-section" class="content-section">
+                <h2 class="section-title"><i class="fas fa-list-ul"></i> Assessment</h2>
                 <div class="card">
-                    <div class="card-title"><i class="fas fa-user-graduate"></i> James Wilson - Excellent Conduct</div>
-                    <div class="list-item">
-                        <div class="list-item-content">
-                            <h3>Excellent Teamwork</h3>
-                            <p>January 15 - Group project participation in Science</p>
-                        </div>
-                        <span class="badge badge-success">Positive</span>
-                    </div>
-                    <div class="list-item">
-                        <div class="list-item-content">
-                            <h3>Class Participation</h3>
-                            <p>January 10 - Active in Mathematics discussion, showing great initiative</p>
-                        </div>
-                        <span class="badge badge-success">Positive</span>
-                    </div>
-                    <div class="list-item">
-                        <div class="list-item-content">
-                            <h3>Help to Peers</h3>
-                            <p>January 5 - Assisted struggling classmates with homework</p>
-                        </div>
-                        <span class="badge badge-success">Positive</span>
-                    </div>
-                    <div class="list-item">
-                        <div class="list-item-content">
-                            <h3>Minor Late Submission</h3>
-                            <p>January 3 - Late homework submission (one day late)</p>
-                        </div>
-                        <span class="badge badge-warning">Note</span>
-                    </div>
+                    <p>Assessment records will appear here.</p>
                 </div>
-
-                <div class="card">
-                    <div class="card-title"><i class="fas fa-user-graduate"></i> Emma Davis - Excellent Conduct</div>
-                    <div class="list-item">
-                        <div class="list-item-content">
-                            <h3>Excellent Work Ethic</h3>
-                            <p>January 16 - Science project submission with outstanding effort</p>
-                        </div>
-                        <span class="badge badge-success">Positive</span>
-                    </div>
-                    <div class="list-item">
-                        <div class="list-item-content">
-                            <h3>Class Helper</h3>
-                            <p>January 12 - Assisted peers with understanding complex concepts</p>
-                        </div>
-                        <span class="badge badge-success">Positive</span>
-                    </div>
-                    <div class="list-item">
-                        <div class="list-item-content">
-                            <h3>Great Leadership</h3>
-                            <p>January 8 - Led group presentation with confidence</p>
-                        </div>
-                        <span class="badge badge-success">Positive</span>
-                    </div>
-                </div>
+                <button class="back-btn" onclick="navigateSection('profile')"><i class="fas fa-arrow-left"></i> Back to Student</button>
             </div>
 
-            <!-- MESSAGES TAB -->
-            <div id="messages" class="tab-container">
-                <div class="content-header">
-                    <h1><i class="fas fa-envelope"></i> Messages</h1>
-                    <p>Communications from teachers and school staff.</p>
-                </div>
-
+            <div id="support-section" class="content-section">
+                <h2 class="section-title"><i class="fas fa-lock"></i> Student Support</h2>
                 <div class="card">
-                    <div class="list-item">
-                        <div class="list-item-content">
-                            <h3>From: Mr. Smith (Mathematics)</h3>
-                            <p>James is doing excellent work in Mathematics. His problem-solving skills are outstanding. Keep it up!</p>
-                        </div>
-                        <span class="badge badge-success">New</span>
-                    </div>
-                    <div class="list-item">
-                        <div class="list-item-content">
-                            <h3>From: Ms. Johnson (English)</h3>
-                            <p>Great essay submission from Emma. Well written with excellent analysis!</p>
-                        </div>
-                        <span class="badge badge-info">Read</span>
-                    </div>
-                    <div class="list-item">
-                        <div class="list-item-content">
-                            <h3>From: School Administration</h3>
-                            <p>Term 3 assessment schedule has been updated. Please see attached calendar.</p>
-                        </div>
-                        <span class="badge badge-info">Read</span>
-                    </div>
-                    <div class="list-item">
-                        <div class="list-item-content">
-                            <h3>From: Dr. Williams (Science)</h3>
-                            <p>Reminder: Science field trip is January 25. Please confirm attendance and consent.</p>
-                        </div>
-                        <span class="badge badge-warning">Action Needed</span>
-                    </div>
-                    <div class="list-item">
-                        <div class="list-item-content">
-                            <h3>From: PE Department</h3>
-                            <p>Sports day is coming up on February 14. Students should start training.</p>
-                        </div>
-                        <span class="badge badge-info">Read</span>
-                    </div>
+                    <p>Support information will appear here.</p>
                 </div>
+                <button class="back-btn" onclick="navigateSection('profile')"><i class="fas fa-arrow-left"></i> Back to Student</button>
             </div>
 
-            <!-- PAYMENTS TAB -->
-            <div id="payments" class="tab-container">
-                <div class="content-header">
-                    <h1><i class="fas fa-receipt"></i> Payments & School Fees</h1>
-                    <p>Manage school fees and payment history.</p>
-                </div>
-
+            <div id="behavior-section" class="content-section">
+                <h2 class="section-title"><i class="fas fa-thumbs-up"></i> Behaviour</h2>
                 <div class="card">
-                    <div class="card-title"><i class="fas fa-exclamation-triangle"></i> Outstanding Fees</div>
-                    <div class="list-item">
-                        <div class="list-item-content">
-                            <h3>Term 3 Tuition - James Wilson</h3>
-                            <p>Due: January 31, 2026</p>
-                        </div>
-                        <span class="badge badge-warning">€4,500</span>
-                    </div>
-                    <div class="list-item">
-                        <div class="list-item-content">
-                            <h3>Term 3 Tuition - Emma Davis</h3>
-                            <p>Due: January 31, 2026</p>
-                        </div>
-                        <span class="badge badge-warning">€4,500</span>
-                    </div>
+                    <p>Behaviour records will appear here.</p>
                 </div>
-
-                <div class="card">
-                    <div class="card-title"><i class="fas fa-check-circle"></i> Payment History</div>
-                    <div class="list-item">
-                        <div class="list-item-content">
-                            <h3>Term 2 Tuition Payment</h3>
-                            <p>Paid: October 15, 2025</p>
-                        </div>
-                        <span class="badge badge-success">€9,000 Paid</span>
-                    </div>
-                    <div class="list-item">
-                        <div class="list-item-content">
-                            <h3>Term 1 Tuition Payment</h3>
-                            <p>Paid: July 10, 2025</p>
-                        </div>
-                        <span class="badge badge-success">€9,000 Paid</span>
-                    </div>
-                    <div class="list-item">
-                        <div class="list-item-content">
-                            <h3>Activity Fees (Both Children)</h3>
-                            <p>Paid: June 5, 2025</p>
-                        </div>
-                        <span class="badge badge-success">€1,200 Paid</span>
-                    </div>
-                </div>
+                <button class="back-btn" onclick="navigateSection('profile')"><i class="fas fa-arrow-left"></i> Back to Student</button>
             </div>
 
-            <!-- CALENDAR TAB -->
-            <div id="calendar" class="tab-container">
-                <div class="content-header">
-                    <h1><i class="fas fa-calendar-alt"></i> School Calendar</h1>
-                    <p>Important dates, events, and holidays.</p>
-                </div>
-
+            <div id="timetable-section" class="content-section">
+                <h2 class="section-title"><i class="fas fa-calendar"></i> Timetable</h2>
                 <div class="card">
-                    <div class="card-title">Upcoming Events</div>
-                    <div class="list-item">
-                        <div class="list-item-content">
-                            <h3>Science Field Trip</h3>
-                            <p>January 25, 2026 - Natural History Museum</p>
-                        </div>
-                        <span class="badge badge-info">📋 Register</span>
-                    </div>
-                    <div class="list-item">
-                        <div class="list-item-content">
-                            <h3>Parent-Teacher Conferences</h3>
-                            <p>February 5-6, 2026 - Individual meetings with all teachers</p>
-                        </div>
-                        <span class="badge badge-info">📅 Schedule</span>
-                    </div>
-                    <div class="list-item">
-                        <div class="list-item-content">
-                            <h3>School Sports Day</h3>
-                            <p>February 14, 2026 - Athletic competitions and events</p>
-                        </div>
-                        <span class="badge badge-info">🏃 Participate</span>
-                    </div>
-                    <div class="list-item">
-                        <div class="list-item-content">
-                            <h3>Winter Concert</h3>
-                            <p>February 21, 2026 - Musical performances by students</p>
-                        </div>
-                        <span class="badge badge-info">🎵 Attend</span>
-                    </div>
+                    <p>Student timetable will appear here.</p>
                 </div>
+                <button class="back-btn" onclick="navigateSection('profile')"><i class="fas fa-arrow-left"></i> Back to Student</button>
+            </div>
 
+            <div id="personal-section" class="content-section">
+                <h2 class="section-title"><i class="fas fa-user"></i> Personal Info</h2>
                 <div class="card">
-                    <div class="card-title">Holidays & Breaks</div>
-                    <div class="list-item">
-                        <div class="list-item-content">
-                            <h3>Term 3 Ends</h3>
-                            <p>March 28, 2026</p>
-                        </div>
-                        <span class="badge badge-success">🎓 End of Term</span>
-                    </div>
-                    <div class="list-item">
-                        <div class="list-item-content">
-                            <h3>Easter Holidays</h3>
-                            <p>March 29 - April 18, 2026 (3 weeks)</p>
-                        </div>
-                        <span class="badge badge-success">🌷 Holiday</span>
-                    </div>
-                    <div class="list-item">
-                        <div class="list-item-content">
-                            <h3>Term 4 Begins</h3>
-                            <p>April 19, 2026</p>
-                        </div>
-                        <span class="badge badge-info">📚 New Term</span>
-                    </div>
-                    <div class="list-item">
-                        <div class="list-item-content">
-                            <h3>Summer Half-Term Break</h3>
-                            <p>May 24 - May 31, 2026 (1 week)</p>
-                        </div>
-                        <span class="badge badge-success">☀️ Holiday</span>
-                    </div>
+                    <p>Personal information will appear here.</p>
                 </div>
+                <button class="back-btn" onclick="navigateSection('profile')"><i class="fas fa-arrow-left"></i> Back to Student</button>
+            </div>
+
+            <div id="fees-section" class="content-section">
+                <h2 class="section-title"><i class="fas fa-wallet"></i> Fees</h2>
+                <div class="card">
+                    <p>Fee information will appear here.</p>
+                </div>
+                <button class="back-btn" onclick="navigateSection('profile')"><i class="fas fa-arrow-left"></i> Back to Student</button>
+            </div>
+
+            <div id="options-section" class="content-section">
+                <h2 class="section-title"><i class="fas fa-sliders-h"></i> Student Options</h2>
+                <div class="card">
+                    <p>Student options will appear here.</p>
+                </div>
+                <button class="back-btn" onclick="navigateSection('profile')"><i class="fas fa-arrow-left"></i> Back to Student</button>
+            </div>
+
+            <div id="permissions-section" class="content-section">
+                <h2 class="section-title"><i class="fas fa-clipboard"></i> Permission Slips</h2>
+                <div class="card">
+                    <p>Permission slips will appear here.</p>
+                </div>
+                <button class="back-btn" onclick="navigateSection('profile')"><i class="fas fa-arrow-left"></i> Back to Student</button>
+            </div>
+
+            <div id="books-section" class="content-section">
+                <h2 class="section-title"><i class="fas fa-book"></i> Book & Supply Hub</h2>
+                <div class="card">
+                    <p>Books and supplies information will appear here.</p>
+                </div>
+                <button class="back-btn" onclick="navigateSection('profile')"><i class="fas fa-arrow-left"></i> Back to Student</button>
             </div>
         </div>
     </div>
 
+    <!-- Dropdown Menu -->
+    <div class="dropdown-menu" id="user-dropdown">
+        <a href="#" class="dropdown-item">
+            <i class="fas fa-user"></i> My Profile
+        </a>
+        <a href="#" class="dropdown-item">
+            <i class="fas fa-cog"></i> Settings
+        </a>
+        <hr class="dropdown-divider">
+        <button class="dropdown-item" id="logout-btn-menu" style="color: var(--danger);">
+            <i class="fas fa-sign-out-alt"></i> Logout
+        </button>
+    </div>
+
     <script>
-        // Initialize on page load
         document.addEventListener('DOMContentLoaded', function() {
             const user = JSON.parse(localStorage.getItem('user') || '{}');
             if (!user.role || user.role !== 'Parent') {
@@ -836,32 +860,60 @@
                 return;
             }
             
-            // Set user name
-            const userName = user.name || 'Parent User';
-            document.getElementById('sidebar-user').textContent = userName;
-        });
-
-        function switchTab(e, tabName) {
-            e.preventDefault();
-            
-            // Hide all tabs
-            document.querySelectorAll('.tab-container').forEach(tab => {
-                tab.classList.remove('active');
-            });
-
-            // Remove active from nav items
-            document.querySelectorAll('.sidebar-nav-item').forEach(item => {
-                item.classList.remove('active');
-            });
-
-            // Show selected tab
-            const tabEl = document.getElementById(tabName);
-            if (tabEl) {
-                tabEl.classList.add('active');
+            const userDisplayName = document.getElementById('user-display-name');
+            if (userDisplayName && user.name) {
+                userDisplayName.textContent = user.name;
+            }
+            if (user.email) {
+                const emailEl = document.getElementById('contact-email');
+                if (emailEl) emailEl.textContent = user.email;
             }
 
-            // Mark nav item as active
-            e.target.closest('.sidebar-nav-item').classList.add('active');
+            setupEventListeners();
+        });
+
+        function setupEventListeners() {
+            const userMenuTrigger = document.getElementById('user-menu-trigger');
+            const userDropdown = document.getElementById('user-dropdown');
+            
+            if (userMenuTrigger) {
+                userMenuTrigger.addEventListener('click', (e) => {
+                    e.preventDefault();
+                    userDropdown.classList.toggle('active');
+                });
+            }
+
+            document.addEventListener('click', (e) => {
+                if (!e.target.closest('#user-menu-trigger') && !e.target.closest('#user-dropdown')) {
+                    userDropdown.classList.remove('active');
+                }
+            });
+
+            const logoutBtn = document.getElementById('logout-btn-menu');
+            if (logoutBtn) {
+                logoutBtn.addEventListener('click', (e) => {
+                    e.preventDefault();
+                    handleLogout();
+                });
+            }
+        }
+
+        function navigateSection(section, studentName, studentDetails) {
+            document.querySelectorAll('.content-section').forEach(el => {
+                el.classList.remove('active');
+            });
+
+            if (studentName) {
+                document.getElementById('profile-name').textContent = studentName;
+                document.getElementById('profile-details').textContent = studentDetails;
+            }
+
+            const sectionEl = document.getElementById(`${section}-section`);
+            if (sectionEl) {
+                sectionEl.classList.add('active');
+            }
+
+            window.scrollTo(0, 0);
         }
 
         function handleLogout() {
@@ -869,6 +921,51 @@
                 localStorage.clear();
                 window.location.href = '/shannoncomp/login';
             }
+        }
+
+        // Initialize attendance pie chart
+        function initAttendanceChart() {
+            const ctx = document.getElementById('attendance-pie-chart');
+            if (ctx) {
+                new Chart(ctx, {
+                    type: 'doughnut',
+                    data: {
+                        labels: ['Present', 'Absent', 'Late'],
+                        datasets: [{
+                            data: [120, 5, 3],
+                            backgroundColor: [
+                                '#10B981',
+                                '#EF4444',
+                                '#F59E0B'
+                            ],
+                            borderColor: '#fff',
+                            borderWidth: 2
+                        }]
+                    },
+                    options: {
+                        responsive: true,
+                        maintainAspectRatio: false,
+                        plugins: {
+                            legend: {
+                                position: 'bottom',
+                                labels: {
+                                    padding: 15,
+                                    font: { size: 12 }
+                                }
+                            }
+                        }
+                    }
+                });
+            }
+        }
+
+        // Initialize chart when attendance section is opened
+        const originalNavigateSection = navigateSection;
+        navigateSection = function(section, ...args) {
+            if (section === 'attendance') {
+                setTimeout(() => initAttendanceChart(), 100);
+            }
+            return originalNavigateSection.call(this, section, ...args);
         }
     </script>
 </body>
