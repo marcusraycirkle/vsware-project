@@ -1,7 +1,7 @@
 const express = require('express');
 const router = express.Router();
 const User = require('../models/User');
-const { authenticate, authorize } = require('../middleware/auth');
+const { auth, authorize } = require('../middleware/auth');
 const emailService = require('../utils/emailService');
 const accountCreationTemplate = require('../utils/emailTemplates/accountCreation');
 
@@ -17,7 +17,7 @@ const TEACHER_ROLES = {
 const generatePin = () => Math.floor(100000 + Math.random() * 900000).toString();
 
 // Get all staff (accessible by Principal and Secretary)
-router.get('/staff', authenticate, authorize(['Principal', 'Secretary']), async (req, res) => {
+router.get('/staff', auth, authorize(['Principal', 'Secretary']), async (req, res) => {
   try {
     const staff = await User.find({ role: { $in: ['Teacher', 'Secretary', 'Principal'] } })
       .select('email name role department designation roleHierarchy createdAt')
@@ -34,7 +34,7 @@ router.get('/staff', authenticate, authorize(['Principal', 'Secretary']), async 
 });
 
 // Create new staff account (Principal and Secretary)
-router.post('/staff/create', authenticate, authorize(['Principal', 'Secretary']), async (req, res) => {
+router.post('/staff/create', auth, authorize(['Principal', 'Secretary']), async (req, res) => {
   try {
     const { email, name, role, department, designation, roleHierarchy } = req.body;
 
@@ -100,7 +100,7 @@ router.post('/staff/create', authenticate, authorize(['Principal', 'Secretary'])
 });
 
 // Update staff account
-router.put('/staff/:id', authenticate, authorize(['Principal', 'Secretary']), async (req, res) => {
+router.put('/staff/:id', auth, authorize(['Principal', 'Secretary']), async (req, res) => {
   try {
     const { name, department, designation, roleHierarchy, isActive } = req.body;
 
@@ -131,7 +131,7 @@ router.put('/staff/:id', authenticate, authorize(['Principal', 'Secretary']), as
 });
 
 // Delete staff account
-router.delete('/staff/:id', authenticate, authorize(['Principal']), async (req, res) => {
+router.delete('/staff/:id', auth, authorize(['Principal']), async (req, res) => {
   try {
     const user = await User.findById(req.params.id);
     
@@ -181,7 +181,7 @@ router.delete('/staff/:id', authenticate, authorize(['Principal']), async (req, 
 });
 
 // Get teacher role hierarchy levels
-router.get('/teachers/roles', authenticate, authorize(['Principal', 'Secretary']), (req, res) => {
+router.get('/teachers/roles', auth, authorize(['Principal', 'Secretary']), (req, res) => {
   res.json({
     success: true,
     roles: TEACHER_ROLES
@@ -189,7 +189,7 @@ router.get('/teachers/roles', authenticate, authorize(['Principal', 'Secretary']
 });
 
 // Update teacher role hierarchy
-router.put('/teachers/:id/role', authenticate, authorize(['Principal']), async (req, res) => {
+router.put('/teachers/:id/role', auth, authorize(['Principal']), async (req, res) => {
   try {
     const { roleHierarchy } = req.body;
 
@@ -221,7 +221,7 @@ router.put('/teachers/:id/role', authenticate, authorize(['Principal']), async (
 });
 
 // Reset PIN for a user (Principal only)
-router.post('/staff/:id/reset-pin', authenticate, authorize(['Principal']), async (req, res) => {
+router.post('/staff/:id/reset-pin', auth, authorize(['Principal']), async (req, res) => {
   try {
     const newPin = generatePin();
     
