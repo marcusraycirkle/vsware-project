@@ -86,7 +86,7 @@ body {
     font-size: 14px;
     line-height: 1.6;
     color: var(--text-primary);
-    background: var(--bg-secondary);
+    background: var(--bg-secondary) !important;
     overflow-x: hidden;
 }
 
@@ -98,7 +98,7 @@ body {
     display: flex;
     flex-direction: column;
     min-height: 100vh;
-    background: var(--bg-secondary);
+    background: var(--bg-secondary) !important;
 }
 
 /* ==============================================
@@ -476,7 +476,7 @@ body {
     flex: 1;
     margin-left: var(--sidebar-width);
     padding: var(--spacing-xl);
-    background: var(--bg-secondary);
+    background: var(--bg-secondary) !important;
     min-height: calc(100vh - var(--header-height));
 }
 
@@ -978,6 +978,69 @@ body {
 
 .btn-text:hover {
     background: var(--primary-light);
+}
+
+.btn-info {
+    padding: 12px 24px;
+    background: var(--info);
+    color: white;
+    border: none;
+    border-radius: var(--border-radius);
+    font-weight: 600;
+    font-size: 14px;
+    cursor: pointer;
+    transition: all 0.2s;
+    display: inline-flex;
+    align-items: center;
+    gap: var(--spacing-sm);
+}
+
+.btn-info:hover {
+    background: #1D4ED8;
+    transform: translateY(-1px);
+    box-shadow: var(--shadow-md);
+}
+
+.btn-success {
+    padding: 12px 24px;
+    background: var(--success);
+    color: white;
+    border: none;
+    border-radius: var(--border-radius);
+    font-weight: 600;
+    font-size: 14px;
+    cursor: pointer;
+    transition: all 0.2s;
+    display: inline-flex;
+    align-items: center;
+    gap: var(--spacing-sm);
+}
+
+.btn-success:hover {
+    background: #059669;
+    transform: translateY(-1px);
+    box-shadow: var(--shadow-md);
+}
+
+.btn-danger {
+    padding: 12px 24px;
+    background: var(--error);
+    color: white;
+    border: none;
+    border-radius: var(--border-radius);
+    font-weight: 600;
+    font-size: 14px;
+    cursor: pointer;
+    transition: all 0.2s;
+    display: inline-flex;
+    align-items: center;
+    gap: var(--spacing-sm);
+}
+
+.btn-danger:hover {
+    background: #DC2626;
+    transform: translateY(-1px);
+    box-shadow: var(--shadow-md);
 }
 
 .badge-pill {

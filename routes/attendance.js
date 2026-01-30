@@ -7,8 +7,8 @@ const moment = require('moment');
 
 // @route   GET /api/attendance
 // @desc    Get attendance records
-// @access  Private
-router.get('/', auth, async (req, res) => {
+// @access  Private (Admin/Principal/Teacher)
+router.get('/', auth, authorize('admin', 'principal', 'teacher'), async (req, res) => {
   try {
     const { 
       student, class: classId, date, startDate, endDate,
@@ -57,8 +57,8 @@ router.get('/', auth, async (req, res) => {
 
 // @route   GET /api/attendance/:id
 // @desc    Get attendance record by ID
-// @access  Private
-router.get('/:id', auth, async (req, res) => {
+// @access  Private (Admin/Principal/Teacher)
+router.get('/:id', auth, authorize('admin', 'principal', 'teacher'), async (req, res) => {
   try {
     const attendance = await Attendance.findById(req.params.id)
       .populate('student')

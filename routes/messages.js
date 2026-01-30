@@ -100,7 +100,7 @@ router.get('/:id', auth, async (req, res) => {
 // @route   POST /api/messages
 // @desc    Send a new message
 // @access  Private
-router.post('/', auth, async (req, res) => {
+router.post('/', auth, authorize('admin', 'principal', 'teacher'), async (req, res) => {
   try {
     const {
       recipients, recipientType, subject, body, type, priority, category,
@@ -262,7 +262,7 @@ router.post('/broadcast', auth, authorize('admin', 'principal', 'teacher'), asyn
 // @route   POST /api/messages/:id/reply
 // @desc    Reply to a message
 // @access  Private
-router.post('/:id/reply', auth, async (req, res) => {
+router.post('/:id/reply', auth, authorize('admin', 'principal', 'teacher'), async (req, res) => {
   try {
     const { body, attachments } = req.body;
     
@@ -310,7 +310,7 @@ router.post('/:id/reply', auth, async (req, res) => {
 // @route   PUT /api/messages/:id/read
 // @desc    Mark message as read
 // @access  Private
-router.put('/:id/read', auth, async (req, res) => {
+router.put('/:id/read', auth, authorize('admin', 'principal', 'teacher'), async (req, res) => {
   try {
     const message = await Message.findById(req.params.id);
     
@@ -339,7 +339,7 @@ router.put('/:id/read', auth, async (req, res) => {
 // @route   PUT /api/messages/:id/star
 // @desc    Star/unstar message
 // @access  Private
-router.put('/:id/star', auth, async (req, res) => {
+router.put('/:id/star', auth, authorize('admin', 'principal', 'teacher'), async (req, res) => {
   try {
     const message = await Message.findById(req.params.id);
     
@@ -370,7 +370,7 @@ router.put('/:id/star', auth, async (req, res) => {
 // @route   PUT /api/messages/:id/archive
 // @desc    Archive/unarchive message
 // @access  Private
-router.put('/:id/archive', auth, async (req, res) => {
+router.put('/:id/archive', auth, authorize('admin', 'principal', 'teacher'), async (req, res) => {
   try {
     const message = await Message.findById(req.params.id);
     
@@ -401,7 +401,7 @@ router.put('/:id/archive', auth, async (req, res) => {
 // @route   DELETE /api/messages/:id
 // @desc    Delete message
 // @access  Private
-router.delete('/:id', auth, async (req, res) => {
+router.delete('/:id', auth, authorize('admin', 'principal', 'teacher'), async (req, res) => {
   try {
     const message = await Message.findById(req.params.id);
     

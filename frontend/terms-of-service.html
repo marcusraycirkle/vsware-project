@@ -7,12 +7,11 @@
   <link rel="stylesheet" href="/styles.css">
   <link rel="stylesheet" href="/modern-components.css">
   <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
-  <style>body{background:var(--bg-secondary);color:var(--text-primary);font-family:'Inter',sans-serif;line-height:1.7;}</style>
+  <style>body{background:#FFFFFF;color:#000000;font-family:'Inter',sans-serif;line-height:1.7;}</style>
 </head>
 <body>
-  <div id="loading-overlay"></div>
   <div class="legal-container" style="max-width:800px;margin:3rem auto 2rem;background:white;padding:2.5rem 2rem;border-radius:12px;box-shadow:0 2px 12px rgba(0,0,0,0.07);">
-    <button onclick="window.history.back()" class="btn-secondary" style="margin-bottom:2rem;"><i class="fas fa-arrow-left"></i> Back</button>
+    <a href="/#/landing" class="btn-secondary" style="margin-bottom:2rem;display:inline-flex;align-items:center;gap:0.5rem;text-decoration:none;"><i class="fas fa-arrow-left"></i> Back to Home</a>
     <h1 style="margin-bottom:1.5rem;">Terms of Service</h1>
     <p><strong>Effective Date:</strong> January 18, 2026</p>
     <h2>1. Acceptance of Terms</h2>
@@ -42,7 +41,18 @@
     <h2>9. Contact</h2>
     <p>For questions about these Terms, contact your school or email <a href="mailto:24corykilmartin+mispal@shannoncomp.ie">24corykilmartin+mispal@shannoncomp.ie</a>.</p>
   </div>
-  <script src="/loading.js"></script>
-  <script>window.addEventListener('DOMContentLoaded',()=>{if(window.showLoadingScreen){showLoadingScreen();setTimeout(()=>{document.getElementById('loading-overlay').style.display='none';},900);}else{document.getElementById('loading-overlay').style.display='none';}});</script>
+  <script>
+    // Prevent router from interfering with standalone legal page
+    window.STANDALONE_PAGE = true;
+    
+    // Immediately hide any loading screen
+    document.addEventListener('DOMContentLoaded', () => {
+      const loadingOverlay = document.getElementById('mispal-loading');
+      if (loadingOverlay) {
+        loadingOverlay.style.display = 'none';
+        loadingOverlay.style.opacity = '0';
+      }
+    });
+  </script>
 </body>
 </html>

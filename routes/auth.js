@@ -142,7 +142,7 @@ router.post('/login', [
     }
     
     // Verify password
-    const isMatch = await user.comparePin(password);
+    const isMatch = await user.comparePassword(password);
     if (!isMatch) {
       return res.status(400).json({ message: 'Invalid email or password' });
     }

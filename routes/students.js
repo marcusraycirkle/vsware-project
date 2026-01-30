@@ -167,6 +167,10 @@ router.get('/:id', auth, async (req, res) => {
     if (!student) {
       return res.status(404).json({ message: 'Student not found' });
     }
+
+    if (req.user.role === 'student' && student.user?._id.toString() !== req.userId) {
+      return res.status(403).json({ message: 'Access denied' });
+    }
     
     // Check authorization
     if (req.user.role === 'parent') {

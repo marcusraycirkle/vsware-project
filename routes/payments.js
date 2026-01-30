@@ -6,8 +6,8 @@ const Student = require('../models/Student');
 
 // @route   GET /api/payments
 // @desc    Get payments
-// @access  Private
-router.get('/', auth, async (req, res) => {
+// @access  Private (Admin/Principal/Teacher/Parent)
+router.get('/', auth, authorize('admin', 'principal', 'teacher', 'parent'), async (req, res) => {
   try {
     const {
       student, status, type, academicYear, term,
@@ -21,9 +21,6 @@ router.get('/', auth, async (req, res) => {
       const Parent = require('../models/Parent');
       const parent = await Parent.findOne({ user: req.userId });
       query.student = { $in: parent.children };
-    } else if (req.user.role === 'student') {
-      const studentData = await Student.findOne({ user: req.userId });
-      query.student = studentData._id;
     }
     
     if (student) query.student = student;
@@ -55,8 +52,8 @@ router.get('/', auth, async (req, res) => {
 
 // @route   GET /api/payments/:id
 // @desc    Get payment by ID
-// @access  Private
-router.get('/:id', auth, async (req, res) => {
+// @access  Private (Admin/Principal/Teacher/Parent)
+router.get('/:id', auth, authorize('admin', 'principal', 'teacher', 'parent'), async (req, res) => {
   try {
     const payment = await Payment.findById(req.params.id)
       .populate('student')

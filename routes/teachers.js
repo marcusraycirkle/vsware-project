@@ -6,8 +6,8 @@ const User = require('../models/User');
 
 // @route   GET /api/teachers
 // @desc    Get all teachers
-// @access  Private
-router.get('/', auth, async (req, res) => {
+// @access  Private (Admin/Principal/Teacher)
+router.get('/', auth, authorize('admin', 'principal', 'teacher'), async (req, res) => {
   try {
     const { department, status, search, page = 1, limit = 100 } = req.query;
     
@@ -64,8 +64,8 @@ router.get('/', auth, async (req, res) => {
 
 // @route   GET /api/teachers/:id
 // @desc    Get teacher by ID
-// @access  Private
-router.get('/:id', auth, async (req, res) => {
+// @access  Private (Admin/Principal/Teacher)
+router.get('/:id', auth, authorize('admin', 'principal', 'teacher'), async (req, res) => {
   try {
     const teacher = await Teacher.findById(req.params.id)
       .populate('user', '-password')

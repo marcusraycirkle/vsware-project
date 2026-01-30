@@ -19,62 +19,90 @@ class MISpalRouter {
   }
 
   init() {
+    // Don't initialize router on standalone pages (legal pages, etc.)
+    if (window.STANDALONE_PAGE) {
+      console.log('Standalone page detected, router disabled');
+      return;
+    }
+    
     // Listen for hash changes
     window.addEventListener('hashchange', () => this.handleRoute());
     window.addEventListener('load', () => this.handleRoute());
     
-    // Set initial route
-    if (!window.location.hash) {
-      window.location.hash = '#/selector';
+    // Handle the route immediately if there's already a hash
+    if (window.location.hash) {
+      this.handleRoute();
+    } else {
+      // Only set default if no hash exists
+      window.location.hash = '#/landing';
     }
   }
 
   handleRoute() {
-    const hash = window.location.hash.slice(1) || '/selector';
+    const hash = window.location.hash.slice(1) || '/landing';
     const parts = hash.split('/').filter(p => p);
     
     console.log('Route:', hash, 'Parts:', parts);
     
-    // Route structure: /<school-id>/<page>
-    // or /selector for school selection
-    // or /<school-id>/enrolment for public enrolment
+    // Route structure: /landing, /<school-id>/<page>, /enrolment
     
-    if (parts.length === 0 || parts[0] === 'selector') {
-      this.showSchoolSelector();
-    } else if (parts.length >= 2) {
-      const schoolId = parts[0];
-      const page = parts[1];
-      
-      this.currentSchool = this.schools.find(s => s.id === schoolId);
-      
-      if (!this.currentSchool) {
-        console.error('School not found:', schoolId);
-        window.location.hash = '#/selector';
-        return;
-      }
-      
-      // Handle different pages
-      if (page === 'enrolment') {
-        this.showEnrolmentPage(schoolId);
-      } else if (page === 'login') {
-        this.showLoginPage(schoolId);
-      } else {
-        // Dashboard pages (requires authentication)
-        this.showDashboardPage(schoolId, page);
-      }
+    if (parts.length === 0 || parts[0] === 'landing' || parts[0] === 'selector') {
+      // Show landing page
+      this.showLandingPage();
+      return;
+    }
+    
+    // Check if it's a standalone route like /enrolment
+    if (parts[0] === 'enrolment') {
+      this.showEnrolmentPage('shannoncomp');
+      return;
+    }
+    
+    const schoolId = parts[0] || 'shannoncomp';
+    const page = parts[1] || 'dashboard';
+    
+    this.currentSchool = this.schools.find(s => s.id === schoolId);
+    
+    if (!this.currentSchool) {
+      console.error('School not found:', schoolId);
+      window.location.hash = '#/landing';
+      return;
+    }
+    
+    // Handle different pages
+    if (page === 'enrolment') {
+      this.showEnrolmentPage(schoolId);
+    } else if (page === 'login') {
+      this.showLoginPage(schoolId);
     } else {
-      window.location.hash = '#/selector';
+      // Dashboard pages (requires authentication)
+      this.showDashboardPage(schoolId, page);
+    }
+  }
+  
+  showLandingPage() {
+    console.log('Showing landing page');
+    const landingPage = document.getElementById('landing-page');
+    const loginSection = document.getElementById('login-section');
+    const enrollmentSection = document.getElementById('enrollment-section');
+    const dashboardSection = document.getElementById('dashboard-section');
+    
+    if (landingPage && loginSection && enrollmentSection && dashboardSection) {
+      landingPage.style.display = 'block';
+      loginSection.style.display = 'none';
+      enrollmentSection.style.display = 'none';
+      dashboardSection.style.display = 'none';
     }
   }
 
   showSchoolSelector() {
-    console.log('Showing school selector');
-    window.location.href = 'school-selector.html';
+    // Show landing page instead
+    this.showLandingPage();
   }
 
   showEnrolmentPage(schoolId) {
     console.log('Showing enrolment page for:', schoolId);
-    window.location.href = `enrolment.html#/${schoolId}/enrolment`;
+    window.location.href = `/enrolment.html#/${schoolId}/enrolment`;
   }
 
   showLoginPage(schoolId) {
@@ -82,18 +110,8 @@ class MISpalRouter {
     // Store school ID for after login
     localStorage.setItem('selectedSchool', schoolId);
     
-    // If we're already on index.html, show login
-    if (window.location.pathname.includes('index.html') || window.location.pathname === '/') {
-      const landingPage = document.getElementById('landing-page');
-      const loginSection = document.getElementById('login-section');
-      
-      if (landingPage && loginSection) {
-        landingPage.style.display = 'none';
-        loginSection.style.display = 'flex';
-      }
-    } else {
-      window.location.href = `index.html#/${schoolId}/login`;
-    }
+    // Navigate to login with absolute path
+    window.location.href = `/login#/${schoolId}/login`;
   }
 
   showDashboardPage(schoolId, page) {
@@ -109,9 +127,19 @@ class MISpalRouter {
     // Store school context
     localStorage.setItem('selectedSchool', schoolId);
     
-    // Navigate to dashboard with context
+    // Hide landing page, show dashboard
+    const landingPage = document.getElementById('landing-page');
+    const dashboard = document.getElementById('dashboard');
+    
+    if (landingPage) landingPage.style.display = 'none';
+    if (dashboard) {
+      dashboard.classList.remove('hidden');
+      dashboard.style.display = 'flex';
+    }
+    
+    // Navigate to specific section if available
     if (window.showSection) {
-      window.showSection(page);
+      window.showSection(page || 'overview');
     }
   }
 
@@ -145,5 +173,8 @@ class MISpalRouter {
 // Initialize router
 let router;
 document.addEventListener('DOMContentLoaded', () => {
-  router = new MISpalRouter();
+  // Don't initialize router on standalone pages
+  if (!window.STANDALONE_PAGE) {
+    router = new MISpalRouter();
+  }
 });

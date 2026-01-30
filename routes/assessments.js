@@ -2,12 +2,11 @@ const express = require('express');
 const router = express.Router();
 const { auth, authorize } = require('../middleware/auth');
 const Assessment = require('../models/Assessment');
-const Student = require('../models/Student');
 
 // @route   GET /api/assessments
 // @desc    Get assessments
-// @access  Private
-router.get('/', auth, async (req, res) => {
+// @access  Private (Admin/Principal/Teacher)
+router.get('/', auth, authorize('admin', 'principal', 'teacher'), async (req, res) => {
   try {
     const {
       subject, class: classId, type, academicYear, term,
@@ -45,8 +44,8 @@ router.get('/', auth, async (req, res) => {
 
 // @route   GET /api/assessments/:id
 // @desc    Get assessment by ID
-// @access  Private
-router.get('/:id', auth, async (req, res) => {
+// @access  Private (Admin/Principal/Teacher)
+router.get('/:id', auth, authorize('admin', 'principal', 'teacher'), async (req, res) => {
   try {
     const assessment = await Assessment.findById(req.params.id)
       .populate('subject')
@@ -56,21 +55,6 @@ router.get('/:id', auth, async (req, res) => {
     
     if (!assessment) {
       return res.status(404).json({ message: 'Assessment not found' });
-    }
-    
-    // Filter results for students/parents
-    if (req.user.role === 'student') {
-      const student = await Student.findOne({ user: req.userId });
-      assessment.results = assessment.results.filter(
-        r => r.student._id.toString() === student._id.toString()
-      );
-    } else if (req.user.role === 'parent') {
-      const Parent = require('../models/Parent');
-      const parent = await Parent.findOne({ user: req.userId }).populate('children');
-      const childIds = parent.children.map(c => c._id.toString());
-      assessment.results = assessment.results.filter(
-        r => childIds.includes(r.student._id.toString())
-      );
     }
     
     res.json(assessment);
@@ -87,7 +71,7 @@ router.post('/', auth, authorize('teacher', 'admin', 'principal'), async (req, r
     const {
       title, type, subject, class: classId, academicYear, term,
       date, maxMarks, passingMarks, weightage, duration,
-      syllabus, instructions
+      syllabus, instructions, passingPercentage, submissionDate, isVisible
     } = req.body;
     
     const assessment = new Assessment({
@@ -101,6 +85,9 @@ router.post('/', auth, authorize('teacher', 'admin', 'principal'), async (req, r
       date,
       maxMarks,
       passingMarks,
+      passingPercentage: passingPercentage || (maxMarks ? (passingMarks / maxMarks) * 100 : undefined),
+      submissionDate,
+      isVisible,
       weightage,
       duration,
       syllabus,
@@ -130,6 +117,9 @@ router.post('/', auth, authorize('teacher', 'admin', 'principal'), async (req, r
 router.put('/:id', auth, authorize('teacher', 'admin', 'principal'), async (req, res) => {
   try {
     const updates = req.body;
+    if (updates.passingMarks && updates.maxMarks && updates.passingPercentage === undefined) {
+      updates.passingPercentage = (updates.passingMarks / updates.maxMarks) * 100;
+    }
     
     const assessment = await Assessment.findByIdAndUpdate(
       req.params.id,

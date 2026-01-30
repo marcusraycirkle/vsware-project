@@ -11,8 +11,22 @@
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
     <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800;900&display=swap" rel="stylesheet">
     <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+    <style>
+        #teacher-portal.loading {
+            opacity: 0;
+            transition: opacity 1s ease-in;
+        }
+    </style>
 </head>
 <body>
+    <!-- Loading Overlay -->
+    <div id="portal-loading-overlay" style="position: fixed; top: 0; left: 0; right: 0; bottom: 0; background: linear-gradient(135deg, #667eea 0%, #764ba2 100%); display: flex; flex-direction: column; align-items: center; justify-content: center; z-index: 9999;">
+        <div style="color: white; font-size: 1.2rem; font-weight: 500; text-align: center;">
+            <i class="fas fa-spinner fa-spin" style="font-size: 2rem; margin-bottom: 1rem;"></i>
+            <div>Loading MISpal Teacher Portal...</div>
+        </div>
+    </div>
+
     <!-- Main Teacher Container -->
     <div id="teacher-portal" class="admin-portal">
         
@@ -488,6 +502,16 @@
             }
             
             initAttendanceChart();
+            
+            // Hide loading overlay after 1 second
+            setTimeout(() => {
+                const overlay = document.getElementById('portal-loading-overlay');
+                if (overlay) {
+                    overlay.style.opacity = '0';
+                    overlay.style.transition = 'opacity 0.5s ease-out';
+                    setTimeout(() => overlay.remove(), 500);
+                }
+            }, 1000);
         });
     </script>
 </body>

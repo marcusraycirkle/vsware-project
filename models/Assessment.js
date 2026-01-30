@@ -46,6 +46,16 @@ const assessmentSchema = new mongoose.Schema({
     type: Number,
     required: true
   },
+  passingPercentage: {
+    type: Number
+  },
+  submissionDate: {
+    type: Date
+  },
+  isVisible: {
+    type: Boolean,
+    default: true
+  },
   weightage: {
     type: Number,
     default: 100

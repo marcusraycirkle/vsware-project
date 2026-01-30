@@ -11,7 +11,7 @@ const userSchema = new mongoose.Schema({
   },
   password: {
     type: String,
-    minlength: 6
+    minlength: 4
   },
   pin: {
     type: String,
@@ -19,7 +19,7 @@ const userSchema = new mongoose.Schema({
   },
   role: {
     type: String,
-    enum: ['Admin', 'Principal', 'Teacher', 'Parent', 'Student', 'Secretary'],
+    enum: ['admin', 'principal', 'teacher', 'parent', 'student', 'secretary'],
     required: true
   },
   name: {
@@ -109,6 +109,13 @@ const userSchema = new mongoose.Schema({
 });
 
 // Hash password and PIN before saving
+userSchema.pre('validate', function(next) {
+  if (this.role && typeof this.role === 'string') {
+    this.role = this.role.toLowerCase();
+  }
+  next();
+});
+
 userSchema.pre('save', async function(next) {
   try {
     if (this.isModified('password') && this.password) {

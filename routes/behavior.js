@@ -15,7 +15,15 @@ router.get('/', auth, async (req, res) => {
     } = req.query;
     
     let query = {};
-    if (student) query.student = student;
+    if (req.user.role === 'student') {
+      const studentProfile = await Student.findOne({ user: req.userId });
+      if (!studentProfile) {
+        return res.status(403).json({ message: 'Access denied' });
+      }
+      query.student = studentProfile._id;
+    } else if (student) {
+      query.student = student;
+    }
     if (classId) query.class = classId;
     if (type) query.type = type;
     if (category) query.category = category;
@@ -63,6 +71,13 @@ router.get('/:id', auth, async (req, res) => {
     
     if (!behavior) {
       return res.status(404).json({ message: 'Behavior log not found' });
+    }
+
+    if (req.user.role === 'student') {
+      const studentProfile = await Student.findOne({ user: req.userId });
+      if (!studentProfile || behavior.student?._id.toString() !== studentProfile._id.toString()) {
+        return res.status(403).json({ message: 'Access denied' });
+      }
     }
     
     res.json(behavior);
@@ -210,6 +225,13 @@ router.put('/:id/acknowledge', auth, authorize('parent'), async (req, res) => {
 router.get('/student/:studentId/report', auth, async (req, res) => {
   try {
     const { startDate, endDate } = req.query;
+
+    if (req.user.role === 'student') {
+      const studentProfile = await Student.findOne({ user: req.userId });
+      if (!studentProfile || studentProfile._id.toString() !== req.params.studentId) {
+        return res.status(403).json({ message: 'Access denied' });
+      }
+    }
     
     let query = { student: req.params.studentId };
     

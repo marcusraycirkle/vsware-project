@@ -9,6 +9,11 @@ const Subject = require('./models/Subject');
 const Room = require('./models/Room');
 const RoomBooking = require('./models/RoomBooking');
 const Timetable = require('./models/Timetable');
+const Attendance = require('./models/Attendance');
+const Assessment = require('./models/Assessment');
+const Behavior = require('./models/Behavior');
+const Period = require('./models/Period');
+const Lesson = require('./models/Lesson');
 
 dotenv.config();
 
@@ -26,21 +31,29 @@ const sampleData = async () => {
     await Parent.deleteMany({});
     await Class.deleteMany({});
     await Subject.deleteMany({});
+    await Room.deleteMany({});
+    await RoomBooking.deleteMany({});
+    await Attendance.deleteMany({});
+    await Assessment.deleteMany({});
+    await Behavior.deleteMany({});
+    await Period.deleteMany({});
+    await Lesson.deleteMany({});
     await Timetable.deleteMany({});
 
     // Create Admin User
     console.log('👤 Creating admin user...');
     const admin = new User({
       email: 'admin@schoolware.com',
-      password: 'admin123',
+      password: 'ad24',
       pin: '1234',
       firstName: 'Super',
       lastName: 'Admin',
       role: 'admin',
+      roleHierarchy: 'Principal',
       phoneNumber: '+353 1 234 5678'
     });
     await admin.save();
-    console.log('   ✅ Admin created: admin@schoolware.com / admin123 / PIN: 1234');
+    console.log('   ✅ Admin created: admin@schoolware.com / ad24 / PIN: 1234');
 
     // Create Subjects
     console.log('📚 Creating subjects...');
@@ -64,6 +77,18 @@ const sampleData = async () => {
     // Create Teachers
     console.log('👨‍🏫 Creating teachers...');
     const teachers = [
+      {
+        email: 'teacher@schoolware.com',
+        password: 'teacher24',
+        firstName: 'Demo',
+        lastName: 'Teacher',
+        role: 'teacher',
+        dateOfBirth: new Date('1982-02-10'),
+        gender: 'Female',
+        department: 'Mathematics',
+        designation: 'Teacher',
+        subjects: [createdSubjects[0]._id]
+      },
       {
         email: 'john.smith@schoolware.com',
         password: 'teacher123',
@@ -111,10 +136,12 @@ const sampleData = async () => {
         firstName: teacher.firstName,
         lastName: teacher.lastName,
         role: teacher.role,
+        roleHierarchy: 'Mid',
         phoneNumber: '+353 1 ' + Math.floor(Math.random() * 9000000 + 1000000)
       });
       await user.save();
 
+      const isPrimaryTeacher = teacher.email === 'teacher@schoolware.com';
       const teacherProfile = new Teacher({
         user: user._id,
         teacherId: `TCH${1000 + createdTeachers.length}`,
@@ -123,7 +150,25 @@ const sampleData = async () => {
         gender: teacher.gender,
         department: teacher.department,
         designation: teacher.designation,
-        subjects: teacher.subjects
+        subjects: teacher.subjects,
+        permissions: {
+          canManageUsers: false,
+          canManageTeachers: false,
+          canManageStudents: false,
+          canManageClasses: isPrimaryTeacher,
+          canEditTimetable: true,
+          canViewAllReports: isPrimaryTeacher,
+          canManagePayments: false,
+          canManageRooms: false,
+          canEditStudentInfo: false,
+          canEditStudentTimetable: false,
+          canViewReports: true,
+          canManageAttendance: true,
+          canManageBehavior: true,
+          canManageAssessments: true,
+          canSendMail: true,
+          canBookRooms: true
+        }
       });
       await teacherProfile.save();
 
@@ -169,9 +214,63 @@ const sampleData = async () => {
     }
     console.log(`   ✅ Created ${createdClasses.length} classes`);
 
+    // Create Rooms
+    console.log('🏫 Creating rooms...');
+    const rooms = [
+      { roomNumber: 'Room 101', roomName: 'Room 101', category: 'General Classrooms', floor: 1, capacity: 30 },
+      { roomNumber: 'Room 201', roomName: 'Room 201', category: 'General Classrooms', floor: 2, capacity: 30 },
+      { roomNumber: 'Lab 1', roomName: 'Science Lab 1', category: 'Science Labs', floor: 1, capacity: 24 },
+      { roomNumber: 'Gym', roomName: 'Sports Hall', category: 'PE/Sports Hall', floor: 0, capacity: 40 }
+    ];
+
+    const createdRooms = [];
+    for (const room of rooms) {
+      const newRoom = new Room(room);
+      await newRoom.save();
+      createdRooms.push(newRoom);
+    }
+    console.log(`   ✅ Created ${createdRooms.length} rooms`);
+
+    // Create Periods
+    console.log('⏰ Creating periods...');
+    const periods = [
+      { name: 'Period 1', startTime: '09:00', endTime: '09:40', order: 1 },
+      { name: 'Period 2', startTime: '09:40', endTime: '10:20', order: 2 },
+      { name: 'Period 3', startTime: '10:20', endTime: '11:00', order: 3 },
+      { name: 'Break', startTime: '11:00', endTime: '11:15', order: 4, isBreak: true },
+      { name: 'Period 4', startTime: '11:15', endTime: '11:55', order: 5 },
+      { name: 'Period 5', startTime: '11:55', endTime: '12:35', order: 6 },
+      { name: 'Lunch', startTime: '12:35', endTime: '13:15', order: 7, isBreak: true },
+      { name: 'Period 6', startTime: '13:15', endTime: '13:55', order: 8 },
+      { name: 'Period 7', startTime: '13:55', endTime: '14:35', order: 9 }
+    ];
+
+    const createdPeriods = [];
+    for (const period of periods) {
+      const newPeriod = new Period(period);
+      await newPeriod.save();
+      createdPeriods.push(newPeriod);
+    }
+    console.log(`   ✅ Created ${createdPeriods.length} periods`);
+
     // Create Students and Parents
     console.log('👨‍🎓 Creating students and parents...');
     const studentsData = [
+      {
+        firstName: 'Demo',
+        lastName: 'Student',
+        email: 'student@schoolware.com',
+        dateOfBirth: new Date('2010-01-10'),
+        gender: 'Female',
+        currentYear: 1,
+        yearName: 'First Year',
+        yearGroup: 'First Year',
+        house: 'Bride',
+        currentClass: createdClasses[0]._id,
+        parentEmail: 'parent.demo@email.com',
+        parentFirstName: 'Alex',
+        parentLastName: 'Student'
+      },
       {
         firstName: 'James',
         lastName: 'Wilson',
@@ -229,7 +328,8 @@ const sampleData = async () => {
         password: 'student123',
         firstName: data.firstName,
         lastName: data.lastName,
-        role: 'student'
+        role: 'student',
+        roleHierarchy: 'Student'
       });
       await studentUser.save();
 
@@ -265,7 +365,8 @@ const sampleData = async () => {
         password: 'parent123',
         firstName: data.parentFirstName,
         lastName: data.parentLastName,
-        role: 'parent'
+        role: 'parent',
+        roleHierarchy: 'Parent'
       });
       await parentUser.save();
 
@@ -287,6 +388,202 @@ const sampleData = async () => {
       await student.save();
     }
     console.log(`   ✅ Created ${studentsData.length} students and parents`);
+
+    // Create Behavior Logs
+    console.log('⭐ Creating behavior logs...');
+    const allStudents = await Student.find().populate('user');
+    const behaviorLogs = [
+      {
+        student: allStudents[0]._id,
+        class: createdClasses[0]._id,
+        type: 'Positive',
+        category: 'Participation',
+        severity: 'Low',
+        title: 'Excellent participation',
+        description: 'Contributed thoughtful answers in class.',
+        date: new Date(),
+        points: 1,
+        reportedBy: admin._id
+      },
+      {
+        student: allStudents[1]._id,
+        class: createdClasses[0]._id,
+        type: 'Negative',
+        category: 'Late',
+        severity: 'Low',
+        title: 'Late arrival',
+        description: 'Arrived 10 minutes late.',
+        date: new Date(),
+        points: -1,
+        reportedBy: admin._id
+      },
+      {
+        student: allStudents[2]._id,
+        class: createdClasses[1]._id,
+        type: 'Positive',
+        category: 'Leadership',
+        severity: 'Low',
+        title: 'Helped classmates',
+        description: 'Assisted peers during group work.',
+        date: new Date(),
+        points: 1,
+        reportedBy: admin._id
+      }
+    ];
+
+    for (const entry of behaviorLogs) {
+      const log = new Behavior(entry);
+      await log.save();
+      await Student.findByIdAndUpdate(entry.student, { $push: { behavior: log._id } });
+    }
+    console.log('   ✅ Created behavior logs');
+
+    // Create Attendance Records
+    console.log('🗓️  Creating attendance records...');
+    const today = new Date();
+    const yesterday = new Date(Date.now() - 24 * 60 * 60 * 1000);
+
+    const attendanceEntries = [
+      {
+        student: allStudents[0]._id,
+        class: createdClasses[0]._id,
+        date: today,
+        status: 'Present',
+        period: 'Class 1',
+        subject: createdSubjects[0]._id,
+        markedBy: admin._id,
+        notes: 'On time'
+      },
+      {
+        student: allStudents[1]._id,
+        class: createdClasses[0]._id,
+        date: today,
+        status: 'Late',
+        period: 'Class 1',
+        subject: createdSubjects[0]._id,
+        markedBy: admin._id,
+        notes: 'Late by 5 minutes'
+      },
+      {
+        student: allStudents[0]._id,
+        class: createdClasses[0]._id,
+        date: yesterday,
+        status: 'Present',
+        period: 'Class 2',
+        subject: createdSubjects[1]._id,
+        markedBy: admin._id
+      },
+      {
+        student: allStudents[1]._id,
+        class: createdClasses[0]._id,
+        date: yesterday,
+        status: 'Absent',
+        period: 'Class 2',
+        subject: createdSubjects[1]._id,
+        markedBy: admin._id,
+        notes: 'Sick'
+      }
+    ];
+
+    for (const entry of attendanceEntries) {
+      const record = new Attendance(entry);
+      await record.save();
+      await Student.findByIdAndUpdate(entry.student, { $push: { attendance: record._id } });
+    }
+    console.log('   ✅ Created attendance records');
+
+    // Create Assignments (Assessments)
+    console.log('📝 Creating assignments...');
+    const assignment = new Assessment({
+      title: 'Algebra Assignment 1',
+      type: 'Assignment',
+      subject: createdSubjects[0]._id,
+      class: createdClasses[0]._id,
+      teacher: createdTeachers[0]._id,
+      academicYear: '2024-2025',
+      term: 'Term 1',
+      date: new Date(),
+      submissionDate: new Date(Date.now() + 7 * 24 * 60 * 60 * 1000),
+      maxMarks: 100,
+      passingMarks: 40,
+      passingPercentage: 40,
+      isVisible: true,
+      syllabus: 'Linear equations and inequalities',
+      instructions: 'Complete all questions. Show your working.',
+      status: 'Scheduled'
+    });
+    await assignment.save();
+    console.log('   ✅ Created assignments');
+
+    // Create Lessons
+    console.log('📘 Creating lessons...');
+    const lessonEntries = [
+      {
+        class: createdClasses[0]._id,
+        teacher: createdTeachers[0]._id,
+        subject: createdSubjects[0]._id,
+        room: createdRooms[0]._id,
+        period: createdPeriods[0]._id,
+        dayOfWeek: 'Monday',
+        startDate: new Date('2024-09-02'),
+        isRecurring: true,
+        notes: 'Intro to Algebra'
+      },
+      {
+        class: createdClasses[1]._id,
+        teacher: createdTeachers[1]._id,
+        subject: createdSubjects[1]._id,
+        room: createdRooms[1]._id,
+        period: createdPeriods[1]._id,
+        dayOfWeek: 'Tuesday',
+        startDate: new Date('2024-09-03'),
+        isRecurring: true,
+        notes: 'Essay writing'
+      }
+    ];
+
+    for (const entry of lessonEntries) {
+      const lesson = new Lesson(entry);
+      await lesson.save();
+    }
+    console.log('   ✅ Created lessons');
+
+    // Create Room Bookings (One-off + Recurring)
+    console.log('🏷️  Creating room bookings...');
+    const bookingOneOff = new RoomBooking({
+      room: createdRooms[2]._id,
+      bookedBy: admin._id,
+      date: new Date('2024-09-10'),
+      period: 'Class 3',
+      startTime: '10:20',
+      endTime: '11:00',
+      purpose: 'Exam',
+      class: createdClasses[0]._id,
+      status: 'Approved'
+    });
+    await bookingOneOff.save();
+
+    const bookingRecurring = new RoomBooking({
+      room: createdRooms[3]._id,
+      bookedBy: admin._id,
+      date: new Date('2024-09-05'),
+      period: 'Class 6',
+      startTime: '12:35',
+      endTime: '13:15',
+      purpose: 'Class',
+      class: createdClasses[1]._id,
+      status: 'Approved',
+      recurringBooking: {
+        isRecurring: true,
+        frequency: 'Weekly',
+        endDate: new Date('2024-12-01')
+      }
+    });
+    await bookingRecurring.save();
+
+    await Room.findByIdAndUpdate(createdRooms[2]._id, { $push: { bookings: bookingOneOff._id } });
+    await Room.findByIdAndUpdate(createdRooms[3]._id, { $push: { bookings: bookingRecurring._id } });
+    console.log('   ✅ Created room bookings');
 // Create Timetables for Classes
     console.log('📅 Creating timetables...');
     
@@ -451,7 +748,8 @@ const sampleData = async () => {
     console.log('\n✅ Sample data created successfully!\n');
     console.log('=== LOGIN CREDENTIALS ===\n');
     console.log('Admin:');
-    console.log('  Email: admin@schoo');
+    console.log('  Email: admin@schoolware.com');
+    console.log('  Password: ad24');
     console.log('  PIN: 1234\n');
     console.log('Teachers:');
     console.log('  Email: john.smith@schoolware.com');
@@ -470,8 +768,7 @@ const sampleData = async () => {
     console.log('  Email: parent.davis@email.com');
     console.log('  Email: parent.murphy@email.com');
     console.log('  Password: parent123');
-    console.log('  PIN: 1234y@email.com');
-    console.log('  Password: parent123\n');
+    console.log('  PIN: 1234\n');
 
     process.exit(0);
   } catch (error) {

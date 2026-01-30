@@ -60,6 +60,9 @@ const roomRoutes = require('./routes/rooms');
 const enrollmentRoutes = require('./routes/enrollments');
 const adminRoutes = require('./routes/admin');
 const staffRoutes = require('./routes/staff');
+const periodRoutes = require('./routes/periods');
+const lessonRoutes = require('./routes/lessons');
+const subjectRoutes = require('./routes/subjects');
 
 // Initialize express app
 const app = express();
@@ -139,7 +142,7 @@ app.use((req, res, next) => {
   // Set Content Security Policy
   res.set('Content-Security-Policy', 
     "default-src 'self'; " +
-    "script-src 'self' 'unsafe-inline' https://cdnjs.cloudflare.com; " +
+    "script-src 'self' 'unsafe-inline' https://cdnjs.cloudflare.com https://cdn.jsdelivr.net; " +
     "script-src-attr 'unsafe-inline'; " +
     "style-src 'self' 'unsafe-inline' https://cdnjs.cloudflare.com https://fonts.googleapis.com; " +
     "font-src 'self' https://cdnjs.cloudflare.com https://fonts.gstatic.com; " +
@@ -192,6 +195,9 @@ app.use('/api/rooms', roomRoutes);
 app.use('/api/admin', adminRoutes);
 app.use('/api/enrollments', enrollmentRoutes);
 app.use('/api/staff', staffRoutes);
+app.use('/api/periods', periodRoutes);
+app.use('/api/lessons', lessonRoutes);
+app.use('/api/subjects', subjectRoutes);
 
 // Health check route
 app.get('/api/health', (req, res) => {
@@ -204,11 +210,19 @@ app.get('/home', (req, res) => {
 });
 
 app.get('/selector', (req, res) => {
-  res.sendFile(path.join(__dirname, 'frontend', 'school-selector.html'));
+  res.sendFile(path.join(__dirname, 'frontend', 'index.html'));
 });
 
 app.get('/login', (req, res) => {
   res.sendFile(path.join(__dirname, 'frontend', 'login.html'));
+});
+
+app.get('/enrolment.html', (req, res) => {
+  res.sendFile(path.join(__dirname, 'frontend', 'enrolment.html'));
+});
+
+app.get('/', (req, res) => {
+  res.sendFile(path.join(__dirname, 'frontend', 'index.html'));
 });
 
 app.get('/shannoncomp/login', (req, res) => {
@@ -243,6 +257,15 @@ app.get('/secretary/:page', (req, res) => {
 // Dashboard routes (all serve index.html for client-side routing)
 app.get('/shannoncomp/*', (req, res) => {
   res.sendFile(path.join(__dirname, 'frontend', 'index.html'));
+});
+
+// Legal pages - serve standalone HTML files
+app.get('/frontend/privacy-policy.html', (req, res) => {
+  res.sendFile(path.join(__dirname, 'frontend', 'privacy-policy.html'));
+});
+
+app.get('/frontend/terms-of-service.html', (req, res) => {
+  res.sendFile(path.join(__dirname, 'frontend', 'terms-of-service.html'));
 });
 
 // Catch all 404 - serve landing page (this should be LAST)

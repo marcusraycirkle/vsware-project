@@ -29,26 +29,41 @@ document.addEventListener('DOMContentLoaded', () => {
     const legalDropdown = document.querySelector('.legal-dropdown');
     if (legalDropdown) {
         const btn = legalDropdown.querySelector('button');
-        const content = legalDropdown.querySelector('.dropdown-content');
         btn.addEventListener('click', (e) => {
             e.preventDefault();
-            content.style.display = content.style.display === 'block' ? 'none' : 'block';
+            legalDropdown.classList.toggle('active');
         });
         // Hide dropdown when clicking outside
         document.addEventListener('click', (event) => {
             if (!legalDropdown.contains(event.target)) {
-                content.style.display = 'none';
+                legalDropdown.classList.remove('active');
             }
         });
         // Show loading overlay on legal link click
         const legalLinks = legalDropdown.querySelectorAll('.legal-link');
         legalLinks.forEach(link => {
             link.addEventListener('click', (e) => {
-                if (typeof showLoading === 'function') showLoading();
-                // Let navigation proceed, hide loading after short delay
-                setTimeout(() => { if (typeof hideLoading === 'function') hideLoading(); }, 1200);
+                e.preventDefault();
+                const href = link.getAttribute('href');
+                // Navigate directly without loading screen
+                window.location.href = href;
             });
         });
+    }
+
+    // Landing page reveal animations
+    const revealItems = document.querySelectorAll('.reveal-on-scroll');
+    if (revealItems.length) {
+        const observer = new IntersectionObserver((entries, obs) => {
+            entries.forEach(entry => {
+                if (entry.isIntersecting) {
+                    entry.target.classList.add('is-visible');
+                    obs.unobserve(entry.target);
+                }
+            });
+        }, { threshold: 0.15 });
+
+        revealItems.forEach(item => observer.observe(item));
     }
 });
 
@@ -170,7 +185,56 @@ function setupEventListeners() {
     if (sidebarToggle) {
         sidebarToggle.addEventListener('click', () => {
             const sidebar = document.getElementById('dashboard-sidebar');
-            if (sidebar) sidebar.classList.toggle('collapsed');
+            if (sidebar) {
+                sidebar.classList.toggle('collapsed');
+                localStorage.setItem('sidebarCollapsed', sidebar.classList.contains('collapsed') ? 'true' : 'false');
+            }
+        });
+    }
+
+    const sidebar = document.getElementById('dashboard-sidebar');
+    if (sidebar) {
+        const isCollapsed = localStorage.getItem('sidebarCollapsed') === 'true';
+        if (isCollapsed) sidebar.classList.add('collapsed');
+    }
+
+    const addClassBtn = document.getElementById('add-class-btn');
+    if (addClassBtn) {
+        addClassBtn.addEventListener('click', (e) => {
+            e.preventDefault();
+            addClass();
+        });
+    }
+
+    const addRoomBtn = document.getElementById('add-room-btn');
+    if (addRoomBtn) {
+        addRoomBtn.addEventListener('click', (e) => {
+            e.preventDefault();
+            addRoom();
+        });
+    }
+
+    const addAssignmentBtn = document.getElementById('add-assignment-btn');
+    if (addAssignmentBtn) {
+        addAssignmentBtn.addEventListener('click', (e) => {
+            e.preventDefault();
+            createAssignment();
+        });
+    }
+
+    const createLessonBtn = document.getElementById('create-lesson-btn');
+    if (createLessonBtn) {
+        createLessonBtn.addEventListener('click', (e) => {
+            e.preventDefault();
+            createLesson();
+        });
+    }
+
+    const createPeriodBtn = document.getElementById('create-period-btn');
+    if (createPeriodBtn) {
+        createPeriodBtn.addEventListener('click', (e) => {
+            e.preventDefault();
+            createPeriod();
         });
     }
 
@@ -285,21 +349,9 @@ async function login(email, pin) {
             setTimeout(() => {
                 hideLoading();
                 
-                // Route based on role
-                const role = currentUser.role;
-                const permissionLevel = currentUser.permissionLevel || 'General';
-                
-                // Admin users go to admin portal
-                if (role === 'admin' || permissionLevel === 'Admin' || permissionLevel === 'Principal' || permissionLevel === 'Deputy Principal') {
-                    window.location.pathname = '/admin-portal.html';
-                } else {
-                    // Everyone else goes to main dashboard
-                    window.location.pathname = '/shannoncomp/overview';
-                }
-                
-                applyRoleBasedNavigation();
-                loadDashboardData();
-            }, 500);
+                // Navigate to dashboard page with hash
+                window.location.href = '/#/shannoncomp/dashboard';
+            }, 1500);
         } else {
             hideLoading();
             showError(data.message || 'Login failed');
@@ -323,13 +375,16 @@ function simulateDemoLogin(email, pin) {
     try {
         showLoading();
         
-        // Production accounts database
+        // Production accounts database with test logins
         const demoUsers = {
             'mary.costello@shannoncomp.ie': { email: 'mary.costello@shannoncomp.ie', role: 'Principal', name: 'Mary Costello', permissionLevel: 'Principal', roleHierarchy: 'Principal' },
             'caseyashecontact@gmail.com': { email: 'caseyashecontact@gmail.com', role: 'Secretary', name: 'Casey Ashe', permissionLevel: 'Secretary', roleHierarchy: 'Secretary' },
             '24zuzannafrankowska@shannoncomp.ie': { email: '24zuzannafrankowska@shannoncomp.ie', role: 'Student', name: 'Zuzanna Frankowska', permissionLevel: 'Student', roleHierarchy: 'Student' },
             '24corykilmartin@shannoncomp.ie': { email: '24corykilmartin@shannoncomp.ie', role: 'Teacher', name: 'Cory Kilmartin', permissionLevel: 'Teacher', roleHierarchy: 'Mid' },
-            'marcusray@cirkledevelopment.co.uk': { email: 'marcusray@cirkledevelopment.co.uk', role: 'Parent', name: 'Marcus Ray', permissionLevel: 'Parent', roleHierarchy: 'Parent' }
+            'marcusray@cirkledevelopment.co.uk': { email: 'marcusray@cirkledevelopment.co.uk', role: 'Parent', name: 'Marcus Ray', permissionLevel: 'Parent', roleHierarchy: 'Parent' },
+            // Test logins
+            'admintest@mispal.ie': { email: 'admintest@mispal.ie', role: 'Admin', name: 'Admin Test User', permissionLevel: 'Admin', roleHierarchy: 'Admin' },
+            'teachertest@mispal.ie': { email: 'teachertest@mispal.ie', role: 'Teacher', name: 'Teacher Test User', permissionLevel: 'Teacher', roleHierarchy: 'Mid' }
         };
         
         const user = demoUsers[email];
@@ -349,25 +404,28 @@ function simulateDemoLogin(email, pin) {
             showSuccess('Welcome back, ' + user.name + '!');
             
             setTimeout(() => {
-                hideLoading();
-                
                 // Route based on role
-                const role = user.role;
+                const role = (user.role || '').toLowerCase();
                 
-                if (role === 'Admin') {
-                    window.location.href = '/admin/dashboard';
-                } else if (role === 'Parent') {
-                    window.location.href = '/shannoncomp/parents/dashboard';
-                } else if (role === 'Student') {
-                    window.location.href = '/shannoncomp/student/dashboard';
-                } else if (role === 'Secretary') {
-                    window.location.href = '/secretary/dashboard';
-                } else if (role === 'Teacher') {
-                    window.location.href = '/shannoncomp/teacher/dashboard';
-                } else {
-                    window.location.href = '/shannoncomp/overview';
+                let nextPage = '/shannoncomp/overview';
+                if (role === 'admin') {
+                    nextPage = '/admin-portal.html';
+                } else if (role === 'parent') {
+                    nextPage = '/shannoncomp/parents/dashboard';
+                } else if (role === 'student') {
+                    nextPage = '/shannoncomp/student/dashboard';
+                } else if (role === 'secretary') {
+                    nextPage = '/secretary/dashboard';
+                } else if (role === 'teacher') {
+                    nextPage = '/teacher-portal.html';
                 }
-            }, 500);
+                
+                // Keep loading screen visible and navigate
+                window.location.href = nextPage;
+                
+                // The loading screen will stay visible for 1 second after page transition starts
+                // Then the new page will take over and show its content
+            }, 1500);
         } else {
             hideLoading();
             showError('Invalid credentials. Please check your email and PIN.');
@@ -397,11 +455,11 @@ async function logout() {
 
 function applyRoleBasedNavigation() {
     const permissionLevel = localStorage.getItem('permissionLevel') || 'General';
-    const userRole = localStorage.getItem('userRole') || 'Teacher';
+    const userRole = (localStorage.getItem('userRole') || 'teacher').toLowerCase();
     
     // Hide admin-only elements for general teachers
-    if (userRole === 'Teacher' && permissionLevel !== 'Principal' && permissionLevel !== 'Admin' && permissionLevel !== 'Deputy Principal') {
-        document.querySelectorAll('[data-admin-only=\"true\"]').forEach(element => {
+    if (userRole === 'teacher' && permissionLevel !== 'Principal' && permissionLevel !== 'Admin' && permissionLevel !== 'Deputy Principal') {
+        document.querySelectorAll('[data-admin-only="true"]').forEach(element => {
             element.style.display = 'none';
         });
     }
@@ -572,21 +630,21 @@ function toggleUserMenu() {
 async function loadDashboardData() {
     try {
         // Check user role and load appropriate dashboard
-        const userRole = currentUser?.role || localStorage.getItem('userRole');
+        const userRole = (currentUser?.role || localStorage.getItem('userRole') || '').toLowerCase();
         
         // Load sidebar notifications for all users
         await loadSidebarNotifications();
         
-        if (userRole === 'Student') {
+        if (userRole === 'student') {
             await loadStudentDashboard();
             return;
-        } else if (userRole === 'Parent') {
+        } else if (userRole === 'parent') {
             await loadParentDashboard();
             return;
         }
         
         // Admin/Teacher dashboard - only call stats for Admin role
-        if (userRole === 'Admin') {
+        if (userRole === 'admin') {
             await loadStats();
             await loadHouses();
         }
@@ -913,6 +971,10 @@ async function loadTabData(section, tab) {
     if (section === 'students' && tab === 'attendance') {
         loadAttendanceRecords();
     }
+
+    if (section === 'students' && tab === 'behavior') {
+        loadBehaviorLogs();
+    }
 }
 
 async function loadAttendanceRecords() {
@@ -920,13 +982,47 @@ async function loadAttendanceRecords() {
         showLoading('Loading attendance records...');
         const today = new Date().toISOString().split('T')[0];
         const data = await apiCall(`/attendance?date=${today}&limit=100`);
-        displayAttendanceRecords(data.attendance || []);
+        const records = data.attendance || [];
+        if (records.length === 0) {
+            const studentsData = await apiCall('/students?limit=200').catch(() => ({ students: [] }));
+            displayAttendanceRoster(studentsData.students || []);
+        } else {
+            displayAttendanceRecords(records);
+        }
         hideLoading();
     } catch (error) {
         hideLoading();
         showError('Failed to load attendance records');
         console.error('Error loading attendance:', error);
     }
+}
+
+function displayAttendanceRoster(students) {
+    const tbody = document.getElementById('attendance-table-body');
+    if (!tbody) return;
+
+    if (!students || students.length === 0) {
+        tbody.innerHTML = `
+            <tr>
+                <td colspan="6" style="text-align: center; padding: 2rem; color: var(--text-secondary);">
+                    <i class="fas fa-users" style="font-size: 2rem; display: block; margin-bottom: 0.5rem; opacity: 0.5;"></i>
+                    No students found. Add students to begin attendance tracking.
+                </td>
+            </tr>
+        `;
+        return;
+    }
+
+    tbody.innerHTML = students.map(student => `
+        <tr>
+            <td>${new Date().toLocaleDateString()}</td>
+            <td>—</td>
+            <td><strong>${student.firstName || ''} ${student.lastName || ''}</strong></td>
+            <td>${student.studentId || 'N/A'}</td>
+            <td><span class="badge-info">Not Marked</span></td>
+            <td>—</td>
+        </tr>
+    `).join('');
 }
 
 function displayAttendanceRecords(records) {
@@ -1102,15 +1198,24 @@ async function loadStudentProfile(studentId) {
         showLoading('Loading student profile...');
         const student = await apiCall(`/students/${studentId}`);
         hideLoading();
+
+        const user = student.user || {};
+        const firstName = user.firstName || student.firstName || '';
+        const lastName = user.lastName || student.lastName || '';
+        const fullName = `${firstName} ${lastName}`.trim();
+        const initials = (firstName && lastName)
+            ? (firstName[0] + lastName[0]).toUpperCase()
+            : (user.email ? user.email[0].toUpperCase() : 'S');
+        const yearLabel = student.yearGroup || student.yearName || (student.currentYear ? `Year ${student.currentYear}` : 'N/A');
         
         const modalContent = `
             <div class="profile-view">
                 <div class="profile-header">
                     <div class="profile-avatar" style="width: 100px; height: 100px; border-radius: 50%; overflow: hidden; background: var(--gradient-primary); display: flex; align-items: center; justify-content: center; color: white; font-size: 2rem; font-weight: bold;">
-                        ${student.photoUrl ? `<img src="${student.photoUrl}" alt="${student.firstName}" style="width: 100%; height: 100%; object-fit: cover;">` : (student.firstName[0] + student.lastName[0]).toUpperCase()}
+                        ${student.photoUrl ? `<img src="${student.photoUrl}" alt="${fullName || 'Student'}" style="width: 100%; height: 100%; object-fit: cover;">` : initials}
                     </div>
                     <div>
-                        <h2 style="color: var(--primary);">${student.firstName} ${student.lastName}</h2>
+                        <h2 style="color: var(--primary);">${fullName || 'Student'}</h2>
                         <p class="text-muted">Student ID: ${student.studentId || 'N/A'}</p>
                     </div>
                 </div>
@@ -1119,21 +1224,21 @@ async function loadStudentProfile(studentId) {
                     <div class="profile-section">
                         <h3><i class="fas fa-info-circle"></i> Basic Information</h3>
                         <div class="info-grid">
-                            <div><strong>Email:</strong> ${student.email}</div>
-                            <div><strong>Year Group:</strong> Year ${student.yearGroup}</div>
+                            <div><strong>Email:</strong> ${user.email || 'N/A'}</div>
+                            <div><strong>Year Group:</strong> ${yearLabel}</div>
                             <div><strong>House:</strong> <span class="badge ${getHouseBadgeClass(student.house)}">${student.house || 'N/A'}</span></div>
                             <div><strong>Date of Birth:</strong> ${student.dateOfBirth ? new Date(student.dateOfBirth).toLocaleDateString() : 'N/A'}</div>
                             <div><strong>Gender:</strong> ${student.gender || 'N/A'}</div>
-                            <div><strong>Address:</strong> ${student.address?.street || 'N/A'}</div>
+                            <div><strong>Address:</strong> ${user.address?.street || student.address?.street || 'N/A'}</div>
                         </div>
                     </div>
                     
                     <div class="profile-section">
                         <h3><i class="fas fa-phone"></i> Contact Information</h3>
                         <div class="info-grid">
-                            <div><strong>Phone:</strong> ${student.phone || 'N/A'}</div>
-                            <div><strong>Emergency Contact:</strong> ${student.emergencyContact?.name || 'N/A'}</div>
-                            <div><strong>Emergency Phone:</strong> ${student.emergencyContact?.phone || 'N/A'}</div>
+                            <div><strong>Phone:</strong> ${user.phoneNumber || student.phone || 'N/A'}</div>
+                            <div><strong>Emergency Contact:</strong> ${student.medicalInfo?.emergencyContact?.name || 'N/A'}</div>
+                            <div><strong>Emergency Phone:</strong> ${student.medicalInfo?.emergencyContact?.phone || 'N/A'}</div>
                         </div>
                     </div>
                     
@@ -1186,6 +1291,15 @@ async function editStudent(studentId) {
         // Populate the edit form with existing data
         const dob = student.dateOfBirth ? new Date(student.dateOfBirth).toISOString().split('T')[0] : '';
         const admissionDate = student.admissionDate ? new Date(student.admissionDate).toISOString().split('T')[0] : '';
+        const yearMap = {
+            'First Year': 1,
+            'Second Year': 2,
+            'Third Year': 3,
+            'TY': 4,
+            'Fifth Year': 5,
+            'Sixth Year': 6
+        };
+        const currentYearValue = student.currentYear || yearMap[student.yearGroup] || yearMap[student.yearName] || '';
         
         const modalContent = `
             <form id="edit-student-form" style="max-height: 70vh; overflow-y: auto; padding-right: 1rem;">
@@ -1260,12 +1374,12 @@ async function editStudent(studentId) {
                             <label><i class="fas fa-school"></i> Year Group *</label>
                             <select id="edit-student-year" required class="select-input">
                                 <option value="">Select year...</option>
-                                <option value="1" ${student.currentYear === 1 ? 'selected' : ''}>First Year</option>
-                                <option value="2" ${student.currentYear === 2 ? 'selected' : ''}>Second Year</option>
-                                <option value="3" ${student.currentYear === 3 ? 'selected' : ''}>Third Year</option>
-                                <option value="4" ${student.currentYear === 4 ? 'selected' : ''}>Transition Year (TY)</option>
-                                <option value="5" ${student.currentYear === 5 ? 'selected' : ''}>Fifth Year</option>
-                                <option value="6" ${student.currentYear === 6 ? 'selected' : ''}>Sixth Year</option>
+                                <option value="1" ${currentYearValue === 1 ? 'selected' : ''}>First Year</option>
+                                <option value="2" ${currentYearValue === 2 ? 'selected' : ''}>Second Year</option>
+                                <option value="3" ${currentYearValue === 3 ? 'selected' : ''}>Third Year</option>
+                                <option value="4" ${currentYearValue === 4 ? 'selected' : ''}>Transition Year (TY)</option>
+                                <option value="5" ${currentYearValue === 5 ? 'selected' : ''}>Fifth Year</option>
+                                <option value="6" ${currentYearValue === 6 ? 'selected' : ''}>Sixth Year</option>
                             </select>
                         </div>
                         <div class="input-group">
@@ -2310,7 +2424,7 @@ async function loadClassDetails(classId) {
                             <div><strong>Year Group:</strong> ${classData.yearGroup}</div>
                             <div><strong>Section:</strong> ${classData.section || 'N/A'}</div>
                             <div><strong>Capacity:</strong> ${classData.capacity || 'N/A'}</div>
-                            <div><strong>Room:</strong> ${classData.room?.roomNumber || 'Not assigned'}</div>
+                            <div><strong>Room:</strong> ${classData.room?.roomNumber || classData.room || 'Not assigned'}</div>
                             <div><strong>Students Enrolled:</strong> ${classData.students?.length || 0}</div>
                             <div><strong>Status:</strong> <span class="badge success">Active</span></div>
                         </div>
@@ -2364,18 +2478,359 @@ async function loadClassDetails(classId) {
 }
 
 function editClass(classId) {
-    showSuccess('Edit class feature coming soon!');
+    loadClassForEdit(classId);
 }
 
 function manageClassStudents(classId) {
-    showSuccess('Manage students feature coming soon!');
+    openManageClassStudents(classId);
 }
 
 function viewClassTimetable(classId) {
     showSuccess('Class timetable coming soon!');
 }
 
+async function addClass() {
+    try {
+        showLoading('Loading class form...');
+        const [roomsData, teachersData] = await Promise.all([
+            apiCall('/rooms?limit=200').catch(() => ({ rooms: [] })),
+            apiCall('/teachers').catch(() => [])
+        ]);
+        hideLoading();
+
+        const rooms = roomsData.rooms || [];
+        const roomOptions = rooms
+            .filter(r => r.isAvailable !== false)
+            .map(r => `<option value="${r.roomNumber}">${r.roomNumber} - ${r.roomName || r.category}</option>`)
+            .join('');
+
+        const teachers = Array.isArray(teachersData) ? teachersData : (teachersData.teachers || []);
+        const teacherOptions = teachers.map(t => `<option value="${t._id}">${t.firstName} ${t.lastName}</option>`).join('');
+
+        const isTeacher = (currentUser?.role || '').toLowerCase() === 'teacher';
+
+        const modalContent = `
+            <form id="create-class-form">
+                <div class="input-group">
+                    <label><i class="fas fa-book"></i> Class Name *</label>
+                    <input type="text" id="class-name" required placeholder="e.g., First Year A">
+                </div>
+                <div class="form-grid">
+                    <div class="input-group">
+                        <label><i class="fas fa-layer-group"></i> Year *</label>
+                        <select id="class-year" class="select-input" required>
+                            <option value="">Select year...</option>
+                            <option value="1">First Year</option>
+                            <option value="2">Second Year</option>
+                            <option value="3">Third Year</option>
+                            <option value="4">Transition Year (TY)</option>
+                            <option value="5">Fifth Year</option>
+                            <option value="6">Sixth Year</option>
+                        </select>
+                    </div>
+                    <div class="input-group">
+                        <label><i class="fas fa-tag"></i> Section *</label>
+                        <input type="text" id="class-section" required placeholder="A">
+                    </div>
+                    <div class="input-group">
+                        <label><i class="fas fa-calendar"></i> Academic Year *</label>
+                        <input type="text" id="class-academic-year" required placeholder="2025-2026" value="2025-2026">
+                    </div>
+                    <div class="input-group">
+                        <label><i class="fas fa-users"></i> Capacity</label>
+                        <input type="number" id="class-capacity" min="1" value="30">
+                    </div>
+                </div>
+                <div class="form-grid">
+                    <div class="input-group">
+                        <label><i class="fas fa-door-open"></i> Room</label>
+                        <select id="class-room" class="select-input">
+                            <option value="">Select room...</option>
+                            ${roomOptions}
+                        </select>
+                    </div>
+                    ${isTeacher ? '' : `
+                    <div class="input-group">
+                        <label><i class="fas fa-chalkboard-teacher"></i> Class Teacher</label>
+                        <select id="class-teacher" class="select-input">
+                            <option value="">Select teacher...</option>
+                            ${teacherOptions}
+                        </select>
+                    </div>
+                    `}
+                </div>
+            </form>
+        `;
+
+        showModal('Create Class', modalContent, [
+            { text: 'Cancel', type: 'secondary', action: 'closeModal()' },
+            { text: 'Create Class', type: 'primary', action: 'submitCreateClass()', icon: 'fas fa-save' }
+        ]);
+    } catch (error) {
+        hideLoading();
+        showError('Failed to load class form');
+        console.error(error);
+    }
+}
+
+async function submitCreateClass() {
+    const name = document.getElementById('class-name').value.trim();
+    const year = parseInt(document.getElementById('class-year').value, 10);
+    const section = document.getElementById('class-section').value.trim();
+    const academicYear = document.getElementById('class-academic-year').value.trim();
+    const capacity = parseInt(document.getElementById('class-capacity').value, 10) || 30;
+    const room = document.getElementById('class-room').value || undefined;
+    const teacherSelect = document.getElementById('class-teacher');
+    const classTeacher = teacherSelect ? teacherSelect.value : undefined;
+
+    if (!name || !year || !section || !academicYear) {
+        showError('Please fill in all required fields');
+        return;
+    }
+
+    try {
+        closeModal();
+        showLoading('Creating class...');
+
+        await apiCall('/classes', {
+            method: 'POST',
+            body: JSON.stringify({ name, year, section, academicYear, capacity, room, classTeacher })
+        });
+
+        hideLoading();
+        showSuccess('Class created successfully!');
+        loadClasses();
+    } catch (error) {
+        hideLoading();
+        showError('Failed to create class: ' + error.message);
+    }
+}
+
+async function loadClassForEdit(classId) {
+    try {
+        showLoading('Loading class...');
+        const classData = await apiCall(`/classes/${classId}`);
+        hideLoading();
+
+        const modalContent = `
+            <form id="edit-class-form">
+                <div class="input-group">
+                    <label><i class="fas fa-book"></i> Class Name *</label>
+                    <input type="text" id="edit-class-name" required value="${classData.name || ''}">
+                </div>
+                <div class="form-grid">
+                    <div class="input-group">
+                        <label><i class="fas fa-layer-group"></i> Year *</label>
+                        <input type="number" id="edit-class-year" min="1" max="6" value="${classData.year || 1}">
+                    </div>
+                    <div class="input-group">
+                        <label><i class="fas fa-tag"></i> Section *</label>
+                        <input type="text" id="edit-class-section" required value="${classData.section || ''}">
+                    </div>
+                    <div class="input-group">
+                        <label><i class="fas fa-calendar"></i> Academic Year *</label>
+                        <input type="text" id="edit-class-academic-year" required value="${classData.academicYear || ''}">
+                    </div>
+                    <div class="input-group">
+                        <label><i class="fas fa-users"></i> Capacity</label>
+                        <input type="number" id="edit-class-capacity" min="1" value="${classData.capacity || 30}">
+                    </div>
+                </div>
+                <div class="input-group">
+                    <label><i class="fas fa-door-open"></i> Room</label>
+                    <input type="text" id="edit-class-room" value="${classData.room?.roomNumber || classData.room || ''}" placeholder="Room 101">
+                </div>
+            </form>
+        `;
+
+        showModal('Edit Class', modalContent, [
+            { text: 'Cancel', type: 'secondary', action: 'closeModal()' },
+            { text: 'Save Changes', type: 'primary', action: `submitEditClass('${classId}')`, icon: 'fas fa-save' }
+        ]);
+    } catch (error) {
+        hideLoading();
+        showError('Failed to load class');
+    }
+}
+
+async function submitEditClass(classId) {
+    const name = document.getElementById('edit-class-name').value.trim();
+    const year = parseInt(document.getElementById('edit-class-year').value, 10);
+    const section = document.getElementById('edit-class-section').value.trim();
+    const academicYear = document.getElementById('edit-class-academic-year').value.trim();
+    const capacity = parseInt(document.getElementById('edit-class-capacity').value, 10) || 30;
+    const room = document.getElementById('edit-class-room').value.trim();
+
+    if (!name || !year || !section || !academicYear) {
+        showError('Please fill in all required fields');
+        return;
+    }
+
+    try {
+        closeModal();
+        showLoading('Updating class...');
+        await apiCall(`/classes/${classId}`, {
+            method: 'PUT',
+            body: JSON.stringify({ name, year, section, academicYear, capacity, room })
+        });
+        hideLoading();
+        showSuccess('Class updated successfully!');
+        loadClasses();
+    } catch (error) {
+        hideLoading();
+        showError('Failed to update class: ' + error.message);
+    }
+}
+
+async function openManageClassStudents(classId) {
+    try {
+        showLoading('Loading class roster...');
+        const [classData, studentsData] = await Promise.all([
+            apiCall(`/classes/${classId}`),
+            apiCall('/students?limit=500')
+        ]);
+        hideLoading();
+
+        const enrolledIds = new Set((classData.students || []).map(s => s._id));
+        const studentOptions = (studentsData.students || []).map(s => `
+            <label style="display: flex; align-items: center; gap: 0.5rem; padding: 0.5rem 0;">
+                <input type="checkbox" name="class-student" value="${s._id}" ${enrolledIds.has(s._id) ? 'checked' : ''}>
+                <span>${s.firstName} ${s.lastName} (${s.studentId || 'N/A'})</span>
+            </label>
+        `).join('');
+
+        const modalContent = `
+            <div style="max-height: 400px; overflow-y: auto;">
+                ${studentOptions || '<p class="text-muted">No students available</p>'}
+            </div>
+        `;
+
+        showModal('Manage Class Students', modalContent, [
+            { text: 'Cancel', type: 'secondary', action: 'closeModal()' },
+            { text: 'Save', type: 'primary', action: `submitClassStudents('${classId}')`, icon: 'fas fa-save' }
+        ]);
+    } catch (error) {
+        hideLoading();
+        showError('Failed to load students');
+    }
+}
+
+async function submitClassStudents(classId) {
+    const selected = Array.from(document.querySelectorAll('input[name="class-student"]:checked'))
+        .map(cb => cb.value);
+
+    try {
+        closeModal();
+        showLoading('Updating class students...');
+        await apiCall(`/classes/${classId}/students`, {
+            method: 'POST',
+            body: JSON.stringify({ studentIds: selected })
+        });
+        hideLoading();
+        showSuccess('Class students updated successfully!');
+        loadClasses();
+    } catch (error) {
+        hideLoading();
+        showError('Failed to update class students: ' + error.message);
+    }
+}
+
 // ========== ROOMS ==========
+async function addRoom() {
+    const modalContent = `
+        <form id="add-room-form">
+            <div class="form-grid">
+                <div class="input-group">
+                    <label><i class="fas fa-door-open"></i> Room Number *</label>
+                    <input type="text" id="room-number" required placeholder="e.g., 101">
+                </div>
+                <div class="input-group">
+                    <label><i class="fas fa-door-open"></i> Room Name *</label>
+                    <input type="text" id="room-name" required placeholder="e.g., Science Lab">
+                </div>
+                <div class="input-group">
+                    <label><i class="fas fa-tag"></i> Category *</label>
+                    <select id="room-category" class="select-input" required>
+                        <option value="">Select category...</option>
+                        <option value="IT Rooms">IT Rooms</option>
+                        <option value="Science Labs">Science Labs</option>
+                        <option value="Art Rooms">Art Rooms</option>
+                        <option value="General Classrooms">General Classrooms</option>
+                        <option value="Lecture Theatre">Lecture Theatre</option>
+                        <option value="Library">Library</option>
+                        <option value="Other">Other</option>
+                    </select>
+                </div>
+                <div class="input-group">
+                    <label><i class="fas fa-building"></i> Building *</label>
+                    <select id="room-building" class="select-input" required>
+                        <option value="">Select building...</option>
+                        <option value="Main Building">Main Building</option>
+                        <option value="New Building">New Building</option>
+                    </select>
+                </div>
+                <div class="input-group">
+                    <label><i class="fas fa-layer-group"></i> Floor *</label>
+                    <select id="room-floor" class="select-input" required>
+                        <option value="">Select floor...</option>
+                        <option value="0">Ground Floor</option>
+                        <option value="1">First Floor</option>
+                        <option value="2">Second Floor</option>
+                        <option value="3">Third Floor</option>
+                    </select>
+                </div>
+                <div class="input-group">
+                    <label><i class="fas fa-users"></i> Capacity</label>
+                    <input type="number" id="room-capacity" min="1" value="30">
+                </div>
+            </div>
+        </form>
+    `;
+
+    showModal('Add Room', modalContent, [
+        { text: 'Cancel', type: 'secondary', action: 'closeModal()' },
+        { text: 'Create Room', type: 'primary', action: 'submitAddRoom()', icon: 'fas fa-save' }
+    ]);
+}
+
+async function submitAddRoom() {
+    const roomNumber = document.getElementById('room-number').value.trim();
+    const roomName = document.getElementById('room-name').value.trim();
+    const category = document.getElementById('room-category').value;
+    const building = document.getElementById('room-building').value;
+    const floor = parseInt(document.getElementById('room-floor').value, 10);
+    const capacity = parseInt(document.getElementById('room-capacity').value, 10);
+
+    if (!roomNumber || !roomName || !category || !building || Number.isNaN(floor)) {
+        showError('Please fill in all required fields');
+        return;
+    }
+
+    try {
+        closeModal();
+        showLoading('Creating room...');
+        await apiCall('/rooms', {
+            method: 'POST',
+            body: JSON.stringify({ 
+                roomNumber, 
+                roomName, 
+                category, 
+                floor, 
+                capacity,
+                location: {
+                    building: building
+                }
+            })
+        });
+        hideLoading();
+        showSuccess('Room created successfully!');
+        loadRooms();
+    } catch (error) {
+        hideLoading();
+        showError('Failed to create room: ' + error.message);
+    }
+}
+
 async function loadRooms() {
     try {
         showLoading('Loading rooms...');
@@ -2410,34 +2865,57 @@ async function displayRooms(rooms) {
         console.log('Could not fetch booking counts:', error);
     }
     
-    // Group rooms by floor
-    const roomsByFloor = {};
+    // Group rooms by building and floor
+    const roomsBySection = {
+        'mainFloor1': [],
+        'mainFloor2': [],
+        'mainFloor3': [],
+        'newBuildingGround': [],
+        'newBuildingFloor1': []
+    };
+    
     rooms.forEach(room => {
-        const floor = room.floor || 'Ground';
-        if (!roomsByFloor[floor]) {
-            roomsByFloor[floor] = [];
+        const building = (room.location?.building || '').toLowerCase();
+        const floor = room.floor || 0;
+        const isNewBuilding = building.includes('new');
+        
+        if (isNewBuilding) {
+            if (floor === 0) {
+                roomsBySection['newBuildingGround'].push(room);
+            } else if (floor === 1) {
+                roomsBySection['newBuildingFloor1'].push(room);
+            }
+        } else {
+            // Main building
+            if (floor === 1) {
+                roomsBySection['mainFloor1'].push(room);
+            } else if (floor === 2) {
+                roomsBySection['mainFloor2'].push(room);
+            } else if (floor === 3) {
+                roomsBySection['mainFloor3'].push(room);
+            }
         }
-        roomsByFloor[floor].push(room);
     });
     
-    // Sort floors
-    const floorOrder = ['Ground', '0', '1', '2', '3', '4'];
-    const sortedFloors = Object.keys(roomsByFloor).sort((a, b) => {
-        const aIndex = floorOrder.indexOf(a);
-        const bIndex = floorOrder.indexOf(b);
-        if (aIndex === -1 && bIndex === -1) return a.localeCompare(b);
-        if (aIndex === -1) return 1;
-        if (bIndex === -1) return -1;
-        return aIndex - bIndex;
-    });
+    // Define sections in the required order
+    const sections = [
+        { key: 'mainFloor1', title: 'Main Building - First Floor', icon: 'fa-building' },
+        { key: 'mainFloor2', title: 'Main Building - Second Floor', icon: 'fa-building' },
+        { key: 'mainFloor3', title: 'Main Building - Third Floor', icon: 'fa-building' },
+        { key: 'newBuildingGround', title: 'New Building - Ground Floor', icon: 'fa-city' },
+        { key: 'newBuildingFloor1', title: 'New Building - First Floor', icon: 'fa-city' }
+    ];
     
-    // Build HTML for each floor
+    // Build HTML for each section
     let html = '';
-    sortedFloors.forEach(floor => {
-        const floorRooms = roomsByFloor[floor];
+    sections.forEach(section => {
+        const sectionRooms = roomsBySection[section.key];
+        
+        // Skip empty sections
+        if (!sectionRooms || sectionRooms.length === 0) return;
         
         // Sort rooms by room number
-        floorRooms.sort((a, b) => {
+        sectionRooms.sort((a, b) => {
             const aNum = parseInt(a.roomNumber) || 0;
             const bNum = parseInt(b.roomNumber) || 0;
             return aNum - bNum;
@@ -2446,12 +2924,12 @@ async function displayRooms(rooms) {
         html += `
             <div class="floor-section">
                 <h3 class="floor-header">
-                    <i class="fas fa-building"></i> 
-                    ${floor === 'Ground' || floor === '0' ? 'Ground Floor' : `Floor ${floor}`}
-                    <span class="room-count">${floorRooms.length} rooms</span>
+                    <i class="fas ${section.icon}"></i> 
+                    ${section.title}
+                    <span class="room-count">${sectionRooms.length} rooms</span>
                 </h3>
                 <div class="rooms-grid-4col">
-                    ${floorRooms.map(room => {
+                    ${sectionRooms.map(room => {
                         const categoryIcons = {
                             'Classroom': 'fa-chalkboard-teacher',
                             'Laboratory': 'fa-flask',
@@ -2563,11 +3041,22 @@ async function checkRoomAvailability(roomId) {
     }
 }
 
+function toggleRecurringFields() {
+    const type = document.getElementById('booking-type')?.value;
+    const endDateField = document.getElementById('recurring-end-date');
+    if (endDateField) {
+        endDateField.style.display = type === 'weekly' ? 'block' : 'none';
+    }
+}
+
 async function submitRoomBooking(roomId) {
     const date = document.getElementById('booking-date').value;
     const period = document.getElementById('booking-period').value;
     const purpose = document.getElementById('booking-purpose').value;
     const notes = document.getElementById('booking-notes').value;
+    const classId = document.getElementById('booking-class')?.value;
+    const bookingType = document.getElementById('booking-type')?.value;
+    const endDate = document.getElementById('booking-end-date')?.value;
     
     // Validation
     if (!date) {
@@ -2607,6 +3096,11 @@ async function submitRoomBooking(roomId) {
             period,
             purpose,
             notes,
+            class: classId || undefined,
+            recurringBooking: bookingType === 'weekly' && endDate ? {
+                isRecurring: true,
+                endDate
+            } : { isRecurring: false },
             bookedBy: currentUser._id,
             timestamp: new Date().toISOString()
         };
@@ -2979,7 +3473,7 @@ async function showBehaviorLogModal(type) {
                 </div>
                 <div class="input-group">
                     <label><i class="fas fa-star"></i> Points</label>
-                    <input type="number" id="behavior-points" value="${type === 'Positive' ? 5 : -5}" step="1">
+                    <input type="number" id="behavior-points" value="${type === 'Positive' ? 1 : -1}" step="1" readonly>
                 </div>
             </form>
         `;
@@ -3006,7 +3500,7 @@ async function submitBehaviorLog(type) {
     const title = document.getElementById('behavior-title').value;
     const description = document.getElementById('behavior-description').value;
     const date = document.getElementById('behavior-date').value;
-    const points = document.getElementById('behavior-points').value;
+    const points = type === 'Positive' ? 1 : -1;
     const severity = document.getElementById('behavior-severity')?.value || 'Medium';
     
     if (!student || !category || !title || !description) {
@@ -3026,7 +3520,7 @@ async function submitBehaviorLog(type) {
             title,
             description,
             date: date || new Date().toISOString().split('T')[0],
-            points: parseInt(points) || (type === 'Positive' ? 5 : -5)
+            points: points
         };
         
         // Only add class if selected
@@ -3041,10 +3535,374 @@ async function submitBehaviorLog(type) {
         
         hideLoading();
         showSuccess('Behavior logged successfully!');
+        loadBehaviorLogs();
     } catch (error) {
         hideLoading();
         showError('Failed to log behavior: ' + error.message);
         console.error(error);
+    }
+}
+
+async function loadBehaviorLogs() {
+    try {
+        const data = await apiCall('/behavior?limit=200');
+        const logs = data.behaviors || data.behavior || [];
+
+        const behaviorLog = document.getElementById('behavior-log');
+        if (!behaviorLog) return;
+
+        const positiveCount = logs.filter(l => l.type === 'Positive').length;
+        const negativeCount = logs.filter(l => l.type === 'Negative').length;
+        const totalCount = positiveCount + negativeCount;
+        const behaviorPercentage = totalCount > 0 ? Math.round((positiveCount / totalCount) * 100) : 0;
+
+        const percentageEl = document.getElementById('behavior-percentage');
+        if (percentageEl) percentageEl.textContent = `${behaviorPercentage}%`;
+
+        const positiveEl = document.getElementById('behavior-positive-count');
+        if (positiveEl) positiveEl.textContent = positiveCount;
+
+        const negativeEl = document.getElementById('behavior-negative-count');
+        if (negativeEl) negativeEl.textContent = negativeCount;
+
+        behaviorLog.innerHTML = logs.length > 0
+            ? logs.map(log => `
+                <div class="behavior-entry ${log.type?.toLowerCase()}">
+                    <div class="behavior-entry-header">
+                        <strong>${log.student?.user?.firstName || ''} ${log.student?.user?.lastName || ''}</strong>
+                        <span class="badge-${log.type === 'Positive' ? 'success' : 'danger'}">${log.type}</span>
+                    </div>
+                    <div class="behavior-entry-body">
+                        <p><strong>${log.title || 'Behavior Log'}</strong></p>
+                        <p class="text-muted">${log.description || ''}</p>
+                        <small>${log.date ? new Date(log.date).toLocaleDateString() : ''} · Points: ${log.points ?? 0}</small>
+                    </div>
+                </div>
+            `).join('')
+            : `<div class="empty-state"><i class="fas fa-star"></i><p>No behavior logs yet.</p></div>`;
+
+        renderBehaviorChart(positiveCount, negativeCount);
+    } catch (error) {
+        console.error('Failed to load behavior logs:', error);
+    }
+}
+
+function renderBehaviorChart(positiveCount, negativeCount) {
+    const canvas = document.getElementById('behavior-pie-chart');
+    if (!canvas || typeof Chart === 'undefined') return;
+
+    if (window.behaviorChartInstance) {
+        window.behaviorChartInstance.destroy();
+    }
+
+    window.behaviorChartInstance = new Chart(canvas, {
+        type: 'pie',
+        data: {
+            labels: ['Positive', 'Negative'],
+            datasets: [
+                {
+                    data: [positiveCount, negativeCount],
+                    backgroundColor: ['#10B981', '#EF4444'],
+                    borderWidth: 0
+                }
+            ]
+        },
+        options: {
+            responsive: true,
+            plugins: {
+                legend: {
+                    position: 'bottom'
+                }
+            }
+        }
+    });
+}
+
+async function createAssignment() {
+    try {
+        showLoading('Loading assignment form...');
+        const [classesData, subjectsData] = await Promise.all([
+            apiCall('/classes?limit=200').catch(() => ({ classes: [] })),
+            apiCall('/subjects').catch(() => ({ subjects: [] }))
+        ]);
+        hideLoading();
+
+        const classOptions = (classesData.classes || []).map(c => `<option value="${c._id}">${c.name}</option>`).join('');
+        const subjectOptions = (subjectsData.subjects || []).map(s => `<option value="${s._id}">${s.name}</option>`).join('');
+
+        const modalContent = `
+            <form id="assignment-form">
+                <div class="input-group">
+                    <label><i class="fas fa-heading"></i> Title *</label>
+                    <input type="text" id="assignment-title" required placeholder="Assignment title">
+                </div>
+                <div class="form-grid">
+                    <div class="input-group">
+                        <label><i class="fas fa-book"></i> Class *</label>
+                        <select id="assignment-class" class="select-input" required>
+                            <option value="">Select class...</option>
+                            ${classOptions}
+                        </select>
+                    </div>
+                    <div class="input-group">
+                        <label><i class="fas fa-book-open"></i> Subject *</label>
+                        <select id="assignment-subject" class="select-input" required>
+                            <option value="">Select subject...</option>
+                            ${subjectOptions}
+                        </select>
+                    </div>
+                    <div class="input-group">
+                        <label><i class="fas fa-calendar"></i> Submission Date *</label>
+                        <input type="date" id="assignment-submission" required>
+                    </div>
+                    <div class="input-group">
+                        <label><i class="fas fa-percent"></i> Passing % *</label>
+                        <input type="number" id="assignment-passing" min="1" max="100" value="40" required>
+                    </div>
+                    <div class="input-group">
+                        <label><i class="fas fa-eye"></i> Visibility</label>
+                        <select id="assignment-visible" class="select-input">
+                            <option value="true">Visible</option>
+                            <option value="false">Hidden</option>
+                        </select>
+                    </div>
+                </div>
+                <div class="input-group">
+                    <label><i class="fas fa-align-left"></i> Instructions</label>
+                    <textarea id="assignment-instructions" rows="4" placeholder="Assignment instructions..."></textarea>
+                </div>
+            </form>
+        `;
+
+        showModal('Create Assignment', modalContent, [
+            { text: 'Cancel', type: 'secondary', action: 'closeModal()' },
+            { text: 'Create', type: 'primary', action: 'submitAssignment()', icon: 'fas fa-save' }
+        ]);
+    } catch (error) {
+        hideLoading();
+        showError('Failed to load assignment form');
+    }
+}
+
+async function submitAssignment() {
+    const title = document.getElementById('assignment-title').value.trim();
+    const classId = document.getElementById('assignment-class').value;
+    const subject = document.getElementById('assignment-subject').value;
+    const submissionDate = document.getElementById('assignment-submission').value;
+    const passingPercentage = parseInt(document.getElementById('assignment-passing').value, 10);
+    const isVisible = document.getElementById('assignment-visible').value === 'true';
+    const instructions = document.getElementById('assignment-instructions').value.trim();
+
+    if (!title || !classId || !subject || !submissionDate || !passingPercentage) {
+        showError('Please fill in all required fields');
+        return;
+    }
+
+    try {
+        closeModal();
+        showLoading('Creating assignment...');
+        await apiCall('/assessments', {
+            method: 'POST',
+            body: JSON.stringify({
+                title,
+                type: 'Assignment',
+                class: classId,
+                subject,
+                academicYear: '2025-2026',
+                term: 'Term 1',
+                date: submissionDate,
+                submissionDate,
+                maxMarks: 100,
+                passingMarks: passingPercentage,
+                passingPercentage,
+                isVisible,
+                instructions
+            })
+        });
+        hideLoading();
+        showSuccess('Assignment created successfully!');
+    } catch (error) {
+        hideLoading();
+        showError('Failed to create assignment: ' + error.message);
+    }
+}
+
+async function createLesson() {
+    try {
+        showLoading('Loading lesson form...');
+        const [classesData, roomsData, periodsData] = await Promise.all([
+            apiCall('/classes?limit=200').catch(() => ({ classes: [] })),
+            apiCall('/rooms?limit=200').catch(() => ({ rooms: [] })),
+            apiCall('/periods').catch(() => ({ periods: [] }))
+        ]);
+        hideLoading();
+
+        const classOptions = (classesData.classes || []).map(c => `<option value="${c._id}">${c.name}</option>`).join('');
+        const roomOptions = (roomsData.rooms || []).map(r => `<option value="${r._id}">${r.roomNumber} - ${r.roomName}</option>`).join('');
+        const periodOptions = (periodsData.periods || []).map(p => `<option value="${p._id}">${p.name} (${p.startTime}-${p.endTime})</option>`).join('');
+
+        const modalContent = `
+            <form id="lesson-form">
+                <div class="form-grid">
+                    <div class="input-group">
+                        <label><i class="fas fa-book"></i> Class *</label>
+                        <select id="lesson-class" class="select-input" required>
+                            <option value="">Select class...</option>
+                            ${classOptions}
+                        </select>
+                    </div>
+                    <div class="input-group">
+                        <label><i class="fas fa-calendar"></i> Day *</label>
+                        <select id="lesson-day" class="select-input" required>
+                            <option value="">Select day...</option>
+                            <option value="Monday">Monday</option>
+                            <option value="Tuesday">Tuesday</option>
+                            <option value="Wednesday">Wednesday</option>
+                            <option value="Thursday">Thursday</option>
+                            <option value="Friday">Friday</option>
+                        </select>
+                    </div>
+                    <div class="input-group">
+                        <label><i class="fas fa-clock"></i> Period *</label>
+                        <select id="lesson-period" class="select-input" required>
+                            <option value="">Select period...</option>
+                            ${periodOptions}
+                        </select>
+                    </div>
+                    <div class="input-group">
+                        <label><i class="fas fa-door-open"></i> Room</label>
+                        <select id="lesson-room" class="select-input">
+                            <option value="">Select room...</option>
+                            ${roomOptions}
+                        </select>
+                    </div>
+                    <div class="input-group">
+                        <label><i class="fas fa-calendar-alt"></i> Start Date *</label>
+                        <input type="date" id="lesson-start" required>
+                    </div>
+                    <div class="input-group">
+                        <label><i class="fas fa-sync"></i> Recurring Weekly</label>
+                        <select id="lesson-recurring" class="select-input">
+                            <option value="false">No</option>
+                            <option value="true">Yes</option>
+                        </select>
+                    </div>
+                </div>
+                <div class="input-group">
+                    <label><i class="fas fa-align-left"></i> Notes</label>
+                    <textarea id="lesson-notes" rows="3" placeholder="Lesson notes..."></textarea>
+                </div>
+            </form>
+        `;
+
+        showModal('Create Lesson', modalContent, [
+            { text: 'Cancel', type: 'secondary', action: 'closeModal()' },
+            { text: 'Create Lesson', type: 'primary', action: 'submitLesson()', icon: 'fas fa-save' }
+        ]);
+    } catch (error) {
+        hideLoading();
+        showError('Failed to load lesson form');
+    }
+}
+
+async function createPeriod() {
+    const modalContent = `
+        <form id="period-form">
+            <div class="form-grid">
+                <div class="input-group">
+                    <label><i class="fas fa-clock"></i> Name *</label>
+                    <input type="text" id="period-name" required placeholder="Period 1">
+                </div>
+                <div class="input-group">
+                    <label><i class="fas fa-sort-numeric-up"></i> Order *</label>
+                    <input type="number" id="period-order" required min="1" value="1">
+                </div>
+                <div class="input-group">
+                    <label><i class="fas fa-hourglass-start"></i> Start Time *</label>
+                    <input type="time" id="period-start" required>
+                </div>
+                <div class="input-group">
+                    <label><i class="fas fa-hourglass-end"></i> End Time *</label>
+                    <input type="time" id="period-end" required>
+                </div>
+                <div class="input-group">
+                    <label><i class="fas fa-coffee"></i> Break Period</label>
+                    <select id="period-break" class="select-input">
+                        <option value="false">No</option>
+                        <option value="true">Yes</option>
+                    </select>
+                </div>
+            </div>
+        </form>
+    `;
+
+    showModal('Create Period', modalContent, [
+        { text: 'Cancel', type: 'secondary', action: 'closeModal()' },
+        { text: 'Save Period', type: 'primary', action: 'submitPeriod()', icon: 'fas fa-save' }
+    ]);
+}
+
+async function submitPeriod() {
+    const name = document.getElementById('period-name').value.trim();
+    const order = parseInt(document.getElementById('period-order').value, 10);
+    const startTime = document.getElementById('period-start').value;
+    const endTime = document.getElementById('period-end').value;
+    const isBreak = document.getElementById('period-break').value === 'true';
+
+    if (!name || !order || !startTime || !endTime) {
+        showError('Please fill in all required fields');
+        return;
+    }
+
+    try {
+        closeModal();
+        showLoading('Saving period...');
+        await apiCall('/periods', {
+            method: 'POST',
+            body: JSON.stringify({ name, order, startTime, endTime, isBreak })
+        });
+        hideLoading();
+        showSuccess('Period saved successfully!');
+    } catch (error) {
+        hideLoading();
+        showError('Failed to save period: ' + error.message);
+    }
+}
+
+async function submitLesson() {
+    const classId = document.getElementById('lesson-class').value;
+    const dayOfWeek = document.getElementById('lesson-day').value;
+    const period = document.getElementById('lesson-period').value;
+    const room = document.getElementById('lesson-room').value || undefined;
+    const startDate = document.getElementById('lesson-start').value;
+    const isRecurring = document.getElementById('lesson-recurring').value === 'true';
+    const notes = document.getElementById('lesson-notes').value.trim();
+
+    if (!classId || !dayOfWeek || !period || !startDate) {
+        showError('Please fill in all required fields');
+        return;
+    }
+
+    try {
+        closeModal();
+        showLoading('Creating lesson...');
+        await apiCall('/lessons', {
+            method: 'POST',
+            body: JSON.stringify({
+                class: classId,
+                dayOfWeek,
+                period,
+                room,
+                startDate,
+                isRecurring,
+                notes
+            })
+        });
+        hideLoading();
+        showSuccess('Lesson created successfully!');
+    } catch (error) {
+        hideLoading();
+        showError('Failed to create lesson: ' + error.message);
     }
 }
 
@@ -3624,7 +4482,7 @@ function showModal(title, content, buttons = [], size = 'medium') {
     modal.innerHTML = `
         <div class="modal-header">
             <h2>${title}</h2>
-            <button class="modal-close" onclick="closeModal()">
+            <button class="modal-close" data-action="close">
                 <i class="fas fa-times"></i>
             </button>
         </div>
@@ -3634,7 +4492,7 @@ function showModal(title, content, buttons = [], size = 'medium') {
         ${buttons.length > 0 ? `
             <div class="modal-footer">
                 ${buttons.map(btn => `
-                    <button class="btn-${btn.type || 'primary'}" onclick="${btn.action}">
+                    <button class="btn-${btn.type || 'primary'}" data-action="${btn.action}">
                         ${btn.icon ? `<i class="${btn.icon}"></i>` : ''} ${btn.text}
                     </button>
                 `).join('')}
@@ -3644,6 +4502,22 @@ function showModal(title, content, buttons = [], size = 'medium') {
     
     overlay.appendChild(modal);
     document.body.appendChild(overlay);
+
+    modal.addEventListener('click', (e) => {
+        const button = e.target.closest('[data-action]');
+        if (!button) return;
+        const action = button.getAttribute('data-action');
+        if (!action || action === 'close' || action === 'closeModal()' || action === 'closeModal') {
+            closeModal();
+            return;
+        }
+        try {
+            const fn = new Function(action);
+            fn();
+        } catch (err) {
+            console.error('Modal action failed:', err);
+        }
+    });
     
     // Close on overlay click
     overlay.addEventListener('click', (e) => {
@@ -3680,10 +4554,10 @@ function confirmDialog(title, message, onConfirm) {
             <h3>${title}</h3>
             <p>${message}</p>
             <div class="confirm-dialog-buttons">
-                <button class="btn-primary" onclick="closeConfirm()">
+                <button class="btn-primary" data-confirm-action="cancel">
                     <i class="fas fa-times"></i> Cancel
                 </button>
-                <button class="btn-danger" onclick="confirmAction()">
+                <button class="btn-danger" data-confirm-action="confirm">
                     <i class="fas fa-check"></i> Confirm
                 </button>
             </div>
@@ -3691,11 +4565,18 @@ function confirmDialog(title, message, onConfirm) {
     `;
     
     document.body.appendChild(overlay);
-    
-    window.confirmAction = () => {
-        closeConfirm();
-        onConfirm();
-    };
+
+    overlay.addEventListener('click', (e) => {
+        const action = e.target.closest('[data-confirm-action]')?.getAttribute('data-confirm-action');
+        if (!action) return;
+        if (action === 'cancel') {
+            closeConfirm();
+        }
+        if (action === 'confirm') {
+            closeConfirm();
+            onConfirm();
+        }
+    });
 }
 
 function closeConfirm() {
@@ -4819,6 +5700,7 @@ async function bookRoom(roomId) {
     try {
         showLoading('Loading room details...');
         const room = await apiCall(`/rooms/${roomId}`);
+        const classesData = await apiCall('/classes?limit=200').catch(() => ({ classes: [] }));
         
         // Get today's bookings for this room
         const today = new Date().toISOString().split('T')[0];
@@ -4877,6 +5759,8 @@ async function bookRoom(roomId) {
             `;
         }
         
+        const classOptions = (classesData.classes || []).map(c => `<option value="${c._id}">${c.name}</option>`).join('');
+
         const modalContent = `
             <div class="room-booking-form">
                 <div class="room-info">
@@ -4915,6 +5799,27 @@ async function bookRoom(roomId) {
                             <option value="Other">Other</option>
                         </select>
                     </div>
+
+                    <div class="input-group">
+                        <label><i class="fas fa-book"></i> Link to Class</label>
+                        <select id="booking-class" class="select-input">
+                            <option value="">No class</option>
+                            ${classOptions}
+                        </select>
+                    </div>
+
+                    <div class="input-group">
+                        <label><i class="fas fa-sync"></i> Booking Type</label>
+                        <select id="booking-type" class="select-input" onchange="toggleRecurringFields()">
+                            <option value="one-off">One-off</option>
+                            <option value="weekly">Recurring Weekly</option>
+                        </select>
+                    </div>
+
+                    <div class="input-group" id="recurring-end-date" style="display: none;">
+                        <label><i class="fas fa-calendar-alt"></i> Recurring End Date</label>
+                        <input type="date" id="booking-end-date">
+                    </div>
                     
                     <div class="input-group">
                         <label><i class="fas fa-align-left"></i> Notes</label>
@@ -4929,6 +5834,7 @@ async function bookRoom(roomId) {
             { text: 'Check Availability', type: 'info', action: `checkRoomAvailability('${roomId}')`, icon: 'fas fa-search' },
             { text: 'Book Room', type: 'success', action: `submitRoomBooking('${roomId}')`, icon: 'fas fa-check' }
         ]);
+        toggleRecurringFields();
     } catch (error) {
         hideLoading();
         showError('Failed to load room details');
@@ -5946,7 +6852,7 @@ function displayEnrollmentDetailsModal(enrollment) {
         <div style="background: white; border-radius: 1rem; padding: 2rem; max-width: 600px; width: 90%; max-height: 80vh; overflow-y: auto;">
             <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 1.5rem; padding-bottom: 1rem; border-bottom: 2px solid var(--border);">
                 <h2 style="margin: 0; color: var(--primary);">Enrollment Application</h2>
-                <button onclick="closeModal('enrollment-details-modal')" style="background: none; border: none; font-size: 1.5rem; cursor: pointer;">×</button>
+                <button onclick="closeInlineModal('enrollment-details-modal')" style="background: none; border: none; font-size: 1.5rem; cursor: pointer;">×</button>
             </div>
             
             <div style="display: grid; gap: 1rem;">
@@ -5996,7 +6902,7 @@ function displayEnrollmentDetailsModal(enrollment) {
             </div>
             
             <div style="display: flex; gap: 1rem; margin-top: 2rem; border-top: 2px solid var(--border); padding-top: 1.5rem;">
-                <button onclick="closeModal('enrollment-details-modal')" style="flex: 1; padding: 0.75rem; background: #f0f0f0; border: none; border-radius: 0.5rem; cursor: pointer; font-weight: 600;">Close</button>
+                <button onclick="closeInlineModal('enrollment-details-modal')" style="flex: 1; padding: 0.75rem; background: #f0f0f0; border: none; border-radius: 0.5rem; cursor: pointer; font-weight: 600;">Close</button>
             </div>
         </div>
     `;
@@ -6016,7 +6922,7 @@ async function approveEnrollment(enrollmentId) {
         
         hideLoading();
         showSuccess('Enrollment approved! Student account created.');
-        closeModal('enrollment-details-modal');
+        closeInlineModal('enrollment-details-modal');
         await loadEnrollments();
     } catch (error) {
         hideLoading();
@@ -6049,7 +6955,7 @@ function showDeclineModal(enrollmentId) {
             <textarea id="decline-reason" placeholder="Enter decline reason..." style="width: 100%; min-height: 100px; padding: 0.75rem; border: 2px solid var(--border); border-radius: 0.5rem; font-size: 1rem; font-family: inherit; resize: vertical;"></textarea>
             
             <div style="display: flex; gap: 1rem; margin-top: 1.5rem;">
-                <button onclick="closeModal('decline-modal')" style="flex: 1; padding: 0.75rem; background: #f0f0f0; border: none; border-radius: 0.5rem; cursor: pointer; font-weight: 600;">Cancel</button>
+                <button onclick="closeInlineModal('decline-modal')" style="flex: 1; padding: 0.75rem; background: #f0f0f0; border: none; border-radius: 0.5rem; cursor: pointer; font-weight: 600;">Cancel</button>
                 <button onclick="confirmDeclineEnrollment('${enrollmentId}')" style="flex: 1; padding: 0.75rem; background: #dc3545; color: white; border: none; border-radius: 0.5rem; cursor: pointer; font-weight: 600;">Decline</button>
             </div>
         </div>
@@ -6075,8 +6981,8 @@ async function confirmDeclineEnrollment(enrollmentId) {
         
         hideLoading();
         showSuccess('Enrollment declined.');
-        closeModal('decline-modal');
-        closeModal('enrollment-details-modal');
+        closeInlineModal('decline-modal');
+        closeInlineModal('enrollment-details-modal');
         await loadEnrollments();
     } catch (error) {
         hideLoading();
@@ -6103,7 +7009,7 @@ async function updateEnrollmentStats() {
     }
 }
 
-function closeModal(modalId) {
+function closeInlineModal(modalId) {
     const modal = document.getElementById(modalId);
     if (modal) modal.remove();
 }

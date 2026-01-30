@@ -1,0 +1,74 @@
+{
+  "students": [
+    {
+      "firstName": "John",
+      "lastName": "Doe",
+      "email": "john.doe@student.schoolware.com",
+      "studentId": "STD2001",
+      "class": "1st Year A",
+      "attendance": [
+        { "date": "2026-01-20", "status": "Present", "period": "Class 1" },
+        { "date": "2026-01-21", "status": "Late", "period": "Class 2" }
+      ],
+      "behavior": [
+        { "type": "Positive", "category": "Participation", "points": 1 },
+        { "type": "Negative", "category": "Late", "points": -1 }
+      ]
+    },
+    {
+      "firstName": "Jane",
+      "lastName": "Smith",
+      "email": "jane.smith@student.schoolware.com",
+      "studentId": "STD2002",
+      "class": "1st Year A",
+      "attendance": [
+        { "date": "2026-01-20", "status": "Present", "period": "Class 1" },
+        { "date": "2026-01-21", "status": "Absent", "period": "Class 2" }
+      ],
+      "behavior": [
+        { "type": "Positive", "category": "Leadership", "points": 1 }
+      ]
+    }
+  ],
+  "teachers": [
+    {
+      "firstName": "Emma",
+      "lastName": "Kelly",
+      "email": "emma.kelly@schoolware.com",
+      "department": "Mathematics",
+      "permissions": ["create_lessons", "book_rooms", "create_assignments"]
+    },
+    {
+      "firstName": "Liam",
+      "lastName": "Byrne",
+      "email": "liam.byrne@schoolware.com",
+      "department": "Science",
+      "classes": ["2nd Year A"]
+    }
+  ],
+  "periods": [
+    { "name": "Period 1", "startTime": "09:00", "endTime": "09:40" },
+    { "name": "Period 2", "startTime": "09:40", "endTime": "10:20" }
+  ],
+  "rooms": [
+    { "roomNumber": "Room 101", "roomName": "Room 101", "category": "General Classrooms" },
+    { "roomNumber": "Lab 1", "roomName": "Science Lab 1", "category": "Science Labs" }
+  ],
+  "lessons": [
+    {
+      "class": "1st Year A",
+      "dayOfWeek": "Monday",
+      "period": "Period 1",
+      "room": "Room 101"
+    }
+  ],
+  "assignments": [
+    {
+      "title": "Algebra Assignment 1",
+      "class": "1st Year A",
+      "submissionDate": "2026-01-30",
+      "passingPercentage": 40,
+      "isVisible": true
+    }
+  ]
+}

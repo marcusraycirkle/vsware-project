@@ -6,7 +6,7 @@ const User = require('../models/User');
 // @route   GET /api/users
 // @desc    Get all users
 // @access  Private (Admin/Principal)
-router.get('/', auth, authorize('admin', 'principal'), async (req, res) => {
+router.get('/', auth, authorize('admin', 'principal', 'teacher'), async (req, res) => {
   try {
     const { role, search, page = 1, limit = 20 } = req.query;
     
@@ -44,6 +44,10 @@ router.get('/', auth, authorize('admin', 'principal'), async (req, res) => {
 // @access  Private
 router.get('/:id', auth, async (req, res) => {
   try {
+    if (req.user.role === 'student' && req.userId !== req.params.id) {
+      return res.status(403).json({ message: 'Access denied' });
+    }
+
     const user = await User.findById(req.params.id).select('-password');
     
     if (!user) {
@@ -61,6 +65,10 @@ router.get('/:id', auth, async (req, res) => {
 // @access  Private
 router.put('/:id', auth, async (req, res) => {
   try {
+    if (['teacher', 'student'].includes(req.user.role)) {
+      return res.status(403).json({ message: 'Read-only access. Write permissions are restricted to administrators.' });
+    }
+
     const { firstName, lastName, phoneNumber, address, profileImage, settings } = req.body;
     
     // Check authorization

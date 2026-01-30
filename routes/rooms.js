@@ -6,8 +6,8 @@ const RoomBooking = require('../models/RoomBooking');
 
 // @route   GET /api/rooms
 // @desc    Get all rooms
-// @access  Private
-router.get('/', auth, async (req, res) => {
+// @access  Private (Admin/Principal/Teacher)
+router.get('/', auth, authorize('admin', 'principal', 'teacher'), async (req, res) => {
   try {
     const { 
       category, floor, isAvailable, 
@@ -40,8 +40,8 @@ router.get('/', auth, async (req, res) => {
 
 // @route   GET /api/rooms/:id
 // @desc    Get room by ID
-// @access  Private
-router.get('/:id', auth, async (req, res) => {
+// @access  Private (Admin/Principal/Teacher)
+router.get('/:id', auth, authorize('admin', 'principal', 'teacher'), async (req, res) => {
   try {
     const room = await Room.findById(req.params.id)
       .populate('bookings')
@@ -119,8 +119,8 @@ router.delete('/:id', auth, authorize('admin'), async (req, res) => {
 
 // @route   GET /api/rooms/:id/availability
 // @desc    Check room availability for a specific date/time
-// @access  Private
-router.get('/:id/availability', auth, async (req, res) => {
+// @access  Private (Admin/Principal/Teacher)
+router.get('/:id/availability', auth, authorize('admin', 'principal', 'teacher'), async (req, res) => {
   try {
     const { date, startTime, endTime } = req.query;
     
@@ -148,9 +148,9 @@ router.get('/:id/availability', auth, async (req, res) => {
 // @route   POST /api/rooms/:id/book
 // @desc    Book a room
 // @access  Private (Teacher/Admin)
-router.post('/:id/book', auth, authorize('teacher', 'admin', 'principal'), async (req, res) => {
+router.post('/:id/book', auth, authorize('teacher', 'admin', 'principal', { allowWriteFor: ['teacher'] }), async (req, res) => {
   try {
-    const { date, period, purpose, notes, class: classId, subject } = req.body;
+    const { date, period, purpose, notes, class: classId, subject, recurringBooking } = req.body;
     
     // Period time mapping
     const periodTimes = {
@@ -179,50 +179,77 @@ router.post('/:id/book', auth, authorize('teacher', 'admin', 'principal'), async
       return res.status(404).json({ message: 'Room not found' });
     }
     
-    // Check availability
-    const conflictingBookings = await RoomBooking.find({
-      room: req.params.id,
-      date: new Date(date),
-      period: period,
-      status: { $ne: 'Cancelled' }
-    });
-    
-    if (conflictingBookings.length > 0) {
-      return res.status(400).json({ 
-        message: 'Room is not available during this period',
-        conflictingBookings 
+    const isRecurring = recurringBooking?.isRecurring === true;
+    const recurringEndDate = recurringBooking?.endDate ? new Date(recurringBooking.endDate) : null;
+
+    const datesToBook = [];
+    const startDate = new Date(date);
+    if (isRecurring && recurringEndDate) {
+      let current = new Date(startDate);
+      while (current <= recurringEndDate) {
+        datesToBook.push(new Date(current));
+        current.setDate(current.getDate() + 7);
+      }
+    } else {
+      datesToBook.push(startDate);
+    }
+
+    const conflicts = [];
+    for (const bookingDate of datesToBook) {
+      const existing = await RoomBooking.find({
+        room: req.params.id,
+        date: bookingDate,
+        period: period,
+        status: { $ne: 'Cancelled' }
+      });
+      if (existing.length > 0) {
+        conflicts.push({ date: bookingDate, period });
+      }
+    }
+
+    if (conflicts.length > 0) {
+      return res.status(400).json({
+        message: 'Room is not available during one or more selected periods',
+        conflicts
       });
     }
-    
-    // Create booking
-    const booking = new RoomBooking({
-      room: req.params.id,
-      bookedBy: req.userId,
-      date: new Date(date),
-      period,
-      startTime,
-      endTime,
-      purpose,
-      notes,
-      class: classId,
-      subject,
-      status: 'Approved'
-    });
-    
-    await booking.save();
-    
-    // Add to room's bookings
+
+    const createdBookings = [];
+    for (const bookingDate of datesToBook) {
+      const booking = new RoomBooking({
+        room: req.params.id,
+        bookedBy: req.userId,
+        date: bookingDate,
+        period,
+        startTime,
+        endTime,
+        purpose,
+        notes,
+        class: classId,
+        subject,
+        status: 'Approved',
+        recurringBooking: {
+          isRecurring,
+          frequency: isRecurring ? 'Weekly' : undefined,
+          endDate: recurringEndDate || undefined
+        }
+      });
+
+      await booking.save();
+      createdBookings.push(booking._id);
+    }
+
     await Room.findByIdAndUpdate(req.params.id, {
-      $push: { bookings: booking._id }
+      $push: { bookings: { $each: createdBookings } }
     });
-    
-    const populatedBooking = await RoomBooking.findById(booking._id)
+
+    const populatedBookings = await RoomBooking.find({ _id: { $in: createdBookings } })
       .populate('room')
       .populate('bookedBy', 'firstName lastName email');
-    
+
     res.status(201).json({
       message: 'Room booked successfully',
-      booking: populatedBooking
+      bookings: populatedBookings
     });
   } catch (error) {
     res.status(500).json({ message: 'Server error', error: error.message });

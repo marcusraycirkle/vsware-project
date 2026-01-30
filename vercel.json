@@ -21,6 +21,14 @@
       "dest": "frontend/$1"
     },
     {
+      "src": "/frontend/privacy-policy.html",
+      "dest": "frontend/privacy-policy.html"
+    },
+    {
+      "src": "/frontend/terms-of-service.html",
+      "dest": "frontend/terms-of-service.html"
+    },
+    {
       "src": "/selector",
       "dest": "server.js"
     },

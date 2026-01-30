@@ -7,8 +7,8 @@ const Subject = require('../models/Subject');
 
 // @route   GET /api/classes
 // @desc    Get all classes
-// @access  Private
-router.get('/', auth, async (req, res) => {
+// @access  Private (Admin/Principal/Teacher)
+router.get('/', auth, authorize('admin', 'principal', 'teacher'), async (req, res) => {
   try {
     const { year, academicYear, status, page = 1, limit = 50 } = req.query;
     
@@ -41,8 +41,8 @@ router.get('/', auth, async (req, res) => {
 
 // @route   GET /api/classes/:id
 // @desc    Get class by ID
-// @access  Private
-router.get('/:id', auth, async (req, res) => {
+// @access  Private (Admin/Principal/Teacher)
+router.get('/:id', auth, authorize('admin', 'principal', 'teacher'), async (req, res) => {
   try {
     const classData = await Class.findById(req.params.id)
       .populate('classTeacher')
@@ -67,20 +67,31 @@ router.get('/:id', auth, async (req, res) => {
 
 // @route   POST /api/classes
 // @desc    Create new class
-// @access  Private (Admin/Principal)
-router.post('/', auth, authorize('admin', 'principal'), async (req, res) => {
+// @access  Private (Admin/Principal/Teacher)
+router.post('/', auth, authorize('admin', 'principal', 'teacher', { allowWriteFor: ['teacher'] }), async (req, res) => {
   try {
     const {
       name, year, section, academicYear, classTeacher,
       teachers, students, capacity, room, subjects
     } = req.body;
+
+    const yearNames = ['First Year', 'Second Year', 'Third Year', 'TY', 'Fifth Year', 'Sixth Year'];
+    const yearGroup = yearNames[(year || 1) - 1] || 'First Year';
+
+    let resolvedClassTeacher = classTeacher;
+    if (req.user.role === 'teacher' && !resolvedClassTeacher) {
+      const Teacher = require('../models/Teacher');
+      const teacherProfile = await Teacher.findOne({ user: req.userId });
+      resolvedClassTeacher = teacherProfile?._id;
+    }
     
     const newClass = new Class({
       name,
       year,
+      yearGroup,
       section,
       academicYear,
-      classTeacher,
+      classTeacher: resolvedClassTeacher,
       teachers,
       students,
       capacity,
@@ -115,10 +126,14 @@ router.post('/', auth, authorize('admin', 'principal'), async (req, res) => {
 
 // @route   PUT /api/classes/:id
 // @desc    Update class
-// @access  Private (Admin/Principal)
-router.put('/:id', auth, authorize('admin', 'principal'), async (req, res) => {
+// @access  Private (Admin/Principal/Teacher)
+router.put('/:id', auth, authorize('admin', 'principal', 'teacher', { allowWriteFor: ['teacher'] }), async (req, res) => {
   try {
     const updates = req.body;
+    if (updates.year && !updates.yearGroup) {
+      const yearNames = ['First Year', 'Second Year', 'Third Year', 'TY', 'Fifth Year', 'Sixth Year'];
+      updates.yearGroup = yearNames[updates.year - 1] || 'First Year';
+    }
     
     const classData = await Class.findByIdAndUpdate(
       req.params.id,
@@ -159,8 +174,8 @@ router.delete('/:id', auth, authorize('admin'), async (req, res) => {
 
 // @route   POST /api/classes/:id/students
 // @desc    Add students to class
-// @access  Private (Admin/Principal)
-router.post('/:id/students', auth, authorize('admin', 'principal'), async (req, res) => {
+// @access  Private (Admin/Principal/Teacher)
+router.post('/:id/students', auth, authorize('admin', 'principal', 'teacher', { allowWriteFor: ['teacher'] }), async (req, res) => {
   try {
     const { studentIds } = req.body;
     

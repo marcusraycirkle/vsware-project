@@ -2,6 +2,7 @@ const express = require('express');
 const router = express.Router();
 const { auth, authorize } = require('../middleware/auth');
 const Timetable = require('../models/Timetable');
+const Student = require('../models/Student');
 
 // @route   GET /api/timetable
 // @desc    Get timetables
@@ -11,7 +12,15 @@ router.get('/', auth, async (req, res) => {
     const { class: classId, teacher, academicYear, term, status } = req.query;
     
     let query = {};
-    if (classId) query.class = classId;
+    if (req.user.role === 'student') {
+      const studentProfile = await Student.findOne({ user: req.userId });
+      if (!studentProfile || !studentProfile.currentClass) {
+        return res.status(403).json({ message: 'Access denied' });
+      }
+      query.class = studentProfile.currentClass;
+    } else if (classId) {
+      query.class = classId;
+    }
     if (teacher) query.teacher = teacher;
     if (academicYear) query.academicYear = academicYear;
     if (term) query.term = term;
@@ -43,6 +52,13 @@ router.get('/:id', auth, async (req, res) => {
     
     if (!timetable) {
       return res.status(404).json({ message: 'Timetable not found' });
+    }
+
+    if (req.user.role === 'student') {
+      const studentProfile = await Student.findOne({ user: req.userId });
+      if (!studentProfile || !timetable.class || timetable.class._id.toString() !== studentProfile.currentClass?.toString()) {
+        return res.status(403).json({ message: 'Access denied' });
+      }
     }
     
     res.json(timetable);
@@ -199,6 +215,13 @@ router.delete('/:id', auth, authorize('admin'), async (req, res) => {
 // @access  Private
 router.get('/class/:classId/current', auth, async (req, res) => {
   try {
+    if (req.user.role === 'student') {
+      const studentProfile = await Student.findOne({ user: req.userId });
+      if (!studentProfile || studentProfile.currentClass?.toString() !== req.params.classId) {
+        return res.status(403).json({ message: 'Access denied' });
+      }
+    }
+
     const timetable = await Timetable.findOne({
       class: req.params.classId,
       status: 'Published',
@@ -227,6 +250,9 @@ router.get('/class/:classId/current', auth, async (req, res) => {
 // @access  Private
 router.get('/teacher/:teacherId/current', auth, async (req, res) => {
   try {
+    if (req.user.role === 'student') {
+      return res.status(403).json({ message: 'Access denied' });
+    }
     const timetable = await Timetable.findOne({
       teacher: req.params.teacherId,
       status: 'Published',

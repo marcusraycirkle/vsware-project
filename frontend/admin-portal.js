@@ -15,6 +15,16 @@ document.addEventListener('DOMContentLoaded', () => {
     initializeAuth();
     setupEventListeners();
     loadUserData();
+    
+    // Hide loading overlay after 1 second
+    setTimeout(() => {
+        const overlay = document.getElementById('portal-loading-overlay');
+        if (overlay) {
+            overlay.style.opacity = '0';
+            overlay.style.transition = 'opacity 0.5s ease-out';
+            setTimeout(() => overlay.remove(), 500);
+        }
+    }, 1000);
 });
 
 function initializeAuth() {

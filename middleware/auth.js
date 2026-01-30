@@ -1,6 +1,8 @@
 const jwt = require('jsonwebtoken');
 const User = require('../models/User');
 
+const normalizeRole = (role) => (typeof role === 'string' ? role.toLowerCase() : '');
+
 const auth = async (req, res, next) => {
   try {
     // Get token from header
@@ -26,6 +28,7 @@ const auth = async (req, res, next) => {
     
     // Add user to request
     req.user = user;
+    req.user.role = normalizeRole(req.user.role);
     req.userId = decoded.userId;
     next();
   } catch (error) {
@@ -36,12 +39,31 @@ const auth = async (req, res, next) => {
 
 // Role-based authorization middleware
 const authorize = (...roles) => {
+  let options = {};
+  if (roles.length > 0) {
+    const last = roles[roles.length - 1];
+    if (last && typeof last === 'object' && !Array.isArray(last)) {
+      options = roles.pop();
+    }
+  }
+
   return (req, res, next) => {
     if (!req.user) {
       return res.status(401).json({ message: 'Not authenticated' });
     }
-    
-    if (!roles.includes(req.user.role)) {
+
+    const allowedRoles = roles.flat().map(normalizeRole);
+    const currentRole = normalizeRole(req.user.role);
+    const isWrite = !['GET', 'HEAD', 'OPTIONS'].includes(req.method.toUpperCase());
+
+    const allowWriteFor = (options.allowWriteFor || []).map(normalizeRole);
+    if (isWrite && ['teacher', 'student'].includes(currentRole) && !allowWriteFor.includes(currentRole)) {
+      return res.status(403).json({
+        message: 'Read-only access. Write permissions are restricted to administrators.'
+      });
+    }
+
+    if (!allowedRoles.includes(currentRole)) {
       return res.status(403).json({ 
         message: 'Access denied. Insufficient permissions.' 
       });
