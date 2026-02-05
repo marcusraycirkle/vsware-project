@@ -410,15 +410,15 @@ function simulateDemoLogin(email, pin) {
                 
                 let nextPage = '/shannoncomp/overview';
                 if (role === 'admin') {
-                    nextPage = '/admin-portal.html';
+                    nextPage = '/admin-portal.html#/shannoncomp/admin/dashboard';
                 } else if (role === 'parent') {
-                    nextPage = '/shannoncomp/parents/dashboard';
+                    nextPage = '/parent-portal.html#/shannoncomp/parent/dashboard';
                 } else if (role === 'student') {
-                    nextPage = '/shannoncomp/student/dashboard';
+                    nextPage = '/student-portal.html#/shannoncomp/student/dashboard';
                 } else if (role === 'secretary') {
-                    nextPage = '/secretary/dashboard';
+                    nextPage = '/secretary-portal.html#/shannoncomp/secretary/dashboard';
                 } else if (role === 'teacher') {
-                    nextPage = '/teacher-portal.html';
+                    nextPage = '/teacher-portal.html#/shannoncomp/teacher/dashboard';
                 }
                 
                 // Keep loading screen visible and navigate
