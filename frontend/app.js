@@ -407,23 +407,31 @@ function simulateDemoLogin(email, pin) {
             setTimeout(() => {
                 // Route based on role (case-insensitive comparison)
                 const role = (user.role || '').toLowerCase();
+                console.log('🔐 LOGIN: User role:', role, 'User object:', user);
                 
                 // Each role gets its own portal HTML file
                 let nextPage = '/home#/shannoncomp/dashboard';
                 if (role === 'admin' || role === 'principal') {
                     nextPage = '/admin-portal.html';
+                    console.log('✅ ROUTING TO ADMIN PORTAL:', nextPage);
                 } else if (role === 'parent') {
                     nextPage = '/parent-portal.html';
+                    console.log('✅ ROUTING TO PARENT PORTAL:', nextPage);
                 } else if (role === 'student') {
                     nextPage = '/student-portal.html';
+                    console.log('✅ ROUTING TO STUDENT PORTAL:', nextPage);
                 } else if (role === 'secretary') {
                     nextPage = '/secretary-portal.html';
+                    console.log('✅ ROUTING TO SECRETARY PORTAL:', nextPage);
                 } else if (role === 'teacher') {
                     nextPage = '/teacher-portal.html';
+                    console.log('✅ ROUTING TO TEACHER PORTAL:', nextPage);
                 } else {
                     nextPage = '/home#/shannoncomp/dashboard';
+                    console.log('⚠️ FALLBACK ROUTING:', nextPage);
                 }
                 
+                console.log('🚀 NAVIGATING TO:', nextPage);
                 // Keep loading screen visible and navigate
                 window.location.href = nextPage;
                 
