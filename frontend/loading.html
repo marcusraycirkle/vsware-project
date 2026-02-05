@@ -111,7 +111,7 @@
 </head>
 <body>
     <div class="loading-container">
-        <video id="loading-video" playsinline autoplay muted loop>
+        <video id="loading-video" playsinline autoplay muted>
             <source src="/videoloadtest2.MP4" type="video/mp4">
         </video>
         
@@ -125,6 +125,22 @@
         </div>
     </div>
 
+    <script>
+        // Stop video at 1.2 seconds
+        const video = document.getElementById('loading-video');
+        if (video) {
+            video.addEventListener('timeupdate', function() {
+                if (this.currentTime >= 1.2) {
+                    this.pause();
+                }
+            });
+            
+            // Show fallback if video fails to load
+            video.addEventListener('error', function() {
+                document.getElementById('fallback-loader').classList.add('show');
+            });
+        }
+    </script>
     <script src="/loading-screen.js"></script>
 </body>
 </html>

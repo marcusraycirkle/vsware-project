@@ -408,19 +408,20 @@ function simulateDemoLogin(email, pin) {
                 // Route based on role (case-insensitive comparison)
                 const role = (user.role || '').toLowerCase();
                 
-                let nextPage = '/shannoncomp/overview';
+                // Each role gets its own portal HTML file
+                let nextPage = '/home#/shannoncomp/dashboard';
                 if (role === 'admin' || role === 'principal') {
-                    nextPage = '/admin/dashboard';
+                    nextPage = '/admin-portal.html';
                 } else if (role === 'parent') {
-                    nextPage = '/shannoncomp/parents/dashboard';
+                    nextPage = '/parent-portal.html';
                 } else if (role === 'student') {
-                    nextPage = '/shannoncomp/student/dashboard';
+                    nextPage = '/student-portal.html';
                 } else if (role === 'secretary') {
-                    nextPage = '/secretary/dashboard';
+                    nextPage = '/secretary-portal.html';
                 } else if (role === 'teacher') {
-                    nextPage = '/shannoncomp/teacher/dashboard';
+                    nextPage = '/teacher-portal.html';
                 } else {
-                    nextPage = '/shannoncomp/teacher/dashboard';
+                    nextPage = '/home#/shannoncomp/dashboard';
                 }
                 
                 // Keep loading screen visible and navigate
