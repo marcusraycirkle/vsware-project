@@ -392,12 +392,6 @@
         });
     </script>
     
-    <script>
-        // FORCE cache clear - timestamp based
-        const timestamp = Date.now();
-        const script = document.createElement('script');
-        script.src = `/app.js?v=${timestamp}`;
-        document.body.appendChild(script);
-    </script>
+    <script src="/app-v2.js"></script>
 </body>
 </html>
