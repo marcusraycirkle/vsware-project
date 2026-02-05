@@ -371,26 +371,6 @@
             </div>
         </div>
     </div>
-
-    <script src="/app.js?v=20260205"></script>
-    <script>
-        function handleLogin(e) {
-            e.preventDefault();
-            const email = document.getElementById('login-email').value;
-            const pin = document.getElementById('login-pin').value;
-            login(email, pin);
-        }
-        
-        // Add event listener for back button
-        document.addEventListener('DOMContentLoaded', () => {
-            const backBtn = document.getElementById('login-back-btn');
-            if (backBtn) {
-                backBtn.addEventListener('click', () => {
-                    window.location.hash = '#/landing';
-                });
-            }
-        });
-    </script>
     
     <script src="/app-v2.js"></script>
 </body>
