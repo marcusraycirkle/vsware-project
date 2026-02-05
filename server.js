@@ -219,7 +219,7 @@ app.get('/selector', (req, res) => {
 });
 
 app.get('/login', (req, res) => {
-  res.sendFile(path.join(__dirname, 'frontend', 'login.html'));
+  res.sendFile(path.join(__dirname, 'frontend', 'login2.html'));
 });
 
 app.get('/enrolment.html', (req, res) => {
@@ -231,7 +231,7 @@ app.get('/', (req, res) => {
 });
 
 app.get('/shannoncomp/login', (req, res) => {
-  res.sendFile(path.join(__dirname, 'frontend', 'login.html'));
+  res.sendFile(path.join(__dirname, 'frontend', 'login2.html'));
 });
 
 app.get('/shannoncomp/enrolment', (req, res) => {
