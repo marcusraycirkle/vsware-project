@@ -148,8 +148,13 @@ app.use((req, res, next) => {
     "font-src 'self' https://cdnjs.cloudflare.com https://fonts.gstatic.com; " +
     "img-src 'self' data: https: http:; " +
     "media-src 'self' https://cdn.pixabay.com; " +
-    "connect-src 'self' https://vsware-project.vercel.app https://*.vercel.app http://localhost:5000"
+    "connect-src 'self' https://vsware-project.vercel.app https://*.vercel.app http://localhost:5000 https://cdn.jsdelivr.net"
   );
+  
+  // Prevent caching to ensure users get latest code
+  res.set('Cache-Control', 'no-store, no-cache, must-revalidate, proxy-revalidate');
+  res.set('Pragma', 'no-cache');
+  res.set('Expires', '0');
   
   next();
 });
