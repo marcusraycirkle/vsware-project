@@ -390,7 +390,7 @@ function simulateDemoLogin(email, pin) {
         
         const user = demoUsers[email];
         
-        if (user && pin === '1234') {
+        if (user && (pin === '1234' || pin === 'ad24')) {
             // Simulate successful login
             const demoToken = 'demo_token_' + Date.now();
             authToken = demoToken;
@@ -405,11 +405,11 @@ function simulateDemoLogin(email, pin) {
             showSuccess('Welcome back, ' + user.name + '!');
             
             setTimeout(() => {
-                // Route based on role
+                // Route based on role (case-insensitive comparison)
                 const role = (user.role || '').toLowerCase();
                 
                 let nextPage = '/shannoncomp/overview';
-                if (role === 'admin') {
+                if (role === 'admin' || role === 'principal') {
                     nextPage = '/admin-portal.html#/shannoncomp/admin/dashboard';
                 } else if (role === 'parent') {
                     nextPage = '/parent-portal.html#/shannoncomp/parent/dashboard';
@@ -418,6 +418,8 @@ function simulateDemoLogin(email, pin) {
                 } else if (role === 'secretary') {
                     nextPage = '/secretary-portal.html#/shannoncomp/secretary/dashboard';
                 } else if (role === 'teacher') {
+                    nextPage = '/teacher-portal.html#/shannoncomp/teacher/dashboard';
+                } else {
                     nextPage = '/teacher-portal.html#/shannoncomp/teacher/dashboard';
                 }
                 
