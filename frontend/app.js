@@ -384,7 +384,8 @@ function simulateDemoLogin(email, pin) {
             'marcusray@cirkledevelopment.co.uk': { email: 'marcusray@cirkledevelopment.co.uk', role: 'Parent', name: 'Marcus Ray', permissionLevel: 'Parent', roleHierarchy: 'Parent' },
             // Test logins
             'admintest@mispal.ie': { email: 'admintest@mispal.ie', role: 'Admin', name: 'Admin Test User', permissionLevel: 'Admin', roleHierarchy: 'Admin' },
-            'teachertest@mispal.ie': { email: 'teachertest@mispal.ie', role: 'Teacher', name: 'Teacher Test User', permissionLevel: 'Teacher', roleHierarchy: 'Mid' }
+            'teachertest@mispal.ie': { email: 'teachertest@mispal.ie', role: 'Teacher', name: 'Teacher Test User', permissionLevel: 'Teacher', roleHierarchy: 'Mid' },
+            'admin@schoolware.com': { email: 'admin@schoolware.com', role: 'Admin', name: 'Schoolware Admin', permissionLevel: 'Admin', roleHierarchy: 'Admin' }
         };
         
         const user = demoUsers[email];

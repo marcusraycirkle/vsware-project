@@ -9,6 +9,11 @@ let currentUser = null;
 let authToken = null;
 let currentSchoolId = null;
 
+// Global data stores for search
+let allStudentsData = [];
+let allTeachersData = [];
+let allClassesData = [];
+
 // ========== INITIALIZATION ==========
 document.addEventListener('DOMContentLoaded', () => {
     console.log('Admin Portal Initializing...');
@@ -62,6 +67,16 @@ function setupEventListeners() {
     const globalSearch = document.getElementById('global-search');
     if (globalSearch) {
         globalSearch.addEventListener('input', debounce(handleGlobalSearch, 300));
+        
+        // Close dropdown when clicking outside
+        document.addEventListener('click', (e) => {
+            if (!e.target.closest('.search-bar')) {
+                const dropdown = document.getElementById('search-results-dropdown');
+                if (dropdown) {
+                    dropdown.style.display = 'none';
+                }
+            }
+        });
     }
 
     // Sidebar toggle
@@ -395,15 +410,18 @@ async function loadStudentsData() {
         
         if (response.ok) {
             const students = await response.json();
-            renderStudentsTable(students);
+            allStudentsData = Array.isArray(students) ? students : (students.students || []);
+            renderStudentsTable(allStudentsData);
         } else {
             // Show mock data for demo
             const mockStudents = generateMockStudents(50);
+            allStudentsData = mockStudents;
             renderStudentsTable(mockStudents);
         }
     } catch (error) {
         console.error('Error loading students:', error);
         const mockStudents = generateMockStudents(50);
+        allStudentsData = mockStudents;
         renderStudentsTable(mockStudents);
     }
 }
@@ -567,8 +585,28 @@ function loadTeachersPage(container) {
 }
 
 async function loadTeachersData() {
-    const mockTeachers = generateMockTeachers(30);
-    renderTeachersTable(mockTeachers);
+    try {
+        const response = await fetch(`${API_URL}/teachers`, {
+            headers: {
+                'Authorization': `Bearer ${authToken}`
+            }
+        });
+        
+        if (response.ok) {
+            const teachers = await response.json();
+            allTeachersData = Array.isArray(teachers) ? teachers : (teachers.teachers || []);
+            renderTeachersTable(allTeachersData);
+        } else {
+            const mockTeachers = generateMockTeachers(30);
+            allTeachersData = mockTeachers;
+            renderTeachersTable(mockTeachers);
+        }
+    } catch (error) {
+        console.error('Error loading teachers:', error);
+        const mockTeachers = generateMockTeachers(30);
+        allTeachersData = mockTeachers;
+        renderTeachersTable(mockTeachers);
+    }
 }
 
 function generateMockTeachers(count) {
@@ -1048,9 +1086,206 @@ function quickAction(action) {
 }
 
 function handleGlobalSearch(event) {
-    const query = event.target.value;
-    console.log('Searching for:', query);
+    const query = event.target.value.trim().toLowerCase();
+    const dropdown = document.getElementById('search-results-dropdown');
+    
+    // Hide dropdown if query is empty
+    if (!query) {
+        dropdown.innerHTML = '';
+        dropdown.style.display = 'none';
+        return;
+    }
+    
+    // Perform search if we have data
+    const results = performGlobalSearch(query);
+    
+    if (results.length === 0) {
+        dropdown.innerHTML = '<div style="padding: 16px; text-align: center; color: var(--text-secondary);">No results found</div>';
+        dropdown.style.display = 'block';
+        return;
+    }
+    
+    // Build results HTML
+    let resultHTML = '<div style="padding: 8px;">';
+    
+    // Group results by type
+    const studentResults = results.filter(r => r.type === 'student');
+    const teacherResults = results.filter(r => r.type === 'teacher');
+    const classResults = results.filter(r => r.type === 'class');
+    
+    // Display students
+    if (studentResults.length > 0) {
+        resultHTML += '<div style="padding: 8px 0;"><div style="padding: 8px 12px; font-size: 12px; font-weight: 600; color: var(--text-secondary); text-transform: uppercase;">Students</div>';
+        studentResults.forEach(result => {
+            resultHTML += `
+                <div class="search-result-item" data-id="${result.id}" data-type="student" style="padding: 12px 12px; cursor: pointer; border-radius: 6px; transition: background 0.2s;" onmouseover="this.style.background='var(--bg-secondary)'" onmouseout="this.style.background='transparent'">
+                    <div style="font-weight: 500; color: var(--text-primary);">${result.highlight}</div>
+                    <div style="font-size: 12px; color: var(--text-secondary); margin-top: 4px;">${result.subtitle}</div>
+                </div>
+            `;
+        });
+        resultHTML += '</div>';
+    }
+    
+    // Display teachers
+    if (teacherResults.length > 0) {
+        resultHTML += '<div style="padding: 8px 0; border-top: 1px solid var(--border-color);"><div style="padding: 8px 12px; font-size: 12px; font-weight: 600; color: var(--text-secondary); text-transform: uppercase;">Teachers</div>';
+        teacherResults.forEach(result => {
+            resultHTML += `
+                <div class="search-result-item" data-id="${result.id}" data-type="teacher" style="padding: 12px 12px; cursor: pointer; border-radius: 6px; transition: background 0.2s;" onmouseover="this.style.background='var(--bg-secondary)'" onmouseout="this.style.background='transparent'">
+                    <div style="font-weight: 500; color: var(--text-primary);">${result.highlight}</div>
+                    <div style="font-size: 12px; color: var(--text-secondary); margin-top: 4px;">${result.subtitle}</div>
+                </div>
+            `;
+        });
+        resultHTML += '</div>';
+    }
+    
+    // Display classes
+    if (classResults.length > 0) {
+        resultHTML += '<div style="padding: 8px 0; border-top: 1px solid var(--border-color);"><div style="padding: 8px 12px; font-size: 12px; font-weight: 600; color: var(--text-secondary); text-transform: uppercase;">Classes</div>';
+        classResults.forEach(result => {
+            resultHTML += `
+                <div class="search-result-item" data-id="${result.id}" data-type="class" style="padding: 12px 12px; cursor: pointer; border-radius: 6px; transition: background 0.2s;" onmouseover="this.style.background='var(--bg-secondary)'" onmouseout="this.style.background='transparent'">
+                    <div style="font-weight: 500; color: var(--text-primary);">${result.highlight}</div>
+                    <div style="font-size: 12px; color: var(--text-secondary); margin-top: 4px;">${result.subtitle}</div>
+                </div>
+            `;
+        });
+        resultHTML += '</div>';
+    }
+    
+    resultHTML += '</div>';
+    dropdown.innerHTML = resultHTML;
+    dropdown.style.display = 'block';
+    
+    // Add click handlers to results
+    dropdown.querySelectorAll('.search-result-item').forEach(item => {
+        item.addEventListener('click', () => {
+            const id = item.getAttribute('data-id');
+            const type = item.getAttribute('data-type');
+            handleSearchResultClick(type, id);
+        });
+    });
 }
+
+function performGlobalSearch(query) {
+    const results = [];
+    const maxResults = 10;
+    
+    // Helper function to check if text contains the query as consecutive characters
+    function containsConsecutive(text, query) {
+        text = text.toLowerCase();
+        let queryIndex = 0;
+        for (let i = 0; i < text.length; i++) {
+            if (text[i] === query[queryIndex]) {
+                queryIndex++;
+                if (queryIndex === query.length) {
+                    return true;
+                }
+            }
+        }
+        return false;
+    }
+    
+    // Helper function to highlight matched characters
+    function highlightMatch(text, query) {
+        const textLower = text.toLowerCase();
+        let queryIndex = 0;
+        let highlighted = '';
+        let lastIndex = 0;
+        
+        for (let i = 0; i < textLower.length; i++) {
+            if (queryIndex < query.length && textLower[i] === query[queryIndex]) {
+                highlighted += text.substring(lastIndex, i);
+                highlighted += `<mark style="background-color: #FCD34D; padding: 2px 4px; border-radius: 3px; font-weight: 600;">${text[i]}</mark>`;
+                lastIndex = i + 1;
+                queryIndex++;
+            }
+        }
+        highlighted += text.substring(lastIndex);
+        return highlighted;
+    }
+    
+    // Search students
+    allStudentsData.forEach(student => {
+        const fullName = `${student.firstName || ''} ${student.lastName || ''}`;
+        const studentId = student.studentId || '';
+        const email = student.email || '';
+        
+        if (containsConsecutive(fullName, query) || containsConsecutive(studentId, query) || containsConsecutive(email, query)) {
+            results.push({
+                type: 'student',
+                id: student._id,
+                highlight: highlightMatch(fullName, query),
+                subtitle: `${studentId} • Year ${student.yearGroup || 'N/A'}`,
+                name: fullName
+            });
+        }
+    });
+    
+    // Search teachers
+    allTeachersData.forEach(teacher => {
+        const fullName = `${teacher.firstName || ''} ${teacher.lastName || ''}`;
+        const email = teacher.email || '';
+        
+        if (containsConsecutive(fullName, query) || containsConsecutive(email, query)) {
+            results.push({
+                type: 'teacher',
+                id: teacher._id,
+                highlight: highlightMatch(fullName, query),
+                subtitle: teacher.subject || 'Teacher',
+                name: fullName
+            });
+        }
+    });
+    
+    // Search classes
+    allClassesData.forEach(cls => {
+        const className = cls.name || '';
+        
+        if (containsConsecutive(className, query)) {
+            results.push({
+                type: 'class',
+                id: cls._id,
+                highlight: highlightMatch(className, query),
+                subtitle: `${cls.yearGroup || 'N/A'} • ${cls.capacity || 0} students`,
+                name: className
+            });
+        }
+    });
+    
+    // Sort by relevance (exact matches first, then by type)
+    results.sort((a, b) => {
+        const aExact = a.name.toLowerCase() === query;
+        const bExact = b.name.toLowerCase() === query;
+        if (aExact && !bExact) return -1;
+        if (!aExact && bExact) return 1;
+        return 0;
+    });
+    
+    return results.slice(0, maxResults);
+}
+
+function handleSearchResultClick(type, id) {
+    // Clear the search and hide dropdown
+    const searchInput = document.getElementById('global-search');
+    searchInput.value = '';
+    const dropdown = document.getElementById('search-results-dropdown');
+    dropdown.style.display = 'none';
+    dropdown.innerHTML = '';
+    
+    // Navigate based on type
+    if (type === 'student') {
+        viewStudent(id);
+    } else if (type === 'teacher') {
+        viewTeacher(id);
+    } else if (type === 'class') {
+        // Navigate to class or show class details
+        console.log('View class:', id);
+    }
+}
+
 
 function logout() {
     localStorage.removeItem('adminToken');

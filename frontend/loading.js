@@ -43,6 +43,7 @@ class LoadingAnimation {
     // Try to play the video
     const videoOverlay = document.getElementById('loading-video-overlay');
     if (videoOverlay) {
+      videoOverlay.currentTime = 0;
       videoOverlay.play().catch(err => {
         console.log('Video autoplay failed, showing fallback');
         const fallback = overlay.querySelector('.loading-fallback');
@@ -51,6 +52,12 @@ class LoadingAnimation {
           videoOverlay.style.display = 'none';
         }
       });
+      
+      // Cut the video off after 0.8 seconds and hide the loading screen
+      setTimeout(() => {
+        videoOverlay.pause();
+        this.hide();
+      }, 800);
     }
   }
   

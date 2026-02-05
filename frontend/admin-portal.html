@@ -45,9 +45,11 @@
             </div>
             
             <div class="header-center">
-                <div class="search-bar">
+                <div class="search-bar" style="position: relative;">
                     <i class="fas fa-search"></i>
                     <input type="text" placeholder="Search students, teachers, classes..." id="global-search">
+                    <div id="search-results-dropdown" class="search-results-dropdown" style="display: none; position: absolute; top: 100%; left: 0; right: 0; background: white; border: 1px solid #e0e0e0; border-top: none; border-radius: 0 0 8px 8px; max-height: 400px; overflow-y: auto; z-index: 1000; box-shadow: 0 4px 12px rgba(0,0,0,0.15);">
+                    </div>
                 </div>
             </div>
             
