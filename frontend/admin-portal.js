@@ -57,7 +57,13 @@ function updateUserDisplay() {
         const userName = document.querySelector('.user-name');
         const userRole = document.querySelector('.user-role');
         
-        if (userName) userName.textContent = (currentUser.firstName || '') + ' ' + (currentUser.lastName || '') || currentUser.name || 'Admin User';
+        if (userName) {
+            const displayName = currentUser.name || 
+                               (currentUser.firstName && currentUser.lastName ? `${currentUser.firstName} ${currentUser.lastName}` : '') ||
+                               currentUser.firstName || 
+                               'Admin User';
+            userName.textContent = displayName;
+        }
         if (userRole) userRole.textContent = currentUser.role || currentUser.permissionLevel || 'Principal';
     }
 }

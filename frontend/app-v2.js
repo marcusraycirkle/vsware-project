@@ -1,6 +1,8 @@
 // ========== CONFIGURATION ==========
-// API_URL configuration
-const API_URL = window.location.hostname === 'localhost' ? 'http://localhost:5000/api' : `${window.location.protocol}//${window.location.host}/api`;
+// API_URL configuration (check if already declared by another script)
+if (typeof API_URL === 'undefined') {
+    var API_URL = window.location.hostname === 'localhost' ? 'http://localhost:5000/api' : `${window.location.protocol}//${window.location.host}/api`;
+}
 let currentUser = null;
 let authToken = null;
 let currentSchoolId = null;
@@ -372,6 +374,15 @@ async function login(email, pin) {
                 }
                 
                 console.log('🚀 API NAVIGATING TO:', nextPage);
+                
+                // Update URL to include user email in path for admin portal
+                if (nextPage === '/admin-portal.html') {
+                    const userEmail = currentUser.email.replace('@', '-at-').replace(/\./g, '-');
+                    nextPage = `/shannoncomp/admin/${userEmail}/dashboard`;
+                    console.log('📍 API UPDATED URL:', nextPage);
+                }
+                
+                // Navigate to portal
                 window.location.href = nextPage;
             }, 1500);
         } else {
@@ -447,7 +458,15 @@ function simulateDemoLogin(email, pin) {
                 }
                 
                 console.log('🚀 NAVIGATING TO:', nextPage);
-                // Keep loading screen visible and navigate
+                
+                // Update URL to include user email in path for admin portal
+                if (nextPage === '/admin-portal.html') {
+                    const userEmail = user.email.replace('@', '-at-').replace(/\./g, '-');
+                    nextPage = `/shannoncomp/admin/${userEmail}/dashboard`;
+                    console.log('📍 UPDATED URL:', nextPage);
+                }
+                
+                // Navigate to portal
                 window.location.href = nextPage;
                 
                 // The loading screen will stay visible for 1 second after page transition starts

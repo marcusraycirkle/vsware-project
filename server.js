@@ -255,6 +255,11 @@ app.get('/admin/:page', (req, res) => {
   res.sendFile(path.join(__dirname, 'frontend', 'admin-portal.html'));
 });
 
+// Admin portal with user email in path
+app.get('/shannoncomp/admin/:userEmail/:page', (req, res) => {
+  res.sendFile(path.join(__dirname, 'frontend', 'admin-portal.html'));
+});
+
 app.get('/secretary/:page', (req, res) => {
   res.sendFile(path.join(__dirname, 'frontend', 'secretary-portal.html'));
 });
