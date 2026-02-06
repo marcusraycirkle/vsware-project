@@ -327,6 +327,7 @@
 .subject-art { background: linear-gradient(135deg, #f43f5e, #fb7185); }
 .subject-music { background: linear-gradient(135deg, #ec4899, #f472b6); }
 .subject-computer { background: linear-gradient(135deg, #0ea5e9, #38bdf8); }
+.subject-study { background: linear-gradient(135deg, #64748b, #94a3b8); }
 
 /* ATTENDANCE */
 .attendance-stats-row {

@@ -33,31 +33,53 @@ const mockStudentsData = {
         lates: 3,
         absences: 8,
         timetable: {
+            // Monday - Full 9 periods
             'Monday-1': { subject: 'English', teacher: 'Eimear McMahon', room: 'B13', color: 'subject-english' },
             'Monday-2': { subject: 'Irish', teacher: 'Cathy Keane', room: 'C21', color: 'subject-irish' },
             'Monday-3': { subject: 'Mathematics', teacher: 'Finola Butler', room: 'N13', color: 'subject-math' },
             'Monday-4': { subject: 'Geography', teacher: 'Grace Killeen', room: 'E19', color: 'subject-geography' },
             'Monday-5': { subject: 'Business Studies', teacher: 'Emer Nugent', room: 'A17', color: 'subject-business' },
+            'Monday-6': { subject: 'German', teacher: 'Siobhan Hickey', room: 'B13', color: 'subject-german' },
+            'Monday-7': { subject: 'Physical Education', teacher: 'Irene Power', room: 'GYM', color: 'subject-pe' },
+            'Monday-8': { subject: 'Home Economics', teacher: 'Elaine Ahearn', room: 'B02', color: 'subject-home-ec' },
+            'Monday-9': { subject: 'Study Hall', teacher: 'Supervised Study', room: 'Library', color: 'subject-study' },
+            // Tuesday - Full 9 periods  
             'Tuesday-1': { subject: 'German', teacher: 'Siobhan Hickey', room: 'B13', color: 'subject-german' },
             'Tuesday-2': { subject: 'Home Economics', teacher: 'Elaine Ahearn', room: 'B02', color: 'subject-home-ec' },
             'Tuesday-3': { subject: 'Mathematics', teacher: 'Finola Butler', room: 'N14', color: 'subject-math' },
             'Tuesday-4': { subject: 'Irish', teacher: 'Cathy Keane', room: 'C17', color: 'subject-irish' },
             'Tuesday-5': { subject: 'English', teacher: 'Eimear McMahon', room: 'B08', color: 'subject-english' },
+            'Tuesday-6': { subject: 'Business Studies', teacher: 'Emer Nugent', room: 'A17', color: 'subject-business' },
+            'Tuesday-7': { subject: 'Geography', teacher: 'Grace Killeen', room: 'E19', color: 'subject-geography' },
+            'Tuesday-8': { subject: 'Wood Technology', teacher: 'James Kiley', room: 'B14', color: 'subject-wood-tech' },
+            'Tuesday-9': { subject: 'Music', teacher: 'Colm Mulryan', room: 'Music Room', color: 'subject-music' },
+            // Wednesday - 8 periods only
             'Wednesday-1': { subject: 'Wood Technology', teacher: 'James Kiley', room: 'B14', color: 'subject-wood-tech' },
             'Wednesday-2': { subject: 'Mathematics', teacher: 'Finola Butler', room: 'N14', color: 'subject-math' },
             'Wednesday-3': { subject: 'Geography', teacher: 'Grace Killeen', room: 'E19', color: 'subject-geography' },
             'Wednesday-4': { subject: 'Physical Education', teacher: 'Irene Power', room: 'GYM', color: 'subject-pe' },
             'Wednesday-5': { subject: 'German', teacher: 'Siobhan Hickey', room: 'B13', color: 'subject-german' },
+            'Wednesday-6': { subject: 'English', teacher: 'Eimear McMahon', room: 'B13', color: 'subject-english' },
+            'Wednesday-7': { subject: 'Irish', teacher: 'Cathy Keane', room: 'C21', color: 'subject-irish' },
+            'Wednesday-8': { subject: 'Business Studies', teacher: 'Emer Nugent', room: 'A17', color: 'subject-business' },
+            // Thursday - 8 periods only
             'Thursday-1': { subject: 'Business Studies', teacher: 'Emer Nugent', room: 'A17', color: 'subject-business' },
             'Thursday-2': { subject: 'English', teacher: 'Eimear McMahon', room: 'B13', color: 'subject-english' },
             'Thursday-3': { subject: 'Business Studies', teacher: 'Emer Nugent', room: 'A17', color: 'subject-business' },
             'Thursday-4': { subject: 'Geography', teacher: 'Grace Killeen', room: 'E19', color: 'subject-geography' },
             'Thursday-5': { subject: 'Irish', teacher: 'Cathy Keane', room: 'C17', color: 'subject-irish' },
+            'Thursday-6': { subject: 'Mathematics', teacher: 'Finola Butler', room: 'N14', color: 'subject-math' },
+            'Thursday-7': { subject: 'Physical Education', teacher: 'Irene Power', room: 'GYM', color: 'subject-pe' },
+            'Thursday-8': { subject: 'German', teacher: 'Siobhan Hickey', room: 'B13', color: 'subject-german' },
+            // Friday - 8 periods only
             'Friday-1': { subject: 'Home Economics', teacher: 'Elaine Ahearn', room: 'B02', color: 'subject-home-ec' },
             'Friday-2': { subject: 'Wood Technology', teacher: 'James Kiley', room: 'B14', color: 'subject-wood-tech' },
             'Friday-3': { subject: 'Physical Education', teacher: 'Irene Power', room: 'GYM', color: 'subject-pe' },
             'Friday-4': { subject: 'Mathematics', teacher: 'Finola Butler', room: 'N14', color: 'subject-math' },
-            'Friday-5': { subject: 'German', teacher: 'Siobhan Hickey', room: 'B13', color: 'subject-german' }
+            'Friday-5': { subject: 'German', teacher: 'Siobhan Hickey', room: 'B13', color: 'subject-german' },
+            'Friday-6': { subject: 'Irish', teacher: 'Cathy Keane', room: 'C21', color: 'subject-irish' },
+            'Friday-7': { subject: 'English', teacher: 'Eimear McMahon', room: 'B08', color: 'subject-english' },
+            'Friday-8': { subject: 'Geography', teacher: 'Grace Killeen', room: 'E19', color: 'subject-geography' }
         },
         assessments: {
             christmas2025: [
@@ -223,14 +245,20 @@ function generateTimetable() {
     
     const days = ['Monday', 'Tuesday', 'Wednesday', 'Thursday', 'Friday'];
     const periods = [
-        { label: 'Period 1', time: '09:00-09:40' },
-        { label: 'Period 2', time: '09:45-10:25' },
-        { label: 'Period 3', time: '10:30-11:10' },
-        { label: 'Period 4', time: '11:30-12:10' },
-        { label: 'Period 5', time: '12:15-12:55' }
+        { label: 'Period 1', time: '09:00-09:40', type: 'class' },
+        { label: 'Period 2', time: '09:40-10:20', type: 'class' },
+        { label: 'Period 3', time: '10:20-11:00', type: 'class' },
+        { label: 'Break', time: '11:00-11:15', type: 'break' },
+        { label: 'Period 4', time: '11:15-11:55', type: 'class' },
+        { label: 'Period 5', time: '11:55-12:35', type: 'class' },
+        { label: 'Period 6', time: '12:35-13:15', type: 'class' },
+        { label: 'Lunch', time: '13:15-14:00', type: 'lunch' },
+        { label: 'Period 7', time: '14:00-14:40', type: 'class' },
+        { label: 'Period 8', time: '14:40-15:20', type: 'class' },
+        { label: 'Period 9', time: '15:20-16:00', type: 'class', daysOnly: ['Monday', 'Tuesday'] }
     ];
     
-    let html = '<div class="timetable-grid">';
+    let html = '<div class="timetable-grid" style="grid-template-columns: 100px repeat(5, 1fr);">';
     
     // Header row
     html += '<div class="timetable-cell timetable-header-cell"></div>';
@@ -246,8 +274,44 @@ function generateTimetable() {
         </div>`;
         
         days.forEach(day => {
-            const key = `${day}-${pIndex + 1}`;
-            const classInfo = currentStudentData.timetable[key];
+            if (period.type === 'break' || period.type === 'lunch') {
+                // Show break/lunch cell
+                html += `<div class="timetable-cell">
+                    <div class="timetable-break ${period.type === 'lunch' ? 'timetable-lunch' : ''}">
+                        <i class="fas fa-${period.type === 'lunch' ? 'utensils' : 'coffee'}"></i> ${period.label}
+                    </div>
+                </div>`;
+            } else if (period.daysOnly && !period.daysOnly.includes(day)) {
+                // Empty cell for days that don't have this period
+                html += '<div class="timetable-cell"><div class="timetable-no-period">—</div></div>';
+            } else {
+                const key = `${day}-${pIndex + 1}`;
+                const classInfo = currentStudentData.timetable?.[key];
+                
+                if (classInfo) {
+                    const editableAttr = timetableEditMode ? `onclick="openEditTimetableModal('${key}')" style="cursor: pointer;"` : '';
+                    html += `<div class="timetable-cell">
+                        <div class="timetable-class ${classInfo.color}" ${editableAttr} data-key="${key}">
+                            <div class="class-subject">${classInfo.subject}</div>
+                            <div class="class-teacher">${classInfo.teacher}</div>
+                            <div class="class-room">Room ${classInfo.room}</div>
+                        </div>
+                    </div>`;
+                } else {
+                    const editableAttr = timetableEditMode ? `onclick="openEditTimetableModal('${key}')" style="cursor: pointer;"` : '';
+                    html += `<div class="timetable-cell">
+                        <div class="timetable-empty" ${editableAttr} data-key="${key}">
+                            ${timetableEditMode ? '<i class="fas fa-plus"></i><br>Add Class' : ''}
+                        </div>
+                    </div>`;
+                }
+            }
+        });
+    });
+    
+    html += '</div>';
+    container.innerHTML = html;
+}
             
             if (classInfo) {
                 const editableAttr = timetableEditMode ? `onclick="editTimetableCell('${key}')" style="cursor: pointer;"` : '';
@@ -302,43 +366,46 @@ function editTimetable() {
     document.getElementById('publish-timetable-btn').style.display = 'inline-flex';
     
     // Show edit UI hints
-    alert('Click on any class to edit it. Changes will be saved locally until you click "Publish Timetable".');
+    showAlert('Timetable Edit Mode', 'Click on any class to edit it. Changes will be saved locally until you click \"Publish Timetable\".', 'info');
     
     generateTimetable();
 }
 
-function editTimetableCell(key) {
-    const classInfo = editedTimetable[key] || {};
+// UPDATED: Open custom modal for timetable editing instead of browser prompts
+function openEditTimetableModal(key) {
+    if (!timetableEditMode) return;
     
-    const subject = prompt('Enter subject:', classInfo.subject || '');
-    if (subject === null) return;
+    const classInfo = editedTimetable[key] || currentStudentData.timetable[key] || {};
     
-    const room = prompt('Enter room number:', classInfo.room || '');
-    if (room === null) return;
-    
-    const teacher = prompt('Enter teacher name:', classInfo.teacher || '');
-    if (teacher === null) return;
-    
-    // Determine color based on subject
-    const color = getSubjectColor(subject);
-    
-    editedTimetable[key] = {
-        subject,
-        teacher,
-        room,
-        color
-    };
-    
-    // Update display
-    const cell = document.querySelector(`[data-key="${key}"]`);
-    if (cell) {
-        cell.className = `timetable-class ${color}`;
-        cell.innerHTML = `
-            <div class="class-subject">${subject}</div>
-            <div class="class-teacher">${teacher}</div>
-            <div class="class-room">Room ${room}</div>
-        `;
-    }
+    showPrompt('Edit Timetable Period', [
+        { name: 'subject', label: 'Subject', type: 'text', value: classInfo.subject || '', placeholder: 'e.g., Mathematics', required: true },
+        { name: 'teacher', label: 'Primary Teacher', type: 'text', value: classInfo.teacher || '', placeholder: 'e.g., Ms. Smith', required: true },
+        { name: 'room', label: 'Room', type: 'text', value: classInfo.room || '', placeholder: 'e.g., B13', required: false }
+    ], (values) => {
+        // Determine color based on subject
+        const color = getSubjectColor(values.subject);
+        
+        // Save to temporary edit storage
+        editedTimetable[key] = {
+            subject: values.subject,
+            teacher: values.teacher,
+            room: values.room,
+            color: color
+        };
+        
+        // Update display immediately
+        const cell = document.querySelector(`[data-key="${key}"]`);
+        if (cell) {
+            cell.className = `timetable-class ${color}`;
+            cell.innerHTML = `
+                <div class="class-subject">${values.subject}</div>
+                <div class="class-teacher">${values.teacher}</div>
+                <div class="class-room">Room ${values.room}</div>
+            `;
+        }
+        
+        showToast('Period updated successfully!', 'success');
+    });
 }
 
 function getSubjectColor(subject) {
@@ -357,6 +424,7 @@ function getSubjectColor(subject) {
     if (lowerSubject.includes('art')) return 'subject-art';
     if (lowerSubject.includes('music')) return 'subject-music';
     if (lowerSubject.includes('computer')) return 'subject-computer';
+    if (lowerSubject.includes('study')) return 'subject-study';
     return 'subject-english'; // default
 }
 
@@ -490,7 +558,7 @@ function loadAssessmentResults() {
 }
 
 function downloadResults() {
-    alert('Downloading assessment results...');
+    showToast('Downloading assessment results...', 'info', 2000);
     // In real implementation, generate PDF download
 }
 
@@ -532,7 +600,11 @@ function loadBehaviourReports() {
 function viewBehaviourDetail(id) {
     const report = currentStudentData.behaviourReports.find(r => r.id === id);
     if (report) {
-        alert(`Full Behaviour Report:\n\n${report.comment}\n\nParent Response: ${report.parentResponse || 'No response yet'}`);
+        showAlert(
+            'Behaviour Report Details',
+            `<strong>Report:</strong><br>${report.comment}<br><br><strong>Parent Response:</strong><br>${report.parentResponse || 'No response yet'}`,
+            report.type === 'positive' ? 'success' : 'warning'
+        );
     }
 }
 
@@ -663,7 +735,7 @@ function saveBook() {
     const type = document.getElementById('book-type').value;
     
     if (!barcode || !title) {
-        alert('Please fill in all fields');
+        showToast('Please fill in all required fields', 'error');
         return;
     }
     
@@ -682,25 +754,30 @@ function saveBook() {
     loadBooks();
     
     // Show success
-    alert('Book added successfully!');
+    showToast('Book added successfully!', 'success');
 }
 
 function removeBook(bookId) {
-    if (!confirm('Remove this book/supply?')) return;
-    
-    currentStudentData.books = currentStudentData.books.filter(b => b.id !== bookId);
-    loadBooks();
+    showConfirm(
+        'Remove Book/Supply',
+        'Are you sure you want to remove this item from the student\'s books and supplies list?',
+        () => {
+            currentStudentData.books = currentStudentData.books.filter(b => b.id !== bookId);
+            loadBooks();
+            showToast('Book removed successfully', 'success');
+        }
+    );
 }
 
 function addBehaviourReport() {
-    alert('Add Behaviour Report functionality - opens form to create new report');
+    showAlert('Add Behaviour Report', 'This feature will open a form to create a new behaviour report for the student.', 'info');
 }
 
 // Make functions globally available
 window.viewStudent = viewStudent;
 window.closeStudentDetail = closeStudentDetail;
 window.editTimetable = editTimetable;
-window.editTimetableCell = editTimetableCell;
+window.openEditTimetableModal = openEditTimetableModal;
 window.publishTimetable = publishTimetable;
 window.loadAssessmentResults = loadAssessmentResults;
 window.downloadResults = downloadResults;
