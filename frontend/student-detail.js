@@ -149,11 +149,11 @@ const mockStudentsData = {
 // Open student detail view
 function viewStudent(studentId) {
     // In real implementation, fetch from API
-    // For now, use mock data
-    currentStudentData = mockStudentsData['24corykilmartin@shannoncomp.ie'];
+// For demo, check if we have this student in mockStudentsData, otherwise use Cory as default
+    currentStudentData = mockStudentsData[studentId] || mockStudentsData['24corykilmartin@shannoncomp.ie'];
     
     if (!currentStudentData) {
-        alert('Student not found');
+        showAlert('Student Not Found', 'The requested student could not be found in the system.', 'error');
         return;
     }
     

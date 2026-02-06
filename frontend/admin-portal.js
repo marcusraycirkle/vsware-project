@@ -323,6 +323,9 @@ function loadPageContent(pageName, container) {
         case 'messages':
             loadMessagesPage(container);
             break;
+        case 'emails':
+            loadEmailsPage(container);
+            break;
         case 'announcements':
             loadAnnouncementsPage(container);
             break;
@@ -889,7 +892,7 @@ function loadSchoolSettingsPage(container) {
             
             <div class="dashboard-card">
                 <div class="card-header">
-                    <h3><i class="fas fa-calendar"></i> Academic Year</h3>
+                    <h3><i class="fas fa-calendar"></i> Academic Year & Terms</h3>
                 </div>
                 <div style="padding: 24px;">
                     <div style="margin-bottom: 20px;">
@@ -897,14 +900,46 @@ function loadSchoolSettingsPage(container) {
                         <input type="text" value="2025-2026" style="width: 100%; padding: 12px; border: 1px solid var(--border-color); border-radius: 8px;">
                     </div>
                     
-                    <div style="margin-bottom: 20px;">
-                        <label style="display: block; font-size: 13px; font-weight: 600; margin-bottom: 8px; color: var(--text-secondary);">Term Start Date</label>
-                        <input type="date" value="2025-09-01" style="width: 100%; padding: 12px; border: 1px solid var(--border-color); border-radius: 8px;">
+                    <div style="border-top: 2px solid var(--border-color); padding-top: 20px; margin-top: 20px;">
+                        <h4 style="font-size: 14px; font-weight: 600; margin-bottom: 16px; color: var(--text-primary);"><i class="fas fa-calendar-day"></i> Term 1</h4>
+                        <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 16px; margin-bottom: 20px;">
+                            <div>
+                                <label style="display: block; font-size: 13px; font-weight: 600; margin-bottom: 8px; color: var(--text-secondary);">Start Date</label>
+                                <input type="date" id="term1-start" value="2025-09-01" style="width: 100%; padding: 12px; border: 1px solid var(--border-color); border-radius: 8px;">
+                            </div>
+                            <div>
+                                <label style="display: block; font-size: 13px; font-weight: 600; margin-bottom: 8px; color: var(--text-secondary);">End Date</label>
+                                <input type="date" id="term1-end" value="2025-12-22" style="width: 100%; padding: 12px; border: 1px solid var(--border-color); border-radius: 8px;">
+                            </div>
+                        </div>
                     </div>
                     
-                    <div>
-                        <label style="display: block; font-size: 13px; font-weight: 600; margin-bottom: 8px; color: var(--text-secondary);">Term End Date</label>
-                        <input type="date" value="2026-06-30" style="width: 100%; padding: 12px; border: 1px solid var(--border-color); border-radius: 8px;">
+                    <div style="border-top: 2px solid var(--border-color); padding-top: 20px; margin-top: 20px;">
+                        <h4 style="font-size: 14px; font-weight: 600; margin-bottom: 16px; color: var(--text-primary);"><i class="fas fa-calendar-day"></i> Term 2</h4>
+                        <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 16px; margin-bottom: 20px;">
+                            <div>
+                                <label style="display: block; font-size: 13px; font-weight: 600; margin-bottom: 8px; color: var(--text-secondary);">Start Date</label>
+                                <input type="date" id="term2-start" value="2026-01-06" style="width: 100%; padding: 12px; border: 1px solid var(--border-color); border-radius: 8px;">
+                            </div>
+                            <div>
+                                <label style="display: block; font-size: 13px; font-weight: 600; margin-bottom: 8px; color: var(--text-secondary);">End Date</label>
+                                <input type="date" id="term2-end" value="2026-03-27" style="width: 100%; padding: 12px; border: 1px solid var(--border-color); border-radius: 8px;">
+                            </div>
+                        </div>
+                    </div>
+                    
+                    <div style="border-top: 2px solid var(--border-color); padding-top: 20px; margin-top: 20px;">
+                        <h4 style="font-size: 14px; font-weight: 600; margin-bottom: 16px; color: var(--text-primary);"><i class="fas fa-calendar-day"></i> Term 3</h4>
+                        <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 16px;">
+                            <div>
+                                <label style="display: block; font-size: 13px; font-weight: 600; margin-bottom: 8px; color: var(--text-secondary);">Start Date</label>
+                                <input type="date" id="term3-start" value="2026-04-13" style="width: 100%; padding: 12px; border: 1px solid var(--border-color); border-radius: 8px;">
+                            </div>
+                            <div>
+                                <label style="display: block; font-size: 13px; font-weight: 600; margin-bottom: 8px; color: var(--text-secondary);">End Date</label>
+                                <input type="date" id="term3-end" value="2026-06-30" style="width: 100%; padding: 12px; border: 1px solid var(--border-color); border-radius: 8px;">
+                            </div>
+                        </div>
                     </div>
                 </div>
             </div>
@@ -946,8 +981,8 @@ function loadUserManagementPage(container) {
                     </thead>
                     <tbody>
                         <tr style="border-bottom: 1px solid var(--border-color);">
-                            <td style="padding: 16px; font-size: 14px; color: var(--text-primary);">Admin User</td>
-                            <td style="padding: 16px; font-size: 14px; color: var(--text-secondary);">admin@school.ie</td>
+                            <td style="padding: 16px; font-size: 14px; color: var(--text-primary);">Michael Murphy</td>
+                            <td style="padding: 16px; font-size: 14px; color: var(--text-secondary);">m.murphy@school.ie</td>
                             <td style="padding: 16px;">
                                 <span style="padding: 4px 12px; border-radius: 12px; font-size: 12px; font-weight: 600; background: #DBEAFE; color: #1E40AF;">Principal</span>
                             </td>
@@ -955,6 +990,70 @@ function loadUserManagementPage(container) {
                                 <span style="padding: 4px 12px; border-radius: 12px; font-size: 12px; font-weight: 600; background: #D1FAE5; color: #065F46;">Active</span>
                             </td>
                             <td style="padding: 16px; font-size: 14px; color: var(--text-secondary);">Today, 9:30 AM</td>
+                            <td style="padding: 16px; text-align: right;">
+                                <button style="padding: 8px 12px; background: var(--bg-secondary); color: var(--text-primary); border: none; border-radius: 6px; cursor: pointer; margin-right: 4px;">
+                                    <i class="fas fa-edit"></i>
+                                </button>
+                            </td>
+                        </tr>
+                        <tr style="border-bottom: 1px solid var(--border-color);">
+                            <td style="padding: 16px; font-size: 14px; color: var(--text-primary);">Sarah O'Connor</td>
+                            <td style="padding: 16px; font-size: 14px; color: var(--text-secondary);">s.oconnor@school.ie</td>
+                            <td style="padding: 16px;">
+                                <span style="padding: 4px 12px; border-radius: 12px; font-size: 12px; font-weight: 600; background: #E0E7FF; color: #3730A3;">Deputy Principal</span>
+                            </td>
+                            <td style="padding: 16px;">
+                                <span style="padding: 4px 12px; border-radius: 12px; font-size: 12px; font-weight: 600; background: #D1FAE5; color: #065F46;">Active</span>
+                            </td>
+                            <td style="padding: 16px; font-size: 14px; color: var(--text-secondary);">Today, 8:45 AM</td>
+                            <td style="padding: 16px; text-align: right;">
+                                <button style="padding: 8px 12px; background: var(--bg-secondary); color: var(--text-primary); border: none; border-radius: 6px; cursor: pointer; margin-right: 4px;">
+                                    <i class="fas fa-edit"></i>
+                                </button>
+                            </td>
+                        </tr>
+                        <tr style="border-bottom: 1px solid var(--border-color);">
+                            <td style="padding: 16px; font-size: 14px; color: var(--text-primary);">Mary Kelly</td>
+                            <td style="padding: 16px; font-size: 14px; color: var(--text-secondary);">m.kelly@school.ie</td>
+                            <td style="padding: 16px;">
+                                <span style="padding: 4px 12px; border-radius: 12px; font-size: 12px; font-weight: 600; background: #FEF3C7; color: #92400E;">Secretary</span>
+                            </td>
+                            <td style="padding: 16px;">
+                                <span style="padding: 4px 12px; border-radius: 12px; font-size: 12px; font-weight: 600; background: #D1FAE5; color: #065F46;">Active</span>
+                            </td>
+                            <td style="padding: 16px; font-size: 14px; color: var(--text-secondary);">Yesterday, 4:20 PM</td>
+                            <td style="padding: 16px; text-align: right;">
+                                <button style="padding: 8px 12px; background: var(--bg-secondary); color: var(--text-primary); border: none; border-radius: 6px; cursor: pointer; margin-right: 4px;">
+                                    <i class="fas fa-edit"></i>
+                                </button>
+                            </td>
+                        </tr>
+                        <tr style="border-bottom: 1px solid var(--border-color);">
+                            <td style="padding: 16px; font-size: 14px; color: var(--text-primary);">Tom Brennan</td>
+                            <td style="padding: 16px; font-size: 14px; color: var(--text-secondary);">t.brennan@school.ie</td>
+                            <td style="padding: 16px;">
+                                <span style="padding: 4px 12px; border-radius: 12px; font-size: 12px; font-weight: 600; background: #FED7AA; color: #7C2D12;">SNA</span>
+                            </td>
+                            <td style="padding: 16px;">
+                                <span style="padding: 4px 12px; border-radius: 12px; font-size: 12px; font-weight: 600; background: #D1FAE5; color: #065F46;">Active</span>
+                            </td>
+                            <td style="padding: 16px; font-size: 14px; color: var(--text-secondary);">Today, 7:15 AM</td>
+                            <td style="padding: 16px; text-align: right;">
+                                <button style="padding: 8px 12px; background: var(--bg-secondary); color: var(--text-primary); border: none; border-radius: 6px; cursor: pointer; margin-right: 4px;">
+                                    <i class="fas fa-edit"></i>
+                                </button>
+                            </td>
+                        </tr>
+                        <tr style="border-bottom: 1px solid var(--border-color);">
+                            <td style="padding: 16px; font-size: 14px; color: var(--text-primary);">Patrick Walsh</td>
+                            <td style="padding: 16px; font-size: 14px; color: var(--text-secondary);">p.walsh@school.ie</td>
+                            <td style="padding: 16px;">
+                                <span style="padding: 4px 12px; border-radius: 12px; font-size: 12px; font-weight: 600; background: #E5E7EB; color: #374151;">Caretaker</span>
+                            </td>
+                            <td style="padding: 16px;">
+                                <span style="padding: 4px 12px; border-radius: 12px; font-size: 12px; font-weight: 600; background: #D1FAE5; color: #065F46;">Active</span>
+                            </td>
+                            <td style="padding: 16px; font-size: 14px; color: var(--text-secondary);">Today, 6:30 AM</td>
                             <td style="padding: 16px; text-align: right;">
                                 <button style="padding: 8px 12px; background: var(--bg-secondary); color: var(--text-primary); border: none; border-radius: 6px; cursor: pointer; margin-right: 4px;">
                                     <i class="fas fa-edit"></i>
@@ -1067,15 +1166,172 @@ function loadStaffPage(container) {
 }
 
 function loadMessagesPage(container) {
-    container.innerHTML = '<div class="page-header"><h2 class="page-title">Messages</h2></div><div class="dashboard-card"><div style="padding: 40px; text-align: center;"><i class="fas fa-envelope" style="font-size: 48px; color: var(--gray-300);"></i><h3 style="margin-top: 16px; color: var(--text-secondary);">Messaging features coming soon</h3></div></div>';
+    container.innerHTML = `
+        <div class="page-header">
+            <h2 class="page-title"><i class="fas fa-envelope"></i> Messages</h2>
+            <button class="btn-primary" onclick="openComposeModal('message')">
+                <i class="fas fa-plus"></i> Compose Message
+            </button>
+        </div>
+        
+        <div class="communication-container">
+            <div class="comm-sidebar">
+                <button class="comm-sidebar-btn active" onclick="switchCommTab('incoming')">
+                    <i class="fas fa-inbox"></i> Incoming
+                </button>
+                <button class="comm-sidebar-btn" onclick="switchCommTab('drafts')">
+                    <i class="fas fa-file"></i> Drafts
+                </button>
+                <button class="comm-sidebar-btn" onclick="switchCommTab('sent')">
+                    <i class="fas fa-paper-plane"></i> Sent
+                </button>
+                <button class="comm-sidebar-btn" onclick="switchCommTab('deleted')">
+                    <i class="fas fa-trash"></i> Deleted
+                </button>
+            </div>
+            <div class="comm-main" id="comm-content">
+                <!-- Messages will be loaded here -->
+            </div>
+        </div>
+    `;
+    
+    // Initialize communication system for messages
+    if (typeof initCommunicationSystem === 'function') {
+        setTimeout(() => initCommunicationSystem(), 100);
+    }
+}
+
+function loadEmailsPage(container) {
+    container.innerHTML = `
+        <div class="page-header">
+            <h2 class="page-title"><i class="fas fa-paper-plane"></i> Emails</h2>
+            <button class="btn-primary" onclick="openComposeModal('email')">
+                <i class="fas fa-plus"></i> Compose Email
+            </button>
+        </div>
+        
+        <div class="communication-container">
+            <div class="comm-sidebar">
+                <button class="comm-sidebar-btn active" onclick="switchCommTab('incoming')">
+                    <i class="fas fa-inbox"></i> Incoming
+                </button>
+                <button class="comm-sidebar-btn" onclick="switchCommTab('drafts')">
+                    <i class="fas fa-file"></i> Drafts
+                </button>
+                <button class="comm-sidebar-btn" onclick="switchCommTab('sent')">
+                    <i class="fas fa-paper-plane"></i> Sent
+                </button>
+                <button class="comm-sidebar-btn" onclick="switchCommTab('deleted')">
+                    <i class="fas fa-trash"></i> Deleted
+                </button>
+            </div>
+            <div class="comm-main" id="comm-content">
+                <!-- Emails will be loaded here -->
+            </div>
+        </div>
+    `;
+    
+    // Initialize communication system for emails
+    if (typeof switchCommType === 'function') {
+        setTimeout(() => switchCommType('emails'), 100);
+    }
 }
 
 function loadAnnouncementsPage(container) {
-    container.innerHTML = '<div class="page-header"><h2 class="page-title">Announcements</h2></div><div class="dashboard-card"><div style="padding: 40px; text-align: center;"><i class="fas fa-bullhorn" style="font-size: 48px; color: var(--gray-300);"></i><h3 style="margin-top: 16px; color: var(--text-secondary);">Announcement features coming soon</h3></div></div>';
+    container.innerHTML = `
+        <div class="page-header">
+            <h2 class="page-title"><i class="fas fa-bullhorn"></i> Announcements</h2>
+            <button class="btn-primary" onclick="openComposeModal('announcement')">
+                <i class="fas fa-plus"></i> New Announcement
+            </button>
+        </div>
+        
+        <div id="comm-content" style="padding: 2rem;">
+            <!-- Announcements will be loaded here -->
+        </div>
+    `;
+    
+    // Initialize communication system for announcements
+    if (typeof switchCommType === 'function') {
+        setTimeout(() => switchCommType('announcements'), 100);
+    }
 }
 
 function loadIntegrationsPage(container) {
-    container.innerHTML = '<div class="page-header"><h2 class="page-title">Integrations</h2></div><div class="dashboard-card"><div style="padding: 40px; text-align: center;"><i class="fas fa-plug" style="font-size: 48px; color: var(--gray-300);"></i><h3 style="margin-top: 16px; color: var(--text-secondary);">Integration features coming soon</h3></div></div>';
+    container.innerHTML = `
+        <div class="page-header">
+            <h2 class="page-title"><i class="fas fa-plug"></i> Integrations</h2>
+            <p class="page-subtitle">Connect external services to enhance your school management</p>
+        </div>
+        
+        <div class="dashboard-grid" style="grid-template-columns: repeat(auto-fill, minmax(350px, 1fr));">
+            <!-- SumUp Payment Integration -->
+            <div class="dashboard-card" style="position: relative;">
+                <div style="padding: 24px;">
+                    <div style="display: flex; align-items: center; gap: 16px; margin-bottom: 16px;">
+                        <div style="width: 60px; height: 60px; border-radius: 12px; background: linear-gradient(135deg, #00c9ff 0%, #92fe9d 100%); display: flex; align-items: center; justify-content: center;">
+                            <i class="fas fa-credit-card" style="font-size: 28px; color: white;"></i>
+                        </div>
+                        <div>
+                            <h3 style="font-size: 18px; font-weight: 600; margin-bottom: 4px;">SumUp Payments</h3>
+                            <span style="font-size: 12px; color: var(--text-secondary); background: #fef3c7; padding: 4px 8px; border-radius: 4px; font-weight: 600;">Coming Soon</span>
+                        </div>
+                    </div>
+                    <p style="color: var(--text-secondary); margin-bottom: 16px; line-height: 1.6;">Connect your SumUp account to accept payments for school fees, trips, and events directly through the portal.</p>
+                    <button class="btn-secondary" disabled style="width: 100%; opacity: 0.6; cursor: not-allowed;">
+                        <i class="fas fa-link"></i> Connect SumUp
+                    </button>
+                </div>
+            </div>
+            
+            <!-- Microsoft Suite Integration -->
+            <div class="dashboard-card" style="position: relative;">
+                <div style="padding: 24px;">
+                    <div style="display: flex; align-items: center; gap: 16px; margin-bottom: 16px;">
+                        <div style="width: 60px; height: 60px; border-radius: 12px; background: linear-gradient(135deg, #0078d4 0%, #50e6ff 100%); display: flex; align-items: center; justify-content: center;">
+                            <i class="fab fa-microsoft" style="font-size: 28px; color: white;"></i>
+                        </div>
+                        <div>
+                            <h3 style="font-size: 18px; font-weight: 600; margin-bottom: 4px;">Microsoft Suite</h3>
+                            <span style="font-size: 12px; color: var(--text-secondary); background: #fef3c7; padding: 4px 8px; border-radius: 4px; font-weight: 600;">Coming Soon</span>
+                        </div>
+                    </div>
+                    <p style="color: var(--text-secondary); margin-bottom: 16px; line-height: 1.6;">Connect all your favorite Microsoft apps in one place with Microsoft Suite integration - Teams, OneDrive, Outlook, and more.</p>
+                    <button class="btn-secondary" disabled style="width: 100%; opacity: 0.6; cursor: not-allowed;">
+                        <i class="fas fa-link"></i> Connect Microsoft
+                    </button>
+                </div>
+            </div>
+            
+            <!-- Google Sheets Integration (existing) -->
+            <div class="dashboard-card" style="position: relative;">
+                <div style="padding: 24px;">
+                    <div style="display: flex; align-items: center; gap: 16px; margin-bottom: 16px;">
+                        <div style="width: 60px; height: 60px; border-radius: 12px; background: linear-gradient(135deg, #34a853 0%, #fbbc04 100%); display: flex; align-items: center; justify-content: center;">
+                            <i class="fab fa-google" style="font-size: 28px; color: white;"></i>
+                        </div>
+                        <div>
+                            <h3 style="font-size: 18px; font-weight: 600; margin-bottom: 4px;">Google Sheets</h3>
+                            <span style="font-size: 12px; color: var(--text-secondary); background: #d1fae5; padding: 4px 8px; border-radius: 4px; font-weight: 600;">Available</span>
+                        </div>
+                    </div>
+                    <p style="color: var(--text-secondary); margin-bottom: 16px; line-height: 1.6;">Sync enrollment data directly from Google Sheets for easy management and bulk imports.</p>
+                    <button class="btn-primary" style="width: 100%;">
+                        <i class="fas fa-check-circle"></i> Connected
+                    </button>
+                </div>
+            </div>
+            
+            <!-- More integrations coming soon -->
+            <div class="dashboard-card" style="position: relative; border: 2px dashed var(--border-color); background: var(--gray-50);">
+                <div style="padding: 40px; text-align: center;">
+                    <i class="fas fa-plus-circle" style="font-size: 48px; color: var(--gray-300); margin-bottom: 16px;"></i>
+                    <h3 style="font-size: 16px; font-weight: 600; margin-bottom: 8px; color: var(--text-secondary);">More Integrations Coming Soon</h3>
+                    <p style="font-size: 14px; color: var(--text-secondary);">We're working on bringing you more powerful integrations</p>
+                </div>
+            </div>
+        </div>
+    `;
 }
 
 // ========== UI INTERACTIONS ==========

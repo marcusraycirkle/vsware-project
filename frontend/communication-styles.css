@@ -1,0 +1,429 @@
+/* COMMUNICATION SYSTEM STYLES */
+/* Messages, Emails, and Announcements */
+
+.communication-container {
+    display: grid;
+    grid-template-columns: 250px 1fr;
+    gap: 1.5rem;
+    height: calc(100vh - 200px);
+}
+
+.comm-sidebar {
+    background: white;
+    border-radius: 12px;
+    padding: 1rem;
+    border: 2px solid #e5e7eb;
+    overflow-y: auto;
+}
+
+.comm-sidebar-btn {
+    width: 100%;
+    padding: 0.75rem 1rem;
+    border: none;
+    background: transparent;
+    text-align: left;
+    border-radius: 8px;
+    cursor: pointer;
+    display: flex;
+    align-items: center;
+    gap: 0.75rem;
+    color: #6b7280;
+    font-weight: 500;
+    transition: all 0.2s;
+    margin-bottom: 0.5rem;
+}
+
+.comm-sidebar-btn:hover {
+    background: #f3f4f6;
+    color: #1f2937;
+}
+
+.comm-sidebar-btn.active {
+    background: linear-gradient(135deg, #667eea, #764ba2);
+    color: white;
+}
+
+.comm-sidebar-btn .badge {
+    margin-left: auto;
+    background: #ef4444;
+    color: white;
+    padding: 0.125rem 0.5rem;
+    border-radius: 10px;
+    font-size: 0.75rem;
+    font-weight: 700;
+}
+
+.comm-main {
+    background: white;
+    border-radius: 12px;
+    border: 2px solid #e5e7eb;
+    display: flex;
+    flex-direction: column;
+    overflow: hidden;
+}
+
+.comm-header {
+    padding: 1.5rem;
+    border-bottom: 2px solid #e5e7eb;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+}
+
+.comm-header h2 {
+    margin: 0;
+    color: #1f2937;
+    font-size: 1.5rem;
+}
+
+.comm-content {
+    flex: 1;
+    overflow-y: auto;
+    padding: 1.5rem;
+}
+
+/* MESSAGE LIST */
+.message-list-item {
+    padding: 1rem;
+    border-bottom: 1px solid #e5e7eb;
+    cursor: pointer;
+    transition: all 0.2s;
+    display: flex;
+    gap: 1rem;
+}
+
+.message-list-item:hover {
+    background: #f9fafb;
+}
+
+.message-list-item.unread {
+    background: #f0f4ff;
+    font-weight: 600;
+}
+
+.message-avatar {
+    width: 48px;
+    height: 48px;
+    border-radius: 50%;
+    background: linear-gradient(135deg, #667eea, #764ba2);
+    color: white;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-weight: 700;
+    font-size: 1.1rem;
+    flex-shrink: 0;
+}
+
+.message-details {
+    flex: 1;
+    min-width: 0;
+}
+
+.message-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-bottom: 0.25rem;
+}
+
+.message-sender {
+    font-weight: 600;
+    color: #1f2937;
+}
+
+.message-time {
+    font-size: 0.875rem;
+    color: #6b7280;
+}
+
+.message-subject {
+    font-weight: 600;
+    color: #1f2937;
+    margin-bottom: 0.25rem;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    white-space: nowrap;
+}
+
+.message-preview {
+    font-size: 0.875rem;
+    color: #6b7280;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    white-space: nowrap;
+}
+
+/* COMPOSE MODAL */
+.compose-modal {
+    position: fixed;
+    top: 0;
+    left: 0;
+    right: 0;
+    bottom: 0;
+    background: rgba(0, 0, 0, 0.5);
+    backdrop-filter: blur(4px);
+    z-index: 11000;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    animation: fadeIn 0.3s ease;
+}
+
+.compose-container {
+    background: white;
+    border-radius: 16px;
+    width: 90%;
+    max-width: 800px;
+    max-height: 90vh;
+    display: flex;
+    flex-direction: column;
+    box-shadow: 0 20px 60px rgba(0, 0, 0, 0.3);
+}
+
+.compose-header {
+    padding: 1.5rem;
+    border-bottom: 2px solid #e5e7eb;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+}
+
+.compose-header h3 {
+    margin: 0;
+    color: #1f2937;
+}
+
+.compose-body {
+    flex: 1;
+    overflow-y: auto;
+    padding: 1.5rem;
+}
+
+.compose-field {
+    margin-bottom: 1rem;
+}
+
+.compose-field label {
+    display: block;
+    margin-bottom: 0.5rem;
+    font-weight: 600;
+    color: #374151;
+}
+
+.compose-field input,
+.compose-field select,
+.compose-field textarea {
+    width: 100%;
+    padding: 0.75rem;
+    border: 2px solid #e5e7eb;
+    border-radius: 8px;
+    font-family: inherit;
+    transition: all 0.2s;
+}
+
+.compose-field input:focus,
+.compose-field select:focus,
+.compose-field textarea:focus {
+    outline: none;
+    border-color: #667eea;
+}
+
+.compose-field textarea {
+    min-height: 200px;
+    resize: vertical;
+}
+
+/* MARKDOWN TOOLBAR */
+.markdown-toolbar {
+    display: flex;
+    gap: 0.5rem;
+    margin-bottom: 0.5rem;
+    padding: 0.5rem;
+    background: #f9fafb;
+    border-radius: 8px;
+    flex-wrap: wrap;
+}
+
+.md-btn {
+    padding: 0.5rem 0.75rem;
+    border: 1px solid #e5e7eb;
+    background: white;
+    border-radius: 6px;
+    cursor: pointer;
+    font-weight: 600;
+    color: #6b7280;
+    transition: all 0.2s;
+}
+
+.md-btn:hover {
+    background: #f3f4f6;
+    color: #1f2937;
+}
+
+.compose-footer {
+    padding: 1.5rem;
+    border-top: 2px solid #e5e7eb;
+    display: flex;
+    gap: 1rem;
+    justify-content: flex-end;
+}
+
+/* RECIPIENT CHIPS */
+.recipient-chips {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 0.5rem;
+    margin-top: 0.5rem;
+}
+
+.recipient-chip {
+    background: #667eea;
+    color: white;
+    padding: 0.5rem 0.75rem;
+    border-radius: 20px;
+    display: flex;
+    align-items: center;
+    gap: 0.5rem;
+    font-size: 0.875rem;
+}
+
+.recipient-chip button {
+    background: rgba(255, 255, 255, 0.3);
+    border: none;
+    color: white;
+    width: 20px;
+    height: 20px;
+    border-radius: 50%;
+    cursor: pointer;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+}
+
+/* MESSAGE VIEW */
+.message-view-container {
+    max-width: 800px;
+    margin: 0 auto;
+}
+
+.message-view-header {
+    padding: 2rem;
+    border-bottom: 2px solid #e5e7eb;
+}
+
+.message-view-subject {
+    font-size: 1.75rem;
+    font-weight: 700;
+    color: #1f2937;
+    margin: 0 0 1rem 0;
+}
+
+.message-view-meta {
+    display: flex;
+    align-items: center;
+    gap: 1rem;
+}
+
+.message-view-body {
+    padding: 2rem;
+    line-height: 1.6;
+    color: #374151;
+}
+
+.message-view-body p {
+    margin-bottom: 1rem;
+}
+
+/* ANNOUNCEMENT CARD */
+.announcement-card {
+    background: white;
+    border: 2px solid #e5e7eb;
+    border-radius: 12px;
+    padding: 1.5rem;
+    margin-bottom: 1rem;
+    transition: all 0.3s;
+}
+
+.announcement-card:hover {
+    box-shadow: 0 4px 12px rgba(0, 0, 0, 0.08);
+    transform: translateY(-2px);
+}
+
+.announcement-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: start;
+    margin-bottom: 1rem;
+}
+
+.announcement-title {
+    font-size: 1.25rem;
+    font-weight: 700;
+    color: #1f2937;
+    margin: 0 0 0.5rem 0;
+}
+
+.announcement-meta {
+    font-size: 0.875rem;
+    color: #6b7280;
+}
+
+.announcement-body {
+    color: #374151;
+    line-height: 1.6;
+    margin-bottom: 1rem;
+}
+
+.announcement-actions {
+    display: flex;
+    gap: 1rem;
+    padding-top: 1rem;
+    border-top: 1px solid #e5e7eb;
+}
+
+.announcement-action-btn {
+    background: transparent;
+    border: none;
+    color: #6b7280;
+    font-weight: 600;
+    cursor: pointer;
+    display: flex;
+    align-items: center;
+    gap: 0.5rem;
+    transition: all 0.2s;
+}
+
+.announcement-action-btn:hover {
+    color: #667eea;
+}
+
+/* CHECKBOX GROUP */
+.checkbox-group {
+    display: flex;
+    flex-direction: column;
+    gap: 0.75rem;
+}
+
+.checkbox-item {
+    display: flex;
+    align-items: center;
+    gap: 0.5rem;
+}
+
+.checkbox-item input[type="checkbox"] {
+    width: 1.25rem;
+    height: 1.25rem;
+    cursor: pointer;
+}
+
+/* RESPONSIVE */
+@media (max-width: 768px) {
+    .communication-container {
+        grid-template-columns: 1fr;
+    }
+    
+    .comm-sidebar {
+        display: none;
+    }
+}
