@@ -18,9 +18,14 @@ const mockStudentsData = {
         address: '123 Main Street, Shannon, Co. Clare',
         eircode: 'V14 ABC1',
         phone: '+353 87 123 4567',
-        yearGroup: '5th  Year',
-        class: '5A',
+        yearGroup: '5th Year',
+        classGroup: '5A',
+        course: 'Leaving Certificate (Established)',
+        programme: 'Leaving Certificate',
         enrollDate: '2020-09-01',
+        departmentPupilId: 'SC2024001',
+        examNumber: 'LC2026-5678',
+        lockerNumber: '142',
         status: 'Active',
         parent1: 'Mary Kilmartin',
         parent1phone: '+353 87 111 2222',
@@ -156,7 +161,7 @@ function viewStudent(studentId) {
     document.getElementById('detail-student-name').textContent = `${currentStudentData.firstName} ${currentStudentData.lastName}`;
     document.getElementById('detail-student-id').textContent = `ID: ${currentStudentData.id}`;
     document.getElementById('detail-student-year').textContent = currentStudentData.yearGroup;
-    document.getElementById('detail-student-class').textContent = `Class ${currentStudentData.class}`;
+    document.getElementById('detail-student-class').textContent = `Class ${currentStudentData.classGroup || currentStudentData.class}`;
     
     // Populate personal info
     document.getElementById('info-firstname').textContent = currentStudentData.firstName || 'N/A';
@@ -170,8 +175,13 @@ function viewStudent(studentId) {
     document.getElementById('info-email').textContent = currentStudentData.email || 'N/A';
     document.getElementById('info-studentid').textContent = currentStudentData.id || 'N/A';
     document.getElementById('info-yeargroup').textContent = currentStudentData.yearGroup || 'N/A';
-    document.getElementById('info-class').textContent = currentStudentData.class || 'N/A';
+    document.getElementById('info-classgroup').textContent = currentStudentData.classGroup || 'N/A';
+    document.getElementById('info-course').textContent = currentStudentData.course || 'N/A';
+    document.getElementById('info-programme').textContent = currentStudentData.programme || 'N/A';
     document.getElementById('info-enrolldate').textContent = currentStudentData.enrollDate || 'N/A';
+    document.getElementById('info-deptid').textContent = currentStudentData.departmentPupilId || 'N/A';
+    document.getElementById('info-examnumber').textContent = currentStudentData.examNumber || 'N/A';
+    document.getElementById('info-locker').textContent = currentStudentData.lockerNumber || 'N/A';
     document.getElementById('info-status').textContent = currentStudentData.status || 'N/A';
     document.getElementById('info-parent1').textContent = currentStudentData.parent1 || 'N/A';
     document.getElementById('info-parent1phone').textContent = currentStudentData.parent1phone || 'N/A';
@@ -430,43 +440,66 @@ function getSubjectColor(subject) {
 
 function publishTimetable() {
     // Save to backend (in real implementation)
-    currentStudentData.timetable = { ...editedTimetable };
+    currentStudentData.timetable = { ...currentStudentData.timetable, ...editedTimetable };
     currentStudentData.hasTimetable = true;
     
     timetableEditMode = false;
     document.getElementById('publish-timetable-btn').style.display = 'none';
     
-    // Show success animation
-    const overlay = document.createElement('div');
-    overlay.style.cssText = `
+    // WHITE FLASH ANIMATION
+    const whiteFlash = document.createElement('div');
+    whiteFlash.style.cssText = `
         position: fixed;
         top: 0;
         left: 0;
         right: 0;
         bottom: 0;
-        background: rgba(16, 185, 129, 0.9);
+        background: white;
         z-index: 12000;
-        display: flex;
-        align-items: center;
-        justify-content: center;
-        animation: fadeIn 0.3s ease;
+        animation: flashWhite 0.4s ease;
     `;
-    overlay.innerHTML = `
-        <div style="text-align: center; color: white;">
-            <i class="fas fa-check-circle" style="font-size: 5rem; margin-bottom: 1rem;"></i>
-            <h2 style="font-size: 2rem; margin: 0;">Timetable Published!</h2>
-        </div>
-    `;
-    
-    document.body.appendChild(overlay);
+    document.body.appendChild(whiteFlash);
     
     setTimeout(() => {
-        overlay.style.animation = 'fadeOut 0.3s ease';
+        whiteFlash.remove();
+        
+        // Show success overlay
+        const overlay = document.createElement('div');
+        overlay.style.cssText = `
+            position: fixed;
+            top: 0;
+            left: 0;
+            right: 0;
+            bottom: 0;
+            background: rgba(16, 185, 129, 0.95);
+            z-index: 12000;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            animation: fadeIn 0.3s ease;
+        `;
+        overlay.innerHTML = `
+            <div style="text-align: center; color: white;">
+                <i class="fas fa-check-circle" style="font-size: 5rem; margin-bottom: 1rem; animation: checkmark 0.6s ease;"></i>
+                <h2 style="font-size: 2rem; margin: 0; animation: slideUp 0.5s ease 0.2s both;">Timetable Published!</h2>
+            </div>
+        `;
+        
+        document.body.appendChild(overlay);
+        
         setTimeout(() => {
-            overlay.remove();
-            generateTimetable(); // Refresh display
-        }, 300);
-    }, 1500);
+            overlay.style.animation = 'fadeOut 0.3s ease';
+            setTimeout(() => {
+                overlay.remove();
+                
+                // Refresh timetable display
+                generateTimetable();
+                
+                // Show subtle success toast
+                showToast('Timetable has been updated and is now live!', 'success');
+            }, 300);
+        }, 1800);
+    }, 400);
 }
 
 // ATTENDANCE FUNCTIONS

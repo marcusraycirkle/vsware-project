@@ -499,3 +499,16 @@
         transform: translateY(0);
     }
 }
+
+/* WHITE FLASH ANIMATION FOR TIMETABLE PUBLISH */
+@keyframes flashWhite {
+    0% {
+        opacity: 0;
+    }
+    50% {
+        opacity: 1;
+    }
+    100% {
+        opacity: 0;
+    }
+}

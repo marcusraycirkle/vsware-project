@@ -1,0 +1,490 @@
+/* TEACHER DETAIL VIEW STYLES */
+/* Complete styling for teacher profiles with Irish school requirements */
+
+.teacher-detail-overlay {
+    position: fixed;
+    top: 0;
+    left: 0;
+    right: 0;
+    bottom: 0;
+    background: rgba(0, 0, 0, 0.7);
+    backdrop-filter: blur(10px);
+    z-index: 10000;
+    display: none;
+    overflow-y: auto;
+    padding: 2rem;
+    animation: fadeIn 0.3s ease;
+}
+
+.teacher-detail-container {
+    max-width: 1400px;
+    margin: 0 auto;
+    background: white;
+    border-radius: 20px;
+    box-shadow: 0 20px 60px rgba(0, 0, 0, 0.3);
+    overflow: hidden;
+}
+
+/* TEACHER HEADER */
+.teacher-detail-header {
+    background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+    color: white;
+    padding: 2rem;
+    display: flex;
+    align-items: center;
+    gap: 2rem;
+    position: relative;
+}
+
+.teacher-close-btn {
+    position: absolute;
+    top: 1rem;
+    right: 1rem;
+    background: rgba(255, 255, 255, 0.2);
+    border: none;
+    color: white;
+    width: 40px;
+    height: 40px;
+    border-radius: 50%;
+    cursor: pointer;
+    font-size: 1.25rem;
+    transition: all 0.3s;
+}
+
+.teacher-close-btn:hover {
+    background: rgba(255, 255, 255, 0.3);
+    transform: rotate(90deg);
+}
+
+.teacher-photo {
+    width: 120px;
+    height: 120px;
+    border-radius: 50%;
+    border: 4px solid white;
+    object-fit: cover;
+    background: rgba(255, 255, 255, 0.2);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 3rem;
+}
+
+.teacher-header-info {
+    flex: 1;
+}
+
+.teacher-name {
+    font-size: 2rem;
+    font-weight: 700;
+    margin: 0 0 0.5rem 0;
+}
+
+.teacher-role {
+    font-size: 1.1rem;
+    opacity: 0.9;
+    margin: 0 0 1rem 0;
+}
+
+.teacher-status-badges {
+    display: flex;
+    gap: 1rem;
+    flex-wrap: wrap;
+}
+
+.status-badge {
+    padding: 0.5rem 1rem;
+    border-radius: 20px;
+    font-size: 0.9rem;
+    font-weight: 600;
+    display: flex;
+    align-items: center;
+    gap: 0.5rem;
+}
+
+.status-badge.online {
+    background: rgba(16, 185, 129, 0.3);
+    border: 2px solid rgba(255, 255, 255, 0.5);
+}
+
+.status-badge.in-lesson {
+    background: rgba(59, 130, 246, 0.3);
+    border: 2px solid rgba(255, 255, 255, 0.5);
+}
+
+.status-badge.absent {
+    background: rgba(239, 68, 68, 0.3);
+    border: 2px solid rgba(255, 255, 255, 0.5);
+}
+
+.status-badge.permission-level {
+    background: rgba(251, 191, 36, 0.3);
+    border: 2px solid rgba(255, 255, 255, 0.5);
+}
+
+/* TABS */
+.teacher-detail-tabs {
+    display: flex;
+    background: #f9fafb;
+    border-bottom: 2px solid #e5e7eb;
+    padding: 0 2rem;
+    gap: 0.5rem;
+}
+
+.teacher-tab-btn {
+    padding: 1rem 1.5rem;
+    border: none;
+    background: transparent;
+    color: #6b7280;
+    font-weight: 600;
+    cursor: pointer;
+    border-bottom: 3px solid transparent;
+    transition: all 0.3s;
+    display: flex;
+    align-items: center;
+    gap: 0.5rem;
+}
+
+.teacher-tab-btn:hover {
+    color: #667eea;
+    background: rgba(102, 126, 234, 0.05);
+}
+
+.teacher-tab-btn.active {
+    color: #667eea;
+    border-bottom-color: #667eea;
+    background: white;
+}
+
+/* TAB CONTENT */
+.teacher-detail-content {
+    padding: 2rem;
+    min-height: 500px;
+}
+
+.teacher-tab-content {
+    display: none;
+}
+
+.teacher-tab-content.active {
+    display: block;
+    animation: fadeIn 0.4s ease;
+}
+
+/* INFO GRID */
+.teacher-info-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(350px, 1fr));
+    gap: 1.5rem;
+}
+
+.teacher-info-section {
+    background: #f9fafb;
+    border-radius: 12px;
+    padding: 1.5rem;
+    border: 1px solid #e5e7eb;
+}
+
+.teacher-info-section h3 {
+    margin: 0 0 1rem 0;
+    color: #1f2937;
+    font-size: 1.1rem;
+    display: flex;
+    align-items: center;
+    gap: 0.5rem;
+}
+
+.teacher-info-row {
+    display: flex;
+    justify-content: space-between;
+    padding: 0.75rem 0;
+    border-bottom: 1px solid #e5e7eb;
+}
+
+.teacher-info-row:last-child {
+    border-bottom: none;
+}
+
+.teacher-info-row .label {
+    color: #6b7280;
+    font-weight: 500;
+}
+
+.teacher-info-row .value {
+    color: #1f2937;
+    font-weight: 600;
+    text-align: right;
+}
+
+/* TIMETABLE */
+.teacher-timetable-grid {
+    overflow-x: auto;
+    background: white;
+    border-radius: 12px;
+    padding: 1rem;
+}
+
+.teacher-timetable-table {
+    width: 100%;
+    border-collapse: separate;
+    border-spacing: 8px;
+}
+
+.teacher-timetable-table th {
+    background: #667eea;
+    color: white;
+    padding: 1rem;
+    text-align: center;
+    font-weight: 600;
+    border-radius: 8px;
+}
+
+.teacher-timetable-table td {
+    padding: 0;
+    vertical-align: top;
+}
+
+.teacher-class-block {
+    background: linear-gradient(135deg, #667eea, #764ba2);
+    color: white;
+    padding: 0.75rem;
+    border-radius: 8px;
+    min-height: 80px;
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+    transition: all 0.3s;
+    cursor: pointer;
+}
+
+.teacher-class-block:hover {
+    transform: translateY(-2px);
+    box-shadow: 0 4px 12px rgba(102, 126, 234, 0.4);
+}
+
+.teacher-class-block.free {
+    background: #f3f4f6;
+    color: #9ca3af;
+    font-style: italic;
+}
+
+.teacher-class-subject {
+    font-weight: 700;
+    font-size: 1rem;
+    margin-bottom: 0.25rem;
+}
+
+.teacher-class-group {
+    font-size: 0.85rem;
+    opacity: 0.9;
+}
+
+.teacher-class-room {
+    font-size: 0.8rem;
+    margin-top: 0.25rem;
+    opacity: 0.8;
+}
+
+/* CLASSES & GROUPS */
+.classes-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fill, minmax(280px, 1fr));
+    gap: 1rem;
+}
+
+.class-card {
+    background: white;
+    border: 2px solid #e5e7eb;
+    border-radius: 12px;
+    padding: 1.5rem;
+    transition: all 0.3s;
+    cursor: pointer;
+}
+
+.class-card:hover {
+    border-color: #667eea;
+    transform: translateY(-4px);
+    box-shadow: 0 8px 24px rgba(0, 0, 0, 0.08);
+}
+
+.class-card-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-bottom: 1rem;
+}
+
+.class-name {
+    font-size: 1.25rem;
+    font-weight: 700;
+    color: #1f2937;
+}
+
+.class-students-count {
+    background: #667eea;
+    color: white;
+    padding: 0.25rem 0.75rem;
+    border-radius: 12px;
+    font-size: 0.85rem;
+    font-weight: 600;
+}
+
+.class-info-item {
+    display: flex;
+    align-items: center;
+    gap: 0.5rem;
+    color: #6b7280;
+    font-size: 0.9rem;
+    margin-bottom: 0.5rem;
+}
+
+.class-info-item i {
+    color: #667eea;
+    width: 20px;
+}
+
+/* PERMISSIONS */
+.permissions-container {
+    display: grid;
+    gap: 1.5rem;
+}
+
+.permission-card {
+    background: white;
+    border: 2px solid #e5e7eb;
+    border-radius: 12px;
+    padding: 1.5rem;
+}
+
+.permission-card.active {
+    border-color: #667eea;
+    background: linear-gradient(135deg, rgba(102, 126, 234, 0.05), rgba(118, 75, 162, 0.05));
+}
+
+.permission-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-bottom: 1rem;
+}
+
+.permission-title {
+    font-size: 1.25rem;
+    font-weight: 700;
+    color: #1f2937;
+}
+
+.permission-badge {
+    background: #10b981;
+    color: white;
+    padding: 0.25rem 0.75rem;
+    border-radius: 12px;
+    font-size: 0.85rem;
+}
+
+.permission-list {
+    list-style: none;
+    padding: 0;
+    margin: 0;
+}
+
+.permission-list li {
+    padding: 0.5rem 0;
+    display: flex;
+    align-items: center;
+    gap: 0.5rem;
+    color: #6b7280;
+}
+
+.permission-list li i {
+    color: #10b981;
+}
+
+/* COVER/SUBSTITUTE */
+.cover-list {
+    display: flex;
+    flex-direction: column;
+    gap: 1rem;
+}
+
+.cover-item {
+    background: white;
+    border: 2px solid #e5e7eb;
+    border-radius: 12px;
+    padding: 1rem;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+}
+
+.cover-info {
+    flex: 1;
+}
+
+.cover-date {
+    font-weight: 700;
+    color: #1f2937;
+    margin-bottom: 0.25rem;
+}
+
+.cover-details {
+    color: #6b7280;
+    font-size: 0.9rem;
+}
+
+.cover-teacher {
+    background: #667eea;
+    color: white;
+    padding: 0.5rem 1rem;
+    border-radius: 8px;
+    font-weight: 600;
+}
+
+/* PAYROLL (Admin/Secretary Only) */
+.payroll-restricted {
+    background: #fef2f2;
+    border: 2px solid #fca5a5;
+    border-radius: 12px;
+    padding: 2rem;
+    text-align: center;
+    color: #991b1b;
+}
+
+.payroll-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+    gap: 1rem;
+}
+
+.payroll-card {
+    background: linear-gradient(135deg, #10b981, #059669);
+    color: white;
+    padding: 1.5rem;
+    border-radius: 12px;
+}
+
+.payroll-label {
+    font-size: 0.9rem;
+    opacity: 0.9;
+    margin-bottom: 0.5rem;
+}
+
+.payroll-value {
+    font-size: 1.75rem;
+    font-weight: 700;
+}
+
+/* RESPONSIVE */
+@media (max-width: 768px) {
+    .teacher-detail-header {
+        flex-direction: column;
+        text-align: center;
+    }
+    
+    .teacher-info-grid {
+        grid-template-columns: 1fr;
+    }
+    
+    .teacher-timetable-grid {
+        overflow-x: scroll;
+    }
+}
