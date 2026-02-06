@@ -5,6 +5,12 @@ let currentUser = null;
 let authToken = null;
 let currentSchoolId = null;
 
+// Track if initial page load has happened (to control loading screen)
+const hasLoadedBefore = sessionStorage.getItem('hasLoadedBefore') === 'true';
+if (!hasLoadedBefore) {
+    sessionStorage.setItem('hasLoadedBefore', 'true');
+}
+
 // Sound Effects
 const sounds = {
     notification: new Audio('https://cdn.pixabay.com/audio/2025/09/02/audio_4e70a465f7.mp3'),
@@ -344,13 +350,37 @@ async function login(email, pin) {
             localStorage.setItem('userRole', currentUser.role);
             localStorage.setItem('permissionLevel', currentUser.permissionLevel || 'General');
             
-            showSuccess('Welcome back!');
+            showSuccess('Welcome back, ' + currentUser.name + '!');
             
             setTimeout(() => {
-                hideLoading();
+                // Route based on role (case-insensitive comparison)
+                const role = (currentUser.role || '').toLowerCase();
+                console.log('🔐 API LOGIN: User role:', role, 'User object:', currentUser);
                 
-                // Navigate to dashboard page with hash
-                window.location.href = '/#/shannoncomp/dashboard';
+                // Each role gets its own portal HTML file
+                let nextPage = '/home#/shannoncomp/dashboard';
+                if (role === 'admin' || role === 'principal') {
+                    nextPage = '/admin-portal.html';
+                    console.log('✅ API ROUTING TO ADMIN PORTAL:', nextPage);
+                } else if (role === 'parent') {
+                    nextPage = '/parent-portal.html';
+                    console.log('✅ API ROUTING TO PARENT PORTAL:', nextPage);
+                } else if (role === 'student') {
+                    nextPage = '/student-portal.html';
+                    console.log('✅ API ROUTING TO STUDENT PORTAL:', nextPage);
+                } else if (role === 'secretary') {
+                    nextPage = '/secretary-portal.html';
+                    console.log('✅ API ROUTING TO SECRETARY PORTAL:', nextPage);
+                } else if (role === 'teacher') {
+                    nextPage = '/teacher-portal.html';
+                    console.log('✅ API ROUTING TO TEACHER PORTAL:', nextPage);
+                } else {
+                    nextPage = '/home#/shannoncomp/dashboard';
+                    console.log('⚠️ API FALLBACK ROUTING:', nextPage);
+                }
+                
+                console.log('🚀 API NAVIGATING TO:', nextPage);
+                window.location.href = nextPage;
             }, 1500);
         } else {
             hideLoading();
@@ -358,8 +388,10 @@ async function login(email, pin) {
         }
     } catch (error) {
         hideLoading();
-        showError('Connection error. Please check if the backend is running.');
-        console.error('Login error:', error);
+        showError('Connection error. Using demo mode.');
+        console.error('Login error, falling back to demo login:', error);
+        // Fall back to demo login
+        setTimeout(() => simulateDemoLogin(email, pin), 500);
     }
 }
 
