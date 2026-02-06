@@ -7,9 +7,9 @@
     <meta http-equiv="Pragma" content="no-cache">
     <meta http-equiv="Expires" content="0">
     <title>Login - St. Patrick's Comprehensive School</title>
-    <link rel="icon" href="/mispal-logo.png" type="image/png">
+    <link rel="icon" href="https://www.stpatrickscomprehensive.ie/uploads/2/3/2/0/23206024/editor/st-patrick-s-comp-logo-layout-2-1.png?1564671961" type="image/png">
     <link rel="shortcut icon" href="/mispal-logo.png" type="image/png">
-    <link rel="stylesheet" href="/styles.css?v=20260205f">
+    <link rel="stylesheet" href="/styles.css?v=cleanADMIN">
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
     <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800;900&display=swap" rel="stylesheet">
     <style>
@@ -21,13 +21,30 @@
 
         body {
             font-family: 'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif;
-            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            background: 
+                radial-gradient(2px 2px at 20% 30%, #fff, rgba(255, 255, 255, 0)),
+                radial-gradient(2px 2px at 60% 70%, #fff, rgba(255, 255, 255, 0)),
+                radial-gradient(1px 1px at 50% 50%, #fff, rgba(255, 255, 255, 0)),
+                radial-gradient(1px 1px at 80% 10%, #fff, rgba(255, 255, 255, 0)),
+                radial-gradient(2px 2px at 90% 60%, #fff, rgba(255, 255, 255, 0)),
+                radial-gradient(1px 1px at 30% 80%, #fff, rgba(255, 255, 255, 0)),
+                radial-gradient(1px 1px at 10% 90%, #fff, rgba(255, 255, 255, 0)),
+                radial-gradient(2px 2px at 40% 20%, #fff, rgba(255, 255, 255, 0));
+            background-repeat: repeat;
+            background-size: 200% 200%;
             background-attachment: fixed;
+            background-color: #0a0e27;
             min-height: 100vh;
             display: flex;
             align-items: center;
             justify-content: center;
             padding: 2rem;
+            animation: twinkle 3s ease-in-out infinite;
+        }
+
+        @keyframes twinkle {
+            0%, 100% { opacity: 0.8; }
+            50% { opacity: 1; }
         }
 
         .login-wrapper {
@@ -323,7 +340,7 @@
         <div class="login-card">
             <div class="login-school-info">
                 <div class="login-school-logo">
-                    <img src="/mispal-logo.png" alt="School Logo" style="width: 100%; height: 100%; object-fit: cover;">
+                    <img src="https://www.stpatrickscomprehensive.ie/uploads/2/3/2/0/23206024/editor/st-patrick-s-comp-logo-layout-2-1.png?1564671961=" alt="School Logo" style="width: 100%; height: 100%; object-fit: cover;">
                 </div>
                 <div class="login-school-name" id="school-name">St. Patrick's Comprehensive</div>
             </div>
@@ -372,6 +389,6 @@
         </div>
     </div>
     
-    <script src="/app-v2.js?v=20260206FINAL"></script>
+    <script src="/app-v2.js?v=cleanADMIN"></script>
 </body>
 </html>

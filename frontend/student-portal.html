@@ -783,49 +783,6 @@
         </div>
     </div>
 
-    <script>
-        // Initialize on page load
-        document.addEventListener('DOMContentLoaded', function() {
-            const user = JSON.parse(localStorage.getItem('user') || '{}');
-            if (!user.role || user.role !== 'Student') {
-                window.location.href = '/shannoncomp/login';
-                return;
-            }
-            
-            // Set user name
-            const userName = user.name || 'Student User';
-            document.getElementById('sidebar-user').textContent = userName;
-        });
-
-        function switchTab(e, tabName) {
-            e.preventDefault();
-            
-            // Hide all tabs
-            document.querySelectorAll('.tab-container').forEach(tab => {
-                tab.classList.remove('active');
-            });
-
-            // Remove active from nav items
-            document.querySelectorAll('.sidebar-nav-item').forEach(item => {
-                item.classList.remove('active');
-            });
-
-            // Show selected tab
-            const tabEl = document.getElementById(tabName);
-            if (tabEl) {
-                tabEl.classList.add('active');
-            }
-
-            // Mark nav item as active
-            e.target.closest('.sidebar-nav-item').classList.add('active');
-        }
-
-        function handleLogout() {
-            if (confirm('Are you sure you want to logout?')) {
-                localStorage.clear();
-                window.location.href = '/shannoncomp/login';
-            }
-        }
-    </script>
+    <script src="/student-portal-init.js?v=20260206FINAL"></script>
 </body>
 </html>

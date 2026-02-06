@@ -357,26 +357,18 @@ async function login(email, pin) {
                 const role = (currentUser.role || '').toLowerCase();
                 console.log('🔐 API LOGIN: User role:', role, 'User object:', currentUser);
                 
-                // Each role gets its own portal HTML file
-                let nextPage = '/home#/shannoncomp/dashboard';
+                // Route to appropriate portal
+                let nextPage;
                 if (role === 'admin' || role === 'principal') {
                     nextPage = '/admin-portal.html';
-                    console.log('✅ API ROUTING TO ADMIN PORTAL:', nextPage);
-                } else if (role === 'parent') {
-                    nextPage = '/parent-portal.html';
-                    console.log('✅ API ROUTING TO PARENT PORTAL:', nextPage);
-                } else if (role === 'student') {
-                    nextPage = '/student-portal.html';
-                    console.log('✅ API ROUTING TO STUDENT PORTAL:', nextPage);
-                } else if (role === 'secretary') {
-                    nextPage = '/secretary-portal.html';
-                    console.log('✅ API ROUTING TO SECRETARY PORTAL:', nextPage);
+                    console.log('✅ API ROUTING TO: ADMIN PORTAL');
                 } else if (role === 'teacher') {
                     nextPage = '/teacher-portal.html';
-                    console.log('✅ API ROUTING TO TEACHER PORTAL:', nextPage);
+                    console.log('✅ API ROUTING TO: TEACHER PORTAL');
                 } else {
-                    nextPage = '/home#/shannoncomp/dashboard';
-                    console.log('⚠️ API FALLBACK ROUTING:', nextPage);
+                    // Default fallback
+                    nextPage = '/admin-portal.html';
+                    console.log('⚠️ API FALLBACK TO: ADMIN PORTAL');
                 }
                 
                 console.log('🚀 API NAVIGATING TO:', nextPage);
@@ -409,15 +401,14 @@ function simulateDemoLogin(email, pin) {
         
         // Production accounts database with test logins
         const demoUsers = {
-            'mary.costello@shannoncomp.ie': { email: 'mary.costello@shannoncomp.ie', role: 'Principal', name: 'Mary Costello', permissionLevel: 'Principal', roleHierarchy: 'Principal' },
-            'caseyashecontact@gmail.com': { email: 'caseyashecontact@gmail.com', role: 'Secretary', name: 'Casey Ashe', permissionLevel: 'Secretary', roleHierarchy: 'Secretary' },
-            '24zuzannafrankowska@shannoncomp.ie': { email: '24zuzannafrankowska@shannoncomp.ie', role: 'Student', name: 'Zuzanna Frankowska', permissionLevel: 'Student', roleHierarchy: 'Student' },
-            '24corykilmartin@shannoncomp.ie': { email: '24corykilmartin@shannoncomp.ie', role: 'Teacher', name: 'Cory Kilmartin', permissionLevel: 'Teacher', roleHierarchy: 'Mid' },
-            'marcusray@cirkledevelopment.co.uk': { email: 'marcusray@cirkledevelopment.co.uk', role: 'Parent', name: 'Marcus Ray', permissionLevel: 'Parent', roleHierarchy: 'Parent' },
-            // Test logins
+            // ADMIN LOGINS - These all go to admin-portal.html
+            'mary.costello@shannoncomp.ie': { email: 'mary.costello@shannoncomp.ie', role: 'Admin', name: 'Mary Costello (Principal)', permissionLevel: 'Admin', roleHierarchy: 'Admin' },
+            'admin@schoolware.com': { email: 'admin@schoolware.com', role: 'Admin', name: 'Schoolware Admin', permissionLevel: 'Admin', roleHierarchy: 'Admin' },
             'admintest@mispal.ie': { email: 'admintest@mispal.ie', role: 'Admin', name: 'Admin Test User', permissionLevel: 'Admin', roleHierarchy: 'Admin' },
-            'teachertest@mispal.ie': { email: 'teachertest@mispal.ie', role: 'Teacher', name: 'Teacher Test User', permissionLevel: 'Teacher', roleHierarchy: 'Mid' },
-            'admin@schoolware.com': { email: 'admin@schoolware.com', role: 'Admin', name: 'Schoolware Admin', permissionLevel: 'Admin', roleHierarchy: 'Admin' }
+            
+            // TEACHER LOGINS - These go to teacher-portal.html
+            '24corykilmartin@shannoncomp.ie': { email: '24corykilmartin@shannoncomp.ie', role: 'Teacher', name: 'Cory Kilmartin', permissionLevel: 'Teacher', roleHierarchy: 'Mid' },
+            'teachertest@mispal.ie': { email: 'teachertest@mispal.ie', role: 'Teacher', name: 'Teacher Test User', permissionLevel: 'Teacher', roleHierarchy: 'Mid' }
         };
         
         const user = demoUsers[email];
@@ -439,28 +430,20 @@ function simulateDemoLogin(email, pin) {
             setTimeout(() => {
                 // Route based on role (case-insensitive comparison)
                 const role = (user.role || '').toLowerCase();
-                console.log('🔐 LOGIN: User role:', role, 'User object:', user);
+                console.log('🔐 DEMO LOGIN: User role:', role, 'User object:', user);
                 
-                // Each role gets its own portal HTML file
-                let nextPage = '/home#/shannoncomp/dashboard';
+                // Route to appropriate portal
+                let nextPage;
                 if (role === 'admin' || role === 'principal') {
                     nextPage = '/admin-portal.html';
-                    console.log('✅ ROUTING TO ADMIN PORTAL:', nextPage);
-                } else if (role === 'parent') {
-                    nextPage = '/parent-portal.html';
-                    console.log('✅ ROUTING TO PARENT PORTAL:', nextPage);
-                } else if (role === 'student') {
-                    nextPage = '/student-portal.html';
-                    console.log('✅ ROUTING TO STUDENT PORTAL:', nextPage);
-                } else if (role === 'secretary') {
-                    nextPage = '/secretary-portal.html';
-                    console.log('✅ ROUTING TO SECRETARY PORTAL:', nextPage);
+                    console.log('✅ ROUTING TO: ADMIN PORTAL');
                 } else if (role === 'teacher') {
                     nextPage = '/teacher-portal.html';
-                    console.log('✅ ROUTING TO TEACHER PORTAL:', nextPage);
+                    console.log('✅ ROUTING TO: TEACHER PORTAL');
                 } else {
-                    nextPage = '/home#/shannoncomp/dashboard';
-                    console.log('⚠️ FALLBACK ROUTING:', nextPage);
+                    // Default fallback
+                    nextPage = '/admin-portal.html';
+                    console.log('⚠️ FALLBACK TO: ADMIN PORTAL');
                 }
                 
                 console.log('🚀 NAVIGATING TO:', nextPage);
