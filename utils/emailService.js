@@ -5,12 +5,28 @@
 const { Resend } = require('resend');
 const { emailSender } = require('./emailTemplates');
 
-const resend = new Resend(process.env.RESEND_API_KEY);
+// Initialize Resend only if API key is available
+let resend = null;
+if (process.env.RESEND_API_KEY) {
+  try {
+    resend = new Resend(process.env.RESEND_API_KEY);
+    console.log('✅ Resend email service initialized');
+  } catch (error) {
+    console.error('⚠️ Failed to initialize Resend:', error.message);
+  }
+} else {
+  console.warn('⚠️ RESEND_API_KEY not set - email functionality will be disabled');
+}
 
 /**
  * Send acceptance email
  */
 async function sendAcceptanceEmail(studentEmail, firstName, yearGroup) {
+  if (!resend) {
+    console.warn('⚠️ Email service not configured - skipping acceptance email');
+    return { success: false, message: 'Email service not configured' };
+  }
+  
   try {
     const { generateAcceptanceEmailHTML } = require('./emailTemplates');
     
@@ -52,6 +68,11 @@ async function sendAcceptanceEmail(studentEmail, firstName, yearGroup) {
  * Send rejection email
  */
 async function sendRejectionEmail(studentEmail, firstName, declineReason) {
+  if (!resend) {
+    console.warn('⚠️ Email service not configured - skipping rejection email');
+    return { success: false, message: 'Email service not configured' };
+  }
+  
   try {
     const { generateRejectionEmailHTML } = require('./emailTemplates');
     
