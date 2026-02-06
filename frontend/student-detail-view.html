@@ -1,0 +1,286 @@
+<!-- STUDENT DETAIL FULL PAGE VIEW -->
+<div id="student-detail-overlay" class="student-detail-overlay" style="display: none;">
+    <div class="student-detail-container">
+        <!-- Header with close button -->
+        <div class="student-detail-header">
+            <button class="btn-close-detail" onclick="closeStudentDetail()">
+                <i class="fas fa-arrow-left"></i> Back to Students
+            </button>
+            <div class="student-header-info">
+                <div class="student-avatar-large">
+                    <i class="fas fa-user"></i>
+                </div>
+                <div class="student-header-text">
+                    <h1 id="detail-student-name">Student Name</h1>
+                    <p><span id="detail-student-id">ID: #</span> • <span id="detail-student-year">Year</span> • <span id="detail-student-class">Class</span></p>
+                </div>
+            </div>
+            <div class="student-header-actions">
+                <button class="btn-secondary"><i class="fas fa-edit"></i> Edit Details</button>
+                <button class="btn-secondary"><i class="fas fa-print"></i> Print</button>
+                <button class="btn-secondary"><i class="fas fa-download"></i> Export</button>
+            </div>
+        </div>
+
+        <!-- Navigation Tabs -->
+        <div class="student-detail-tabs">
+            <button class="tab-btn active" data-tab="personal-info">Personal Information</button>
+            <button class="tab-btn" data-tab="school-life">School Life</button>
+            <button class="tab-btn" data-tab="emergency">Emergency Contacts</button>
+            <button class="tab-btn" data-tab="medical">Medical Information</button>
+        </div>
+
+        <!-- Tab Content -->
+        <div class="student-detail-content">
+            
+            <!-- PERSONAL INFORMATION TAB -->
+            <div id="tab-personal-info" class="tab-content active">
+                <div class="info-grid">
+                    <div class="info-section">
+                        <h3><i class="fas fa-user"></i> Basic Information</h3>
+                        <div class="info-row"><span class="label">First Name:</span> <span id="info-firstname"></span></div>
+                        <div class="info-row"><span class="label">Last Name:</span> <span id="info-lastname"></span></div>
+                        <div class="info-row"><span class="label">Date of Birth:</span> <span id="info-dob"></span></div>
+                        <div class="info-row"><span class="label">Gender:</span> <span id="info-gender"></span></div>
+                        <div class="info-row"><span class="label">PPS Number:</span> <span id="info-pps"></span></div>
+                    </div>
+                    <div class="info-section">
+                        <h3><i class="fas fa-home"></i> Contact Information</h3>
+                        <div class="info-row"><span class="label">Address:</span> <span id="info-address"></span></div>
+                        <div class="info-row"><span class="label">Eircode:</span> <span id="info-eircode"></span></div>
+                        <div class="info-row"><span class="label">Phone:</span> <span id="info-phone"></span></div>
+                        <div class="info-row"><span class="label">Email:</span> <span id="info-email"></span></div>
+                    </div>
+                    <div class="info-section">
+                        <h3><i class="fas fa-graduation-cap"></i> School Information</h3>
+                        <div class="info-row"><span class="label">Student ID:</span> <span id="info-studentid"></span></div>
+                        <div class="info-row"><span class="label">Year Group:</span> <span id="info-yeargroup"></span></div>
+                        <div class="info-row"><span class="label">Class:</span> <span id="info-class"></span></div>
+                        <div class="info-row"><span class="label">Enrollment Date:</span> <span id="info-enrolldate"></span></div>
+                        <div class="info-row"><span class="label">Status:</span> <span id="info-status"></span></div>
+                    </div>
+                    <div class="info-section">
+                        <h3><i class="fas fa-users"></i> Parent/Guardian Information</h3>
+                        <div class="info-row"><span class="label">Primary Guardian:</span> <span id="info-parent1"></span></div>
+                        <div class="info-row"><span class="label">Phone:</span> <span id="info-parent1phone"></span></div>
+                        <div class="info-row"><span class="label">Email:</span> <span id="info-parent1email"></span></div>
+                        <div class="info-row"><span class="label">Secondary Guardian:</span> <span id="info-parent2"></span></div>
+                        <div class="info-row"><span class="label">Phone:</span> <span id="info-parent2phone"></span></div>
+                        <div class="info-row"><span class="label">Email:</span> <span id="info-parent2email"></span></div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- SCHOOL LIFE TAB -->
+            <div id="tab-school-life" class="tab-content">
+                <div class="school-life-tabs">
+                    <button class="subtab-btn active" data-subtab="timetable"><i class="fas fa-calendar-alt"></i> Timetable</button>
+                    <button class="subtab-btn" data-subtab="attendance"><i class="fas fa-clipboard-check"></i> Attendance</button>
+                    <button class="subtab-btn" data-subtab="assessments"><i class="fas fa-chart-line"></i> Assessment Results</button>
+                    <button class="subtab-btn" data-subtab="behaviour"><i class="fas fa-exclamation-triangle"></i> Behaviour Reports</button>
+                    <button class="subtab-btn" data-subtab="books"><i class="fas fa-book"></i> Books & Supplies</button>
+                </div>
+
+                <!-- TIMETABLE SUBTAB -->
+                <div id="subtab-timetable" class="subtab-content active">
+                    <div class="timetable-header">
+                        <h2>Student Timetable</h2>
+                        <div class="timetable-actions">
+                            <button class="btn-secondary" onclick="editTimetable()"><i class="fas fa-edit"></i> Edit Timetable</button>
+                            <button class="btn-primary" id="publish-timetable-btn" style="display:none;" onclick="publishTimetable()">
+                                <i class="fas fa-check"></i> Publish Timetable
+                            </button>
+                        </div>
+                    </div>
+                    <div id="timetable-grid-container" class="timetable-grid-container">
+                        <!-- Timetable will be generated here -->
+                    </div>
+                </div>
+
+                <!-- ATTENDANCE SUBTAB -->
+                <div id="subtab-attendance" class="subtab-content">
+                    <div class="attendance-dashboard">
+                        <div class="attendance-stats-row">
+                            <div class="stat-card">
+                                <div class="stat-icon" style="background: #10b981;"><i class="fas fa-percentage"></i></div>
+                                <div class="stat-info">
+                                    <h3 id="attendance-percentage">0%</h3>
+                                    <p>Attendance Rate</p>
+                                </div>
+                            </div>
+                            <div class="stat-card">
+                                <div class="stat-icon" style="background: #f59e0b;"><i class="fas fa-clock"></i></div>
+                                <div class="stat-info">
+                                    <h3 id="attendance-lates">0</h3>
+                                    <p>Late Arrivals</p>
+                                </div>
+                            </div>
+                            <div class="stat-card">
+                                <div class="stat-icon" style="background: #ef4444;"><i class="fas fa-calendar-times"></i></div>
+                                <div class="stat-info">
+                                    <h3 id="attendance-absences">0</h3>
+                                    <p>Total Absences</p>
+                                </div>
+                            </div>
+                        </div>
+                        <div class="attendance-charts-row">
+                            <div class="chart-card">
+                                <h3>Attendance Distribution</h3>
+                                <canvas id="attendance-pie-chart"></canvas>
+                            </div>
+                            <div class="chart-card">
+                                <h3>Missed Subjects</h3>
+                                <canvas id="missed-subjects-chart"></canvas>
+                            </div>
+                        </div>
+                        <div class="attendance-actions">
+                            <button class="btn-primary" onclick="viewAbsences()"><i class="fas fa-list"></i> View Absences</button>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- ASSESSMENTS SUBTAB -->
+                <div id="subtab-assessments" class="subtab-content">
+                    <div class="assessments-header">
+                        <h2>Assessment Results</h2>
+                        <div class="term-selector">
+                            <label>Select Term:</label>
+                            <select id="term-selector" onchange="loadAssessmentResults()">
+                                <option value="christmas2025">Christmas 2025 (2025/2026)</option>
+                                <option value="easter2026">Easter 2026 (2025/2026)</option>
+                                <option value="summer2026">Summer 2026 (2025/2026)</option>
+                            </select>
+                            <button class="btn-secondary" onclick="downloadResults()"><i class="fas fa-download"></i> Download Results</button>
+                        </div>
+                    </div>
+                    <div id="assessment-results-container" class="assessment-results-container">
+                        <!-- Results will be loaded here -->
+                    </div>
+                </div>
+
+                <!-- BEHAVIOUR SUBTAB -->
+                <div id="subtab-behaviour" class="subtab-content">
+                    <div class="behaviour-header">
+                        <h2>Behaviour Reports</h2>
+                        <button class="btn-primary" onclick="addBehaviourReport()"><i class="fas fa-plus"></i> Add Report</button>
+                    </div>
+                    <div id="behaviour-reports-container" class="behaviour-reports-container">
+                        <!-- Behaviour reports will be loaded here -->
+                    </div>
+                    
+                    <div class="toilet-breaks-section">
+                        <h2><i class="fas fa-restroom"></i> Toilet Breaks</h2>
+                        <div class="toilet-stats-row">
+                            <div class="stat-card-small">
+                                <h4 id="toilet-total">0</h4>
+                                <p>Total Breaks</p>
+                            </div>
+                            <div class="stat-card-small">
+                                <h4 id="toilet-avg-duration">0 min</h4>
+                                <p>Avg Duration</p>
+                            </div>
+                            <div class="stat-card-small">
+                                <h4 id="toilet-term-count">0</h4>
+                                <p>This Term</p>
+                            </div>
+                        </div>
+                        <div class="toilet-breaks-list" id="toilet-breaks-list">
+                            <!-- Toilet breaks list will be loaded here -->
+                        </div>
+                        <div class="toilet-charts">
+                            <canvas id="toilet-breaks-chart"></canvas>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- BOOKS & SUPPLIES SUBTAB -->
+                <div id="subtab-books" class="subtab-content">
+                    <div class="books-header">
+                        <h2>Books & Supplies</h2>
+                        <button class="btn-primary" onclick="showBarcodeScanner()"><i class="fas fa-barcode"></i> Scan Barcode</button>
+                    </div>
+                    <div id="books-list-container" class="books-list-container">
+                        <!-- Books and supplies will be loaded here -->
+                    </div>
+                </div>
+            </div>
+
+            <!-- EMERGENCY CONTACTS TAB -->
+            <div id="tab-emergency" class="tab-content">
+                <div class="info-grid">
+                    <div class="info-section">
+                        <h3><i class="fas fa-phone-alt"></i> Emergency Contact 1</h3>
+                        <div id="emergency-contact-1"></div>
+                    </div>
+                    <div class="info-section">
+                        <h3><i class="fas fa-phone-alt"></i> Emergency Contact 2</h3>
+                        <div id="emergency-contact-2"></div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- MEDICAL INFORMATION TAB -->
+            <div id="tab-medical" class="tab-content">
+                <div class="info-grid">
+                    <div class="info-section">
+                        <h3><i class="fas fa-heartbeat"></i> Medical Details</h3>
+                        <div id="medical-info"></div>
+                    </div>
+                    <div class="info-section">
+                        <h3><i class="fas fa-pills"></i> Allergies & Medications</h3>
+                        <div id="allergies-info"></div>
+                    </div>
+                </div>
+            </div>
+
+        </div>
+    </div>
+</div>
+
+<!-- ABSENCES MODAL -->
+<div id="absences-modal" class="custom-modal" style="display: none;">
+    <div class="modal-overlay" onclick="closeAbsencesModal()"></div>
+    <div class="modal-dialog">
+        <div class="modal-header">
+            <h3>Submitted Absences</h3>
+            <button class="modal-close-btn" onclick="closeAbsencesModal()"><i class="fas fa-times"></i></button>
+        </div>
+        <div class="modal-body" id="absences-list">
+            <!-- Absences list will be populated here -->
+        </div>
+    </div>
+</div>
+
+<!-- BARCODE SCANNER MODAL -->
+<div id="barcode-scanner-modal" class="custom-modal" style="display: none;">
+    <div class="modal-overlay" onclick="closeBarcodeScanner()"></div>
+    <div class="modal-dialog">
+        <div class="modal-header">
+            <h3>Add Book/Supply</h3>
+            <button class="modal-close-btn" onclick="closeBarcodeScanner()"><i class="fas fa-times"></i></button>
+        </div>
+        <div class="modal-body">
+            <div class="form-group">
+                <label>Barcode</label>
+                <input type="text" id="book-barcode" placeholder="Scan or enter barcode">
+            </div>
+            <div class="form-group">
+                <label>Book Title</label>
+                <input type="text" id="book-title" placeholder="Enter book title">
+            </div>
+            <div class="form-group">
+                <label>Type</label>
+                <select id="book-type">
+                    <option value="textbook">Textbook</option>
+                    <option value="workbook">Workbook</option>
+                    <option value="supply">Supply</option>
+                    <option value="equipment">Equipment</option>
+                </select>
+            </div>
+            <div class="modal-actions">
+                <button class="btn-secondary" onclick="closeBarcodeScanner()">Cancel</button>
+                <button class="btn-primary" onclick="saveBook()"><i class="fas fa-save"></i> Save</button>
+            </div>
+        </div>
+    </div>
+</div>
