@@ -9,6 +9,7 @@
     <link rel="shortcut icon" href="/mispal-logo.png" type="image/png">
     <link rel="stylesheet" href="/admin-styles.css?v=cleanADMIN">
     <link rel="stylesheet" href="/student-detail-styles.css?v=cleanADMIN">
+    <link rel="stylesheet" href="/teacher-detail-styles.css?v=cleanADMIN">
     <link rel="stylesheet" href="/custom-modals.css?v=cleanADMIN">
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
     <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800;900&display=swap" rel="stylesheet">
@@ -110,42 +111,26 @@
                     </div>
 
                     <div class="nav-section">
-                        <div class="nav-section-title">Academic</div>
-                        <a href="#" class="nav-item" data-page="classes">
-                            <i class="fas fa-door-open"></i>
-                            <span>Classes</span>
+                        <div class="nav-section-title">Attendance & Reports</div>
+                        <a href="#" class="nav-item" data-page="anseo">
+                            <i class="fas fa-chart-pie"></i>
+                            <span>ANSEO Dashboard</span>
                         </a>
-                        <a href="#" class="nav-item" data-page="subjects">
-                            <i class="fas fa-book"></i>
-                            <span>Subjects</span>
-                        </a>
-                        <a href="#" class="nav-item" data-page="timetable">
-                            <i class="fas fa-clock"></i>
-                            <span>Timetable</span>
-                        </a>
-                        <a href="#" class="nav-item" data-page="assessments">
-                            <i class="fas fa-file-alt"></i>
-                            <span>Assessments</span>
+                        <a href="#" class="nav-item" data-page="tusla">
+                            <i class="fas fa-file-medical"></i>
+                            <span>TUSLA Report</span>
                         </a>
                     </div>
 
                     <div class="nav-section">
                         <div class="nav-section-title">Operations</div>
-                        <a href="#" class="nav-item" data-page="attendance">
-                            <i class="fas fa-calendar-check"></i>
-                            <span>Attendance</span>
-                        </a>
-                        <a href="#" class="nav-item" data-page="behavior">
-                            <i class="fas fa-star"></i>
-                            <span>Behavior</span>
-                        </a>
                         <a href="#" class="nav-item" data-page="enrollment">
                             <i class="fas fa-user-plus"></i>
                             <span>Enrollment</span>
                         </a>
                         <a href="#" class="nav-item" data-page="rooms">
                             <i class="fas fa-building"></i>
-                            <span>Rooms</span>
+                            <span>Rooms & Bookings</span>
                         </a>
                     </div>
 
@@ -412,8 +397,121 @@
                 <div id="page-classes" class="page-content"></div>
                 <div id="page-calendar" class="page-content"></div>
                 <div id="page-analytics" class="page-content"></div>
-                <div id="page-attendance" class="page-content"></div>
-                <div id="page-behavior" class="page-content"></div>
+                
+                <!-- ANSEO ATTENDANCE DASHBOARD -->
+                <div id="page-anseo" class="page-content">
+                    <div class="page-header">
+                        <h1><i class="fas fa-chart-pie"></i> Anseo School Attendance Dashboard</h1>
+                        <div style="display: flex; gap: 1rem;">
+                            <button class="btn-secondary" onclick="openANSEOFilters()">
+                                <i class="fas fa-filter"></i> Advanced Filters
+                            </button>
+                            <button class="btn-secondary" onclick="exportANSEOData('csv')">
+                                <i class="fas fa-file-csv"></i> CSV
+                            </button>
+                            <button class="btn-primary" onclick="exportANSEOData('pdf')">
+                                <i class="fas fa-file-pdf"></i> PDF Export
+                            </button>
+                        </div>
+                    </div>
+                    
+                    <div style="margin-top: 2rem; display: grid; gap: 1rem;">
+                        <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(300px, 1fr)); gap: 1rem;">
+                            <div onclick="viewANSEOTierDetails(1)" style="background: linear-gradient(135deg, #10b981, #059669); color: white; padding: 2rem; border-radius: 12px; cursor: pointer; transition: all 0.3s;">
+                                <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 1rem;">
+                                    <h3 style="margin: 0;">Tier 1 - Excellent</h3>
+                                    <i class="fas fa-check-circle" style="font-size: 2rem;"></i>
+                                </div>
+                                <div style="font-size: 0.9rem; opacity: 0.9; margin-bottom: 0.5rem;">Attending <span id="anseo-tier1-threshold">95% or more</span></div>
+                                <div style="font-size: 3rem; font-weight: 700; margin: 1rem 0;"><span id="anseo-tier1-count">847</span> students</div>
+                                <div style="font-size: 1.25rem; opacity: 0.9;"><span id="anseo-tier1-percentage">67.9%</span> of total</div>
+                            </div>
+                            
+                            <div onclick="viewANSEOTierDetails(2)" style="background: linear-gradient(135deg, #f59e0b, #d97706); color: white; padding: 2rem; border-radius: 12px; cursor: pointer; transition: all 0.3s;">
+                                <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 1rem;">
+                                    <h3 style="margin: 0;">Tier 2 - Moderate</h3>
+                                    <i class="fas fa-exclamation-triangle" style="font-size: 2rem;"></i>
+                                </div>
+                                <div style="font-size: 0.9rem; opacity: 0.9; margin-bottom: 0.5rem;">Attending <span id="anseo-tier2-threshold">91-94%</span></div>
+                                <div style="font-size: 3rem; font-weight: 700; margin: 1rem 0;"><span id="anseo-tier2-count">285</span> students</div>
+                                <div style="font-size: 1.25rem; opacity: 0.9;"><span id="anseo-tier2-percentage">22.9%</span> of total</div>
+                            </div>
+                            
+                            <div onclick="viewANSEOTierDetails(3)" style="background: linear-gradient(135deg, #ef4444, #dc2626); color: white; padding: 2rem; border-radius: 12px; cursor: pointer; transition: all 0.3s;">
+                                <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 1rem;">
+                                    <h3 style="margin: 0;">Tier 3 - Needs Support</h3>
+                                    <i class="fas fa-times-circle" style="font-size: 2rem;"></i>
+                                </div>
+                                <div style="font-size: 0.9rem; opacity: 0.9; margin-bottom: 0.5rem;">Attending <span id="anseo-tier3-threshold">90% or less</span></div>
+                                <div style="font-size: 3rem; font-weight: 700; margin: 1rem 0;"><span id="anseo-tier3-count">115</span> students</div>
+                                <div style="font-size: 1.25rem; opacity: 0.9;"><span id="anseo-tier3-percentage">9.2%</span> of total</div>
+                            </div>
+                        </div>
+                        
+                        <div style="background: white; padding: 2rem; border-radius: 12px; border: 2px solid #e5e7eb;">
+                            <h3 style="color: #1f2937;">Attendance Trends by Tier</h3>
+                            <div style="height: 300px; position: relative;">
+                                <canvas id="anseo-trend-chart"></canvas>
+                            </div>
+                        </div>
+                        
+                        <div style="background: white; padding: 2rem; border-radius: 12px; border: 2px solid #e5e7eb;">
+                            <h3 style="color: #1f2937;">Monthly Student Distribution</h3>
+                            <div style="height: 300px; position: relative;">
+                                <canvas id="anseo-distribution-chart"></canvas>
+                            </div>
+                        </div>
+                        
+                        <div style="background: #f9fafb; padding: 1.5rem; border-radius: 12px; text-align: center;">
+                            <div style="font-size: 0.9rem; color: #6b7280; margin-bottom: 0.5rem;">Total Students Tracked</div>
+                            <div style="font-size: 2rem; font-weight: 700; color: #1f2937;" id="anseo-total-students">1,247</div>
+                        </div>
+                    </div>
+                </div>
+                
+                <!-- TUSLA ATTENDANCE REPORT -->
+                <div id="page-tusla" class="page-content">
+                    <div class="page-header">
+                        <h1><i class="fas fa-file-medical"></i> TUSLA Attendance Report</h1>
+                        <p style="color: #6b7280; margin: 0.5rem 0 0 0;">Generate attendance reports for TUSLA (Child and Family Agency) compliance</p>
+                    </div>
+                    
+                    <div style="margin-top: 2rem; background: white; padding: 2rem; border-radius: 12px; border: 2px solid #e5e7eb;">
+                        <h3 style="margin: 0 0 1.5rem 0; color: #1f2937;">Report Parameters</h3>
+                        <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(250px, 1fr)); gap: 1rem; margin-bottom: 1.5rem;">
+                            <div class="form-group">
+                                <label>Start Date</label>
+                                <input type="date" id="tusla-start-date" class="form-control">
+                            </div>
+                            <div class="form-group">
+                                <label>End Date</label>
+                                <input type="date" id="tusla-end-date" class="form-control">
+                            </div>
+                            <div class="form-group">
+                                <label>How Many Absences?</label>
+                                <input type="number" id="tusla-absence-threshold" class="form-control" value="20" min="1">
+                            </div>
+                            <div class="form-group">
+                                <label>Year Group (Optional)</label>
+                                <select id="tusla-year-group" class="form-control">
+                                    <option value="">All Year Groups</option>
+                                    <option value="1">1st Year</option>
+                                    <option value="2">2nd Year</option>
+                                    <option value="3">3rd Year</option>
+                                    <option value="4">4th Year</option>
+                                    <option value="5">5th Year</option>
+                                    <option value="6">6th Year</option>
+                                </select>
+                            </div>
+                        </div>
+                        <button class="btn-primary" onclick="generateTUSLAReport()" style="width: 100%; font-size: 1.1rem; padding: 1rem;">
+                            <i class="fas fa-play-circle"></i> Generate TUSLA Report
+                        </button>
+                    </div>
+                    
+                    <div id="tusla-results-container" style="margin-top: 2rem; display: none;"></div>
+                </div>
+                
                 <div id="page-enrollment" class="page-content"></div>
                 <div id="page-timetable" class="page-content"></div>
                 <div id="page-assessments" class="page-content"></div>
@@ -423,6 +521,7 @@
                 <div id="page-staff" class="page-content"></div>
                 <div id="page-messages" class="page-content"></div>
                 <div id="page-announcements" class="page-content"></div>
+
                 <div id="page-school-settings" class="page-content"></div>
                 <div id="page-customization" class="page-content"></div>
                 <div id="page-users" class="page-content"></div>
@@ -816,6 +915,9 @@
 
     <script src="/custom-modals.js?v=cleanADMIN"></script>
     <script src="/student-detail.js?v=cleanADMIN"></script>
+    <script src="/teacher-detail.js?v=cleanADMIN"></script>
+    <script src="/anseo-dashboard.js?v=cleanADMIN"></script>
+    <script src="/tusla-report.js?v=cleanADMIN"></script>
     <script src="/admin-portal.js?v=cleanADMIN"></script>
     <script src="/app-v2.js?v=cleanADMIN"></script>
 </body>

@@ -329,6 +329,20 @@ function loadPageContent(pageName, container) {
         case 'integrations':
             loadIntegrationsPage(container);
             break;
+        case 'anseo':
+            // ANSEO dashboard already has HTML in admin-portal.html
+            // Just initialize it
+            if (typeof loadANSEODashboard === 'function') {
+                setTimeout(() => loadANSEODashboard(), 100);
+            }
+            break;
+        case 'tusla':
+            // TUSLA report already has HTML in admin-portal.html
+            // Just initialize it
+            if (typeof loadTUSLAReport === 'function') {
+                setTimeout(() => loadTUSLAReport(), 100);
+            }
+            break;
         default:
             container.innerHTML = '<div class="p-4">Content coming soon...</div>';
     }
