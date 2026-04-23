@@ -337,7 +337,7 @@ async function handleLogin(e) {
 function getPostLoginPath(role) {
     const normalizedRole = String(role || '').toLowerCase();
 
-    if (normalizedRole === 'admin') {
+    if (normalizedRole === 'admin' || normalizedRole === 'principal') {
         return '/admin-portal.html#/shannoncomp/admin/dashboard';
     }
     if (normalizedRole === 'parent') {
@@ -359,16 +359,32 @@ function getPostLoginPath(role) {
 async function login(email, pin, selectedRole = '') {
     try {
         showLoading();
-        
-        const response = await fetch(`${API_URL}/auth/login`, {
-            method: 'POST',
-            headers: {
-                'Content-Type': 'application/json'
-            },
-            body: JSON.stringify({ email, password: pin, role: selectedRole })
-        });
-        
-        const data = await response.json();
+
+        const attemptLogin = async (roleValue) => {
+            const response = await fetch(`${API_URL}/auth/login`, {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json'
+                },
+                body: JSON.stringify({ email, password: pin, role: roleValue })
+            });
+
+            const data = await response.json().catch(() => ({}));
+            return { response, data };
+        };
+
+        let { response, data } = await attemptLogin(selectedRole);
+
+        const roleMismatch =
+            response.status === 403 &&
+            selectedRole &&
+            typeof data.message === 'string' &&
+            (data.message.toLowerCase().includes('role') || data.message.toLowerCase().includes('teacher login'));
+
+        // If role dropdown was wrong for the account, retry without forcing a role.
+        if (roleMismatch) {
+            ({ response, data } = await attemptLogin(''));
+        }
         
         if (response.ok && data.token) {
             authToken = data.token;
@@ -381,7 +397,7 @@ async function login(email, pin, selectedRole = '') {
             localStorage.setItem('userRole', resolvedRole);
             localStorage.setItem('permissionLevel', currentUser.permissionLevel || 'General');
             
-            showSuccess('Welcome back!');
+            showSuccess(`Welcome back, ${getDisplayName(currentUser)}!`);
             
             setTimeout(() => {
                 hideLoading();
@@ -417,6 +433,19 @@ function quickLogin(email, pin) {
 function inferRoleFromEmail(email) {
     const normalizedEmail = String(email || '').toLowerCase();
 
+    if (normalizedEmail === 'mary.costello@shannoncomp.ie') {
+        return 'principal';
+    }
+    if (normalizedEmail === '24zuzannafrankowska@shannoncomp.ie') {
+        return 'student';
+    }
+    if (normalizedEmail === '24corykilmartin@shannoncomp.ie') {
+        return 'teacher';
+    }
+    if (normalizedEmail === 'marcusray@cirkledevelopment.co.uk') {
+        return 'parent';
+    }
+
     if (normalizedEmail === 'admin@schoolware.com' || normalizedEmail.includes('admin')) {
         return 'admin';
     }
@@ -429,7 +458,7 @@ function inferRoleFromEmail(email) {
     if (normalizedEmail.includes('student')) {
         return 'student';
     }
-    if (normalizedEmail.includes('teacher') || normalizedEmail.includes('cory') || normalizedEmail.includes('shannoncomp.ie')) {
+    if (normalizedEmail.includes('teacher') || normalizedEmail.includes('cory')) {
         return 'teacher';
     }
 

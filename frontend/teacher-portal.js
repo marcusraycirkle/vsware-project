@@ -638,6 +638,13 @@ function navigateToTeacherPage(pageName) {
 }
 
 function setupNavigation() {
+    const brandLogo = document.querySelector('.brand-logo');
+    if (brandLogo) {
+        brandLogo.addEventListener('error', () => {
+            brandLogo.style.display = 'none';
+        });
+    }
+
     document.querySelectorAll('.nav-item').forEach((item) => {
         item.addEventListener('click', (event) => {
             event.preventDefault();

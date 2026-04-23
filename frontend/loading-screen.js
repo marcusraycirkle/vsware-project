@@ -1,69 +1,116 @@
 const videoEl = document.getElementById('loading-video');
 const fallbackLoader = document.getElementById('fallback-loader');
-let videoEnded = false;
-let videoLoaded = false;
-let isInitialLoad = !sessionStorage.getItem('pageLoaded');
 
-videoEl.loop = true;
-videoEl.muted = true;
+// Keep a short branded intro, then leave as soon as the app is ready.
+const MIN_BRAND_TIME_MS = 1200;
+const READY_CHECK_INTERVAL_MS = 400;
+const MAX_WAIT_MS = 10000;
 
-// Keep the loading animation cycling until the page transition happens.
-videoEl.addEventListener('ended', () => {
-    videoEnded = true;
-    if (!videoEl.loop) {
-        redirectToLanding();
-    }
-});
-
-// Handle video error (fallback if video not found)
-videoEl.addEventListener('error', () => {
-    fallbackLoader.classList.add('show');
-    // Wait 3 seconds then redirect
-    setTimeout(redirectToLanding, 3000);
-});
-
-// Handle video metadata loaded
-videoEl.addEventListener('loadedmetadata', () => {
-    videoLoaded = true;
-    // If video is very short or already played, redirect after a moment
-    if (videoEl.duration && videoEl.duration < 1) {
-        setTimeout(redirectToLanding, 1000);
-    }
-});
-
-// Handle can play
-videoEl.addEventListener('canplay', () => {
-    videoEl.play().catch(err => {
-        console.log('Autoplay failed, showing fallback:', err);
-        fallbackLoader.classList.add('show');
-        setTimeout(redirectToLanding, 3000);
-    });
-});
-
-// Timeout failsafe
-// For initial load: play full video cycle then redirect
-// For refresh: redirect after 10 seconds max (video will be shown as loading overlay)
-const timeoutDuration = isInitialLoad ? 15000 : 10000;
-setTimeout(() => {
-    redirectToLanding();
-}, timeoutDuration);
+let startedAt = Date.now();
+let redirected = false;
+let appReady = false;
+let pollTimer = null;
+let delayedRedirectTimer = null;
 
 function redirectToLanding() {
-    // Mark that we've loaded the page
+    if (redirected) {
+        return;
+    }
+
+    redirected = true;
+    if (pollTimer) {
+        clearInterval(pollTimer);
+        pollTimer = null;
+    }
+    if (delayedRedirectTimer) {
+        clearTimeout(delayedRedirectTimer);
+        delayedRedirectTimer = null;
+    }
     sessionStorage.setItem('pageLoaded', 'true');
-    
-    // Redirect to home/landing page
-    window.location.pathname = '/home';
+    window.location.replace('/home');
 }
 
-// Start playback immediately
-window.addEventListener('load', () => {
-    // If video is ready and hasn't played yet, play it
-    if (videoEl.readyState >= 2) {
-        videoEl.play().catch(err => {
-            console.log('Autoplay prevention, showing fallback');
-            fallbackLoader.classList.add('show');
-            setTimeout(redirectToLanding, 3000);
-        });
+function maybeRedirect() {
+    if (!appReady || redirected) {
+        return;
     }
-});
+
+    const elapsed = Date.now() - startedAt;
+    if (elapsed >= MIN_BRAND_TIME_MS) {
+        redirectToLanding();
+        return;
+    }
+
+    if (!delayedRedirectTimer) {
+        delayedRedirectTimer = setTimeout(redirectToLanding, MIN_BRAND_TIME_MS - elapsed);
+    }
+}
+
+async function checkAppReady() {
+    if (redirected) {
+        return;
+    }
+
+    try {
+        const res = await fetch('/home', {
+            method: 'GET',
+            cache: 'no-store'
+        });
+
+        if (res.ok) {
+            appReady = true;
+            maybeRedirect();
+        }
+    } catch (err) {
+        // Keep polling until ready or timeout.
+    }
+}
+
+function startReadinessPolling() {
+    checkAppReady();
+    pollTimer = setInterval(checkAppReady, READY_CHECK_INTERVAL_MS);
+
+    setTimeout(() => {
+        if (pollTimer) {
+            clearInterval(pollTimer);
+        }
+
+        // Hard failsafe so loader can never hang.
+        if (!redirected) {
+            redirectToLanding();
+        }
+    }, MAX_WAIT_MS);
+}
+
+if (!videoEl) {
+    redirectToLanding();
+} else {
+    videoEl.loop = true;
+    videoEl.muted = true;
+
+    videoEl.addEventListener('error', () => {
+        if (fallbackLoader) {
+            fallbackLoader.classList.add('show');
+        }
+    });
+
+    videoEl.addEventListener('canplay', () => {
+        videoEl.play().catch(() => {
+            if (fallbackLoader) {
+                fallbackLoader.classList.add('show');
+            }
+        });
+    });
+
+    window.addEventListener('load', () => {
+        startReadinessPolling();
+
+        if (videoEl.readyState >= 2) {
+            videoEl.play().catch(() => {
+                if (fallbackLoader) {
+                    fallbackLoader.classList.add('show');
+                }
+            });
+        }
+    });
+}

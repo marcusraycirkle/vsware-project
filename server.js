@@ -99,7 +99,20 @@ if (process.env.NODE_ENV !== 'production' && process.env.VERCEL !== '1') {
 }
 
 // Middleware
-app.use(helmet());
+app.use(helmet({
+  contentSecurityPolicy: {
+    directives: {
+      defaultSrc: ["'self'"],
+      scriptSrc: ["'self'", "'unsafe-inline'", 'https://cdnjs.cloudflare.com', 'https://cdn.jsdelivr.net'],
+      scriptSrcAttr: ["'unsafe-inline'"],
+      styleSrc: ["'self'", "'unsafe-inline'", 'https://cdnjs.cloudflare.com', 'https://fonts.googleapis.com'],
+      fontSrc: ["'self'", 'https://cdnjs.cloudflare.com', 'https://fonts.gstatic.com'],
+      imgSrc: ["'self'", 'data:', 'https:', 'http:'],
+      mediaSrc: ["'self'", 'https://cdn.pixabay.com'],
+      connectSrc: ["'self'", 'https://vsware-project.vercel.app', 'https://*.vercel.app', 'http://localhost:5000', 'https://cdn.jsdelivr.net']
+    }
+  }
+}));
 
 // CORS configuration for production - MUST be early
 const corsOptions = {
@@ -138,18 +151,6 @@ app.use((req, res, next) => {
     res.set('Pragma', 'no-cache');
     res.set('Expires', '0');
   }
-  
-  // Set Content Security Policy
-  res.set('Content-Security-Policy', 
-    "default-src 'self'; " +
-    "script-src 'self' 'unsafe-inline' https://cdnjs.cloudflare.com https://cdn.jsdelivr.net; " +
-    "script-src-attr 'unsafe-inline'; " +
-    "style-src 'self' 'unsafe-inline' https://cdnjs.cloudflare.com https://fonts.googleapis.com; " +
-    "font-src 'self' https://cdnjs.cloudflare.com https://fonts.gstatic.com; " +
-    "img-src 'self' data: https: http:; " +
-    "media-src 'self' https://cdn.pixabay.com; " +
-    "connect-src 'self' https://vsware-project.vercel.app https://*.vercel.app http://localhost:5000 https://cdn.jsdelivr.net"
-  );
   
   // Prevent caching to ensure users get latest code
   res.set('Cache-Control', 'no-store, no-cache, must-revalidate, proxy-revalidate');

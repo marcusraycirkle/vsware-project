@@ -207,7 +207,7 @@
                     <i class="fas fa-bars"></i>
                 </button>
                 <div class="school-brand">
-                    <img src="/mispal-logo.png" alt="MISpal" class="brand-logo" onerror="this.style.display='none'">
+                    <img src="/mispal-logo.png" alt="MISpal" class="brand-logo">
                     <div class="brand-info">
                         <h1 class="school-name">St. Patrick's Comprehensive</h1>
                         <span class="portal-type">Teacher Portal</span>
@@ -605,16 +605,5 @@
     </div>
 
     <script src="/teacher-portal.js"></script>
-    <script>
-        // Basic role guard fallback
-        document.addEventListener('DOMContentLoaded', function() {
-            const user = JSON.parse(localStorage.getItem('user') || '{}');
-            const normalizedRole = (user.role || '').toLowerCase();
-            if (!normalizedRole || normalizedRole !== 'teacher') {
-                window.location.href = '/shannoncomp/login';
-                return;
-            }
-        });
-    </script>
 </body>
 </html>
