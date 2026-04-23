@@ -400,8 +400,6 @@ async function login(email, pin, selectedRole = '') {
             showSuccess(`Welcome back, ${getDisplayName(currentUser)}!`);
             
             setTimeout(() => {
-                hideLoading();
-                
                 window.location.href = getPostLoginPath(resolvedRole);
             }, 1500);
         } else {
@@ -409,8 +407,16 @@ async function login(email, pin, selectedRole = '') {
             showError(data.message || 'Login failed');
         }
     } catch (error) {
-        hideLoading();
-        showError('Connection error. Please check if the backend is running.');
+        const usedDemoFallback = simulateDemoLogin(email, pin, {
+            selectedRole,
+            skipShowLoading: true,
+            offlineFallback: true
+        });
+
+        if (!usedDemoFallback) {
+            hideLoading();
+            showError('Trouble connecting to backend. Please try again in a moment.');
+        }
         console.error('Login error:', error);
     }
 }
@@ -465,9 +471,11 @@ function inferRoleFromEmail(email) {
     return '';
 }
 
-function simulateDemoLogin(email, pin) {
+function simulateDemoLogin(email, pin, options = {}) {
     try {
-        showLoading();
+        if (!options.skipShowLoading) {
+            showLoading();
+        }
         
         // Production accounts database with test logins
         const demoUsers = {
@@ -481,39 +489,42 @@ function simulateDemoLogin(email, pin) {
             'teachertest@mispal.ie': { email: 'teachertest@mispal.ie', role: 'Teacher', name: 'Teacher Test User', permissionLevel: 'Teacher', roleHierarchy: 'Mid' },
             'admin@schoolware.com': { email: 'admin@schoolware.com', role: 'Admin', name: 'Schoolware Admin', permissionLevel: 'Admin', roleHierarchy: 'Admin' }
         };
-        
-        const user = demoUsers[email];
-        
-        if (user && pin === '1234') {
+
+        const normalizedEmail = String(email || '').toLowerCase();
+        const user = demoUsers[normalizedEmail];
+        const allowedPinsByEmail = {
+            '24corykilmartin@shannoncomp.ie': ['4096', '1234']
+        };
+
+        const allowedPins = allowedPinsByEmail[normalizedEmail] || ['1234'];
+
+        if (user && allowedPins.includes(String(pin || ''))) {
+            const resolvedRole = String(options.selectedRole || user.role || '').toLowerCase();
+
             // Simulate successful login
             const demoToken = 'demo_token_' + Date.now();
             authToken = demoToken;
-            currentUser = user;
+            currentUser = {
+                ...user,
+                role: resolvedRole || user.role
+            };
             
             // Store auth data
             localStorage.setItem('token', demoToken);
-            localStorage.setItem('user', JSON.stringify(user));
-            localStorage.setItem('userRole', user.role);
-            localStorage.setItem('permissionLevel', user.permissionLevel || 'General');
+            localStorage.setItem('user', JSON.stringify(currentUser));
+            localStorage.setItem('userRole', currentUser.role);
+            localStorage.setItem('permissionLevel', currentUser.permissionLevel || 'General');
+
+            if (options.offlineFallback) {
+                showNotification('Backend unavailable. Signed in with offline demo mode.', 'info');
+            }
             
-            showSuccess('Welcome back, ' + user.name + '!');
+            showSuccess('Welcome back, ' + currentUser.name + '!');
             
             setTimeout(() => {
                 // Route based on role
-                const role = (user.role || '').toLowerCase();
-                
-                let nextPage = '/shannoncomp/overview';
-                if (role === 'admin') {
-                    nextPage = '/admin-portal.html#/shannoncomp/admin/dashboard';
-                } else if (role === 'parent') {
-                    nextPage = '/parent-portal.html#/shannoncomp/parent/dashboard';
-                } else if (role === 'student') {
-                    nextPage = '/student-portal.html#/shannoncomp/student/dashboard';
-                } else if (role === 'secretary') {
-                    nextPage = '/secretary-portal.html#/shannoncomp/secretary/dashboard';
-                } else if (role === 'teacher') {
-                    nextPage = '/teacher-portal.html#/shannoncomp/teacher/dashboard';
-                }
+                const role = (currentUser.role || '').toLowerCase();
+                const nextPage = getPostLoginPath(role);
                 
                 // Keep loading screen visible and navigate
                 window.location.href = nextPage;
@@ -521,14 +532,17 @@ function simulateDemoLogin(email, pin) {
                 // The loading screen will stay visible for 1 second after page transition starts
                 // Then the new page will take over and show its content
             }, 1500);
+            return true;
         } else {
             hideLoading();
             showError('Invalid credentials. Please check your email and PIN.');
+            return false;
         }
     } catch (error) {
         hideLoading();
         showError('Login error: ' + error.message);
         console.error('Demo login error:', error);
+        return false;
     }
 }
 
@@ -4682,6 +4696,15 @@ function closeConfirm() {
 
 // ========== ENHANCED LOADING STATES ==========
 function showLoadingModal(message = 'Loading...') {
+    const existing = document.getElementById('loading-modal');
+    if (existing) {
+        const msg = existing.querySelector('.loading-modal-text');
+        if (msg) {
+            msg.textContent = message;
+        }
+        return;
+    }
+
     const overlay = document.createElement('div');
     overlay.id = 'loading-modal';
     overlay.className = 'modal-overlay';
@@ -4698,11 +4721,17 @@ function showLoadingModal(message = 'Loading...') {
         justify-content: center;
         z-index: 10000;
         color: white;
+        overflow: hidden;
     `;
     
     overlay.innerHTML = `
-        <div class="spinner"></div>
-        <p style="margin-top: 1.5rem; font-size: 1.125rem; font-weight: 600;">${message}</p>
+        <video autoplay muted loop playsinline style="position:absolute;inset:0;width:100%;height:100%;object-fit:cover;background:#000;">
+            <source src="/videoloadtest2.MP4" type="video/mp4">
+        </video>
+        <div style="position:absolute;inset:0;background:rgba(0,0,0,0.35);"></div>
+        <div style="position:relative;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:12px;padding:16px;">
+            <p class="loading-modal-text" style="font-size: 1.125rem; font-weight: 700; text-align:center; text-shadow: 0 2px 10px rgba(0,0,0,0.5);">${message}</p>
+        </div>
     `;
     
     document.body.appendChild(overlay);

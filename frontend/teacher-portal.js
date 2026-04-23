@@ -681,6 +681,8 @@ function setupNavigation() {
 }
 
 async function initTeacherPortal() {
+    const overlay = document.getElementById('portal-loading-overlay');
+
     try {
         state.user = JSON.parse(localStorage.getItem('user') || '{}');
         const role = String(state.user.role || '').toLowerCase();
@@ -694,19 +696,48 @@ async function initTeacherPortal() {
         if (userName) userName.textContent = getUserFullName(state.user);
 
         setupNavigation();
-        await loadTeacherProfile();
-        await loadTeacherClasses();
-        await loadTeacherTimetable();
-        await renderDashboardData();
 
-        const overlay = document.getElementById('portal-loading-overlay');
+        try {
+            await loadTeacherProfile();
+        } catch (error) {
+            state.teacher = {
+                _id: state.user.teacherProfile || state.user._id || 'teacher-local',
+                email: state.user.email || '',
+                firstName: state.user.firstName || '',
+                lastName: state.user.lastName || ''
+            };
+            showToast('Teacher profile missing in backend. Running limited mode.', 'error');
+        }
+
+        try {
+            await loadTeacherClasses();
+        } catch (error) {
+            state.teacherClasses = [];
+            state.classById = {};
+            showToast('Trouble connecting to backend for classes.', 'error');
+        }
+
+        try {
+            await loadTeacherTimetable();
+        } catch (error) {
+            state.timetable = null;
+            state.todaySlots = [];
+            showToast('Trouble connecting to backend for timetable.', 'error');
+        }
+
+        try {
+            await renderDashboardData();
+        } catch (error) {
+            showToast('Dashboard loaded with limited data.', 'error');
+        }
+    } catch (error) {
+        showToast(error.message || 'Unable to initialize teacher portal', 'error');
+    } finally {
         if (overlay) {
             overlay.style.opacity = '0';
             overlay.style.transition = 'opacity 0.4s ease-out';
             setTimeout(() => overlay.remove(), 400);
         }
-    } catch (error) {
-        showToast(error.message, 'error');
     }
 }
 
