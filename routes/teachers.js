@@ -4,6 +4,75 @@ const { auth, authorize } = require('../middleware/auth');
 const Teacher = require('../models/Teacher');
 const User = require('../models/User');
 
+// @route   GET /api/teachers/me/profile
+// @desc    Get or create current authenticated teacher profile
+// @access  Private (Teacher)
+router.get('/me/profile', auth, authorize('teacher', 'admin', 'principal'), async (req, res) => {
+  try {
+    const user = await User.findById(req.userId).select('-password');
+    if (!user) {
+      return res.status(404).json({ message: 'User not found' });
+    }
+
+    if (user.role !== 'teacher') {
+      return res.status(403).json({ message: 'Only teacher accounts can access this profile' });
+    }
+
+    let teacher = null;
+
+    if (user.teacherProfile) {
+      teacher = await Teacher.findById(user.teacherProfile)
+        .populate('user', '-password')
+        .populate('subjects')
+        .populate('classes')
+        .populate('classTeacherOf')
+        .populate('timetable');
+    }
+
+    if (!teacher) {
+      teacher = await Teacher.findOne({ user: user._id })
+        .populate('user', '-password')
+        .populate('subjects')
+        .populate('classes')
+        .populate('classTeacherOf')
+        .populate('timetable');
+
+      if (teacher && String(user.teacherProfile || '') !== String(teacher._id)) {
+        user.teacherProfile = teacher._id;
+        await user.save();
+      }
+    }
+
+    if (!teacher) {
+      const uniqueSuffix = Date.now();
+      teacher = new Teacher({
+        user: user._id,
+        teacherId: `TCH${uniqueSuffix}`,
+        employeeId: `EMP${uniqueSuffix}`,
+        department: 'General',
+        designation: 'Teacher',
+        status: 'Active'
+      });
+      await teacher.save();
+
+      user.teacherProfile = teacher._id;
+      await user.save();
+
+      teacher = await Teacher.findById(teacher._id)
+        .populate('user', '-password')
+        .populate('subjects')
+        .populate('classes')
+        .populate('classTeacherOf')
+        .populate('timetable');
+    }
+
+    res.json({ teacher });
+  } catch (error) {
+    console.error('Error loading current teacher profile:', error);
+    res.status(500).json({ message: 'Server error', error: error.message });
+  }
+});
+
 // @route   GET /api/teachers
 // @desc    Get all teachers
 // @access  Private (Admin/Principal/Teacher)

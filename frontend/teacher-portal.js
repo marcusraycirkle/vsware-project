@@ -499,6 +499,16 @@ function renderCalendarPage() {
 }
 
 async function loadTeacherProfile() {
+    try {
+        const profilePayload = await apiCall('/teachers/me/profile');
+        if (profilePayload?.teacher?._id) {
+            state.teacher = profilePayload.teacher;
+            return;
+        }
+    } catch (error) {
+        // Fall back to legacy search flow below.
+    }
+
     const search = encodeURIComponent(state.user.email || '');
     const teacherList = await apiCall(`/teachers?limit=200&search=${search}`);
     const matched = Array.isArray(teacherList)
@@ -506,7 +516,7 @@ async function loadTeacherProfile() {
         : null;
 
     if (!matched) {
-        throw new Error('Teacher profile not found');
+        throw new Error('Teacher profile not found for this account. Please contact admin.');
     }
 
     state.teacher = matched;
