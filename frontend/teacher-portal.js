@@ -697,11 +697,20 @@ function navigateToTeacherPage(pageName) {
     const navItem = document.querySelector(`.nav-item[data-page="${pageName}"]`);
     if (navItem) navItem.classList.add('active');
 
-    document.querySelectorAll('.page-content').forEach((page) => page.classList.remove('active'));
+    document.querySelectorAll('.page-content').forEach((page) => {
+        page.classList.remove('active');
+        page.style.display = 'none';
+    });
     const pageElement = document.getElementById(`page-${pageName}`);
     if (pageElement) {
         pageElement.classList.add('active');
         pageElement.style.display = 'block';
+    } else {
+        const dashboard = document.getElementById('page-dashboard');
+        if (dashboard) {
+            dashboard.classList.add('active');
+            dashboard.style.display = 'block';
+        }
     }
 
     if (pageName === 'attendance') {
