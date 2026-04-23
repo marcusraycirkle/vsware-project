@@ -117,7 +117,8 @@ router.get('/', auth, authorize('admin', 'principal', 'teacher'), async (req, re
       dateOfBirth: student.dateOfBirth,
       gender: student.gender,
       currentClass: student.currentClass,
-      status: student.status || 'Active'
+      status: student.status || 'Active',
+      supportCard: student.supportCard || { color: 'none', reason: '', description: '' }
     }));
     
     // Filter by search if provided
@@ -198,6 +199,7 @@ router.post('/', auth, authorize('admin', 'principal'), async (req, res) => {
       pps, lockerNumber, medicalInfo, previousSchool,
       notes, photoUrl, status
     } = req.body;
+    const supportCard = req.body.supportCard;
     
     if (!email || !firstName || !lastName || !yearGroup) {
       return res.status(400).json({ message: 'Missing required fields: email, firstName, lastName, yearGroup' });
@@ -285,6 +287,16 @@ router.post('/', auth, authorize('admin', 'principal'), async (req, res) => {
         createdAt: new Date()
       }];
     }
+
+    if (supportCard && typeof supportCard === 'object') {
+      studentData.supportCard = {
+        color: supportCard.color || 'none',
+        reason: supportCard.reason || '',
+        description: supportCard.description || '',
+        assignedBy: req.userId,
+        assignedAt: new Date()
+      };
+    }
     
     // Create student profile
     const student = new Student(studentData);
@@ -319,7 +331,8 @@ router.post('/', auth, authorize('admin', 'principal'), async (req, res) => {
       house: populatedStudent.house,
       currentClass: populatedStudent.currentClass,
       status: populatedStudent.status,
-      photoUrl: populatedStudent.photoUrl
+      photoUrl: populatedStudent.photoUrl,
+      supportCard: populatedStudent.supportCard || { color: 'none', reason: '', description: '' }
     };
     
     res.status(201).json({
@@ -344,6 +357,7 @@ router.put('/:id', auth, authorize('admin', 'principal'), async (req, res) => {
       lockerNumber, status, medicalInfo, previousSchool,
       notes, photoUrl
     } = req.body;
+    const supportCard = req.body.supportCard;
     
     const student = await Student.findById(req.params.id);
     
@@ -417,6 +431,16 @@ router.put('/:id', auth, authorize('admin', 'principal'), async (req, res) => {
           createdAt: new Date()
         }
       ];
+    }
+
+    if (supportCard && typeof supportCard === 'object') {
+      studentUpdates.supportCard = {
+        color: supportCard.color || 'none',
+        reason: supportCard.reason || '',
+        description: supportCard.description || '',
+        assignedBy: req.userId,
+        assignedAt: new Date()
+      };
     }
     
     const updatedStudent = await Student.findByIdAndUpdate(

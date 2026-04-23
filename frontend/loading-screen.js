@@ -4,11 +4,13 @@ let videoEnded = false;
 let videoLoaded = false;
 let isInitialLoad = !sessionStorage.getItem('pageLoaded');
 
-// Handle video end - only redirect if it's a page refresh/second time
+videoEl.loop = true;
+videoEl.muted = true;
+
+// Keep the loading animation cycling until the page transition happens.
 videoEl.addEventListener('ended', () => {
     videoEnded = true;
-    // If this is an initial load, loop the video until redirect happens
-    if (!isInitialLoad) {
+    if (!videoEl.loop) {
         redirectToLanding();
     }
 });

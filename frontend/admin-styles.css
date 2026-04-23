@@ -918,6 +918,122 @@ body {
 }
 
 /* ==============================================
+   TUSLA Report
+   ============================================== */
+
+.tusla-report-card {
+    margin-bottom: var(--spacing-lg);
+}
+
+.tusla-header {
+    background: linear-gradient(180deg, #f8fbff 0%, #f3f7ff 100%);
+}
+
+.tusla-controls {
+    padding: var(--spacing-lg);
+    border-bottom: 1px solid var(--border-color);
+}
+
+.tusla-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(180px, 1fr));
+    gap: 12px;
+    margin-bottom: var(--spacing-md);
+}
+
+.tusla-field {
+    display: flex;
+    flex-direction: column;
+    gap: 6px;
+}
+
+.tusla-field label {
+    font-size: 12px;
+    font-weight: 700;
+    color: var(--text-secondary);
+    text-transform: uppercase;
+    letter-spacing: 0.3px;
+}
+
+.tusla-field input,
+.tusla-field select {
+    border: 1px solid var(--border-color);
+    border-radius: 8px;
+    padding: 10px 12px;
+    font-size: 14px;
+    background: #fff;
+    color: var(--text-primary);
+}
+
+.tusla-actions {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 8px;
+}
+
+.tusla-results {
+    padding: var(--spacing-lg);
+}
+
+.tusla-empty {
+    font-size: 14px;
+    color: var(--text-secondary);
+    text-align: center;
+    padding: var(--spacing-lg);
+}
+
+.tusla-summary-head {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 10px;
+    align-items: center;
+    margin-bottom: var(--spacing-md);
+    font-size: 13px;
+    color: var(--text-secondary);
+}
+
+.tusla-summary-head strong {
+    color: var(--text-primary);
+    font-size: 15px;
+}
+
+.tusla-table-wrap {
+    border: 1px solid var(--border-color);
+    border-radius: 10px;
+    overflow: hidden;
+    background: #fff;
+}
+
+.tusla-table {
+    width: 100%;
+    border-collapse: collapse;
+}
+
+.tusla-table thead {
+    background: #edf7ff;
+}
+
+.tusla-table th,
+.tusla-table td {
+    border-bottom: 1px solid var(--border-color);
+    padding: 12px;
+    text-align: left;
+    font-size: 13px;
+    vertical-align: top;
+}
+
+.tusla-table th:last-child,
+.tusla-table td:last-child {
+    width: 120px;
+    text-align: right;
+    font-weight: 700;
+}
+
+.tusla-table tbody tr:last-child td {
+    border-bottom: 0;
+}
+
+/* ==============================================
    Buttons
    ============================================== */
 

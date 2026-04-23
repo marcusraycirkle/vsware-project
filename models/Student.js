@@ -89,6 +89,30 @@ const studentSchema = new mongoose.Schema({
       phone: String
     }
   },
+  supportCard: {
+    color: {
+      type: String,
+      enum: ['none', 'green', 'yellow', 'red', 'purple'],
+      default: 'none'
+    },
+    reason: {
+      type: String,
+      default: ''
+    },
+    description: {
+      type: String,
+      default: ''
+    },
+    assignedBy: {
+      type: mongoose.Schema.Types.ObjectId,
+      ref: 'User',
+      default: null
+    },
+    assignedAt: {
+      type: Date,
+      default: null
+    }
+  },
   attendance: [{
     type: mongoose.Schema.Types.ObjectId,
     ref: 'Attendance'

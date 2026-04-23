@@ -141,8 +141,8 @@ const seedCompMIS = async () => {
     console.log('👨‍🏫 Creating Cory Kilmartin...');
     const coryUser = new User({
       email: '24corykilmartin@shannoncomp.ie',
-      password: 'cory2024',
-      pin: '1470',
+      password: '4096',
+      pin: '4096',
       firstName: 'Cory',
       lastName: 'Kilmartin',
       role: 'teacher',
@@ -179,7 +179,7 @@ const seedCompMIS = async () => {
       status: 'Active'
     });
     await coryTeacher.save();
-    console.log(`   ✅ Cory Kilmartin: 24corykilmartin@shannoncomp.ie / PIN: 1470 / Parking: 14`);
+    console.log(`   ✅ Cory Kilmartin: 24corykilmartin@shannoncomp.ie / Password: 4096 / Parking: 14`);
 
     // Create Zuzanna Frankowska (Specific Teacher)
     console.log('👩‍🏫 Creating Zuzanna Frankowska...');

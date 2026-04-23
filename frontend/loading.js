@@ -43,6 +43,8 @@ class LoadingAnimation {
     // Try to play the video
     const videoOverlay = document.getElementById('loading-video-overlay');
     if (videoOverlay) {
+      videoOverlay.loop = true;
+      videoOverlay.muted = true;
       videoOverlay.currentTime = 0;
       videoOverlay.play().catch(err => {
         console.log('Video autoplay failed, showing fallback');
@@ -52,22 +54,21 @@ class LoadingAnimation {
           videoOverlay.style.display = 'none';
         }
       });
-      
-      // Cut the video off after 0.8 seconds and hide the loading screen
-      setTimeout(() => {
-        videoOverlay.pause();
-        this.hide();
-      }, 800);
     }
   }
   
   hide() {
     const overlay = document.getElementById('mispal-loading');
+    const videoOverlay = document.getElementById('loading-video-overlay');
     if (overlay) {
       overlay.style.opacity = '0';
       setTimeout(() => {
         overlay.style.display = 'none';
         this.isAnimating = false;
+        if (videoOverlay) {
+          videoOverlay.pause();
+          videoOverlay.currentTime = 0;
+        }
         if (this.animationFrame) {
           cancelAnimationFrame(this.animationFrame);
         }

