@@ -522,55 +522,6 @@ function renderCalendarPage() {
         </div>
     `;
 }
-                </div>
-                <div id="teacher-calendar-events" style="margin-top:12px;"></div>
-            </div>
-            <div id="my-timetable-tab" class="teacher-tab-pane" style="display:none; margin-top:12px;">
-                <div class="day-switcher">
-                    ${WEEK_DAYS.map((day) => `<button class="day-btn ${day === selectedDay ? 'active' : ''}" data-day="${day}">${day}</button>`).join('')}
-                </div>
-                <div id="timetable-day-list" style="margin-top:12px;"></div>
-            </div>
-        </div>
-    `;
-
-    document.querySelectorAll('.tab-btn').forEach((btn) => {
-        btn.addEventListener('click', () => {
-            document.querySelectorAll('.tab-btn').forEach((b) => b.classList.remove('active'));
-            btn.classList.add('active');
-            const tab = btn.getAttribute('data-tab');
-            document.getElementById('teacher-calendar-tab').style.display = tab === 'teacher-calendar' ? 'block' : 'none';
-            document.getElementById('my-timetable-tab').style.display = tab === 'my-timetable' ? 'block' : 'none';
-        });
-    });
-
-    document.getElementById('save-custom-day')?.addEventListener('click', () => {
-        const date = document.getElementById('custom-day-date')?.value;
-        const type = document.getElementById('custom-day-type')?.value;
-        const note = document.getElementById('custom-day-note')?.value || '';
-        if (!date) {
-            showToast('Pick a date first', 'error');
-            return;
-        }
-        const existing = JSON.parse(localStorage.getItem('teacher_custom_days') || '[]');
-        existing.push({ date, type, note });
-        localStorage.setItem('teacher_custom_days', JSON.stringify(existing));
-        renderTeacherCalendar();
-        showToast('Day marked');
-    });
-
-    document.querySelectorAll('.day-btn').forEach((btn) => {
-        btn.addEventListener('click', () => {
-            state.selectedDay = btn.getAttribute('data-day');
-            document.querySelectorAll('.day-btn').forEach((item) => item.classList.remove('active'));
-            btn.classList.add('active');
-            renderTimetableDay(state.selectedDay);
-        });
-    });
-
-    renderTeacherCalendar();
-    renderTimetableDay(selectedDay);
-}
 
 async function loadTeacherProfile() {
     try {
