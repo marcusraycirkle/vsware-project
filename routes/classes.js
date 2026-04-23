@@ -26,6 +26,10 @@ router.get('/', auth, authorize('admin', 'principal', 'teacher'), async (req, re
       .skip((page - 1) * limit)
       .sort({ year: 1, section: 1 });
     
+    if (!classes || classes.length === 0) {
+      return res.json({ classes: [], totalPages: 0, currentPage: page, total: 0 });
+    }
+    
     const count = await Class.countDocuments(query);
     
     res.json({

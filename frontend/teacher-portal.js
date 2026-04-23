@@ -523,9 +523,21 @@ async function loadTeacherProfile() {
 }
 
 async function loadTeacherClasses() {
-    const classData = await apiCall('/classes?limit=400');
-    const classes = Array.isArray(classData.classes) ? classData.classes : [];
-    const teacherId = String(state.teacher?._id || '');
+    try {
+        const classDataResponse = await apiCall('/classes?limit=400');
+        let classes = [];
+
+        if (Array.isArray(classDataResponse)) {
+            classes = classDataResponse;
+        } else if (classDataResponse && Array.isArray(classDataResponse.classes)) {
+            classes = classDataResponse.classes;
+        }
+
+        if (!Array.isArray(classes)) {
+            throw new Error('Invalid class data format');
+        }
+
+        const teacherId = String(state.teacher?._id || '');
 
     state.teacherClasses = classes.filter((classItem) => {
         const classTeacherMatch = String(classItem.classTeacher?._id || classItem.classTeacher || '') === teacherId;
@@ -533,10 +545,15 @@ async function loadTeacherClasses() {
         return classTeacherMatch || teacherLinkMatch;
     });
 
-    state.classById = {};
-    state.teacherClasses.forEach((classItem) => {
-        state.classById[String(classItem._id)] = classItem;
-    });
+        state.classById = {};
+        state.teacherClasses.forEach((classItem) => {
+            state.classById[String(classItem._id)] = classItem;
+        });
+    } catch (error) {
+        state.teacherClasses = [];
+        state.classById = {};
+        showToast('Could not load classes: ' + error.message, 'error');
+    }
 }
 
 async function loadTeacherTimetable() {
@@ -671,11 +688,22 @@ function setupNavigation() {
         window.location.href = '/shannoncomp/login';
     });
 
-    document.getElementById('user-menu-btn')?.addEventListener('click', () => {
+    document.getElementById('user-menu-btn')?.addEventListener('click', (event) => {
+        event.preventDefault();
+        event.stopPropagation();
         const menu = document.getElementById('user-menu-dropdown');
         if (menu) {
-            menu.classList.toggle('open');
-            menu.style.display = menu.classList.contains('open') ? 'block' : 'none';
+            const isHidden = menu.style.display === 'none' || !menu.style.display;
+            menu.style.display = isHidden ? 'block' : 'none';
+        }
+    });
+
+    document.addEventListener('click', (e) => {
+        if (!e.target.closest('#user-menu-btn') && !e.target.closest('#user-menu-dropdown')) {
+            const menu = document.getElementById('user-menu-dropdown');
+            if (menu) {
+                menu.style.display = 'none';
+            }
         }
     });
 }
