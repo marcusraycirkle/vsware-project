@@ -14,6 +14,7 @@ const state = {
     todaySlots: [],
     timetable: null,
     selectedDay: null,
+    calendarCursor: null,
     chart: null
 };
 
@@ -288,8 +289,8 @@ function getSlotsForDay(dayName) {
     return dayEntry && Array.isArray(dayEntry.periods) ? dayEntry.periods : [];
 }
 
-function renderTimetableDay(dayName) {
-    const list = document.getElementById('timetable-day-list');
+function renderTimetableDay(dayName, containerId = 'timetable-day-list') {
+    const list = document.getElementById(containerId);
     if (!list) return;
 
     const slots = getSlotsForDay(dayName).slice().sort((a, b) => Number(a.periodNumber || 0) - Number(b.periodNumber || 0));
@@ -413,9 +414,9 @@ function renderCalendarPage() {
     const page = document.getElementById('page-calendar');
     if (!page) return;
 
-    const today = new Date();
-    const currentMonth = today.getMonth();
-    const currentYear = today.getFullYear();
+    const cursor = state.calendarCursor ? new Date(state.calendarCursor) : new Date();
+    const currentMonth = cursor.getMonth();
+    const currentYear = cursor.getFullYear();
     const firstDay = new Date(currentYear, currentMonth, 1);
     const lastDay = new Date(currentYear, currentMonth + 1, 0);
     const daysInMonth = lastDay.getDate();
@@ -487,8 +488,21 @@ function renderCalendarPage() {
     const quickActions = `<div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(150px, 1fr)); gap: 12px; margin-top: 16px;">
         <button class="btn-primary" style="padding: 10px; font-size: 13px;" onclick="navigateToTeacherPage('attendance'); return false;"><i class="fas fa-clipboard-check"></i> Mark Attendance</button>
         <button class="btn-secondary" style="padding: 10px; font-size: 13px;" onclick="handleMarkDay(); return false;"><i class="fas fa-star"></i> Mark Special Day</button>
-        <button class="btn-secondary" style="padding: 10px; font-size: 13px;" onclick="navigateToTeacherPage('timetable'); return false;"><i class="fas fa-calendar-alt"></i> My Timetable</button>
+        <button class="btn-secondary" style="padding: 10px; font-size: 13px;" onclick="navigateToTeacherPage('timetable'); return false;"><i class="fas fa-calendar-alt"></i> Open Full Timetable</button>
     </div>`;
+
+    const selectedDay = state.selectedDay || getTodayName();
+    const timetableSection = `
+        <div style="margin-top:24px;padding-top:20px;border-top:1px solid #E5E7EB;">
+            <h3 style="font-size:15px;font-weight:700;color:#111827;margin:0 0 12px 0;">My Timetable (Weekly)</h3>
+            <div style="display:flex;gap:8px;flex-wrap:wrap;margin-bottom:12px;">
+                ${WEEK_DAYS.map((day) => `
+                    <button class="calendar-day-btn ${day === selectedDay ? 'active' : ''}" data-day="${day}" style="padding:8px 14px;border-radius:6px;border:1px solid #D1D5DB;background:${day === selectedDay ? '#4F46E5' : '#fff'};color:${day === selectedDay ? '#fff' : '#374151'};font-weight:600;cursor:pointer;">${day}</button>
+                `).join('')}
+            </div>
+            <div id="calendar-timetable-day-list"></div>
+        </div>
+    `;
 
     page.innerHTML = `
         <div class="page-header">
@@ -509,6 +523,7 @@ function renderCalendarPage() {
             ${calendarGrid}
             ${upcomingClasses}
             ${quickActions}
+            ${timetableSection}
             
             <div style="margin-top: 20px; padding-top: 20px; border-top: 1px solid #e5e7eb;">
                 <h4 style="font-size: 13px; font-weight: 700; color: #6b7280; margin: 0 0 12px 0; text-transform: uppercase;">Legend</h4>
@@ -521,6 +536,15 @@ function renderCalendarPage() {
             </div>
         </div>
     `;
+
+    document.querySelectorAll('.calendar-day-btn').forEach((btn) => {
+        btn.addEventListener('click', () => {
+            state.selectedDay = btn.getAttribute('data-day');
+            renderCalendarPage();
+        });
+    });
+
+    renderTimetableDay(selectedDay, 'calendar-timetable-day-list');
 }
 
 async function loadTeacherProfile() {
@@ -998,18 +1022,23 @@ async function initTeacherPortal() {
 
 // ===== CALENDAR HELPER FUNCTIONS =====
 function previousMonth() {
-    const today = new Date();
-    today.setMonth(today.getMonth() - 1);
+    const base = state.calendarCursor ? new Date(state.calendarCursor) : new Date();
+    base.setDate(1);
+    base.setMonth(base.getMonth() - 1);
+    state.calendarCursor = base;
     renderCalendarPage();
 }
 
 function nextMonth() {
-    const today = new Date();
-    today.setMonth(today.getMonth() + 1);
+    const base = state.calendarCursor ? new Date(state.calendarCursor) : new Date();
+    base.setDate(1);
+    base.setMonth(base.getMonth() + 1);
+    state.calendarCursor = base;
     renderCalendarPage();
 }
 
 function todayCalendar() {
+    state.calendarCursor = new Date();
     renderCalendarPage();
 }
 

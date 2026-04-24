@@ -536,6 +536,7 @@ function renderStudentsTable(students) {
                     <th style="padding: 16px; text-align: left; font-size: 13px; font-weight: 700; color: var(--text-secondary);">Name</th>
                     <th style="padding: 16px; text-align: left; font-size: 13px; font-weight: 700; color: var(--text-secondary);">Year</th>
                     <th style="padding: 16px; text-align: left; font-size: 13px; font-weight: 700; color: var(--text-secondary);">Email</th>
+                    <th style="padding: 16px; text-align: left; font-size: 13px; font-weight: 700; color: var(--text-secondary);">Support Card</th>
                     <th style="padding: 16px; text-align: left; font-size: 13px; font-weight: 700; color: var(--text-secondary);">Status</th>
                     <th style="padding: 16px; text-align: right; font-size: 13px; font-weight: 700; color: var(--text-secondary);">Actions</th>
                 </tr>
@@ -547,9 +548,10 @@ function renderStudentsTable(students) {
                         <td style="padding: 16px; font-size: 14px; color: var(--text-primary);">${student.firstName} ${student.lastName}</td>
                         <td style="padding: 16px; font-size: 14px; color: var(--text-secondary);">Year ${student.yearGroup}</td>
                         <td style="padding: 16px; font-size: 14px; color: var(--text-secondary);">${student.email}</td>
+                        <td style="padding: 16px;">${renderSupportCardTag(student.supportCard)}</td>
                         <td style="padding: 16px;">
-                            <span style="padding: 4px 12px; border-radius: 12px; font-size: 12px; font-weight: 600; ${student.status === 'active' ? 'background: #D1FAE5; color: #065F46;' : 'background: #FEE2E2; color: #991B1B;'}">
-                                ${student.status}
+                            <span style="padding: 4px 12px; border-radius: 12px; font-size: 12px; font-weight: 600; ${String(student.status || '').toLowerCase() === 'active' ? 'background: #D1FAE5; color: #065F46;' : 'background: #FEE2E2; color: #991B1B;'}">
+                                ${escapeHtml(student.status || 'Active')}
                             </span>
                         </td>
                         <td style="padding: 16px; text-align: right;">
@@ -587,6 +589,188 @@ function renderStudentsTable(students) {
             }
         });
     });
+}
+
+function renderSupportCardTag(supportCard) {
+    const card = supportCard || {};
+    const color = String(card.color || 'none').toLowerCase();
+
+    const colorMap = {
+        green: { bg: '#DCFCE7', text: '#166534', label: 'Green' },
+        yellow: { bg: '#FEF9C3', text: '#854D0E', label: 'Yellow' },
+        red: { bg: '#FEE2E2', text: '#991B1B', label: 'Red' },
+        purple: { bg: '#F3E8FF', text: '#6B21A8', label: 'Purple' },
+        none: { bg: '#F3F4F6', text: '#6B7280', label: 'None' }
+    };
+
+    const active = colorMap[color] || colorMap.none;
+    return `<span style="display:inline-flex;align-items:center;gap:6px;padding:4px 10px;border-radius:999px;font-size:12px;font-weight:600;background:${active.bg};color:${active.text};">${active.label}</span>`;
+}
+
+function findStudentInStore(studentId) {
+    return allStudentsData.find((student) => String(student._id) === String(studentId)) || null;
+}
+
+function getYearGroupNumber(student) {
+    if (Number.isFinite(Number(student.currentYear))) {
+        return Number(student.currentYear);
+    }
+
+    const map = {
+        'first year': 1,
+        'second year': 2,
+        'third year': 3,
+        ty: 4,
+        'fifth year': 5,
+        'sixth year': 6
+    };
+
+    const key = String(student.yearGroup || '').toLowerCase();
+    return map[key] || 1;
+}
+
+async function fetchStudentById(studentId) {
+    try {
+        const payload = await adminApiCall(`/students/${studentId}`);
+        return payload.student || payload;
+    } catch (error) {
+        const fallback = findStudentInStore(studentId);
+        if (fallback) return fallback;
+        throw error;
+    }
+}
+
+function closeStudentModal() {
+    const modal = document.getElementById('student-profile-modal-overlay');
+    if (modal) modal.remove();
+}
+
+function buildStudentProfileModal(student, editable = false) {
+    const support = student.supportCard || {};
+    const disabled = editable ? '' : 'disabled';
+    const readOnly = editable ? '' : 'readonly';
+    const currentStatus = String(student.status || 'Active').toLowerCase();
+    const yearGroupValue = getYearGroupNumber(student);
+
+    return `
+        <div id="student-profile-modal-overlay" style="position:fixed;inset:0;background:rgba(17,24,39,0.55);display:flex;align-items:center;justify-content:center;z-index:10000;padding:16px;">
+            <div style="background:#fff;width:min(760px,100%);max-height:92vh;overflow:auto;border-radius:14px;box-shadow:0 30px 80px rgba(0,0,0,0.28);">
+                <div style="padding:18px 20px;border-bottom:1px solid #E5E7EB;display:flex;justify-content:space-between;align-items:center;">
+                    <h3 style="margin:0;font-size:18px;color:#111827;">${editable ? 'Edit Student Profile' : 'Student Profile'}</h3>
+                    <button id="student-modal-close" type="button" style="border:none;background:transparent;font-size:22px;line-height:1;color:#6B7280;cursor:pointer;">&times;</button>
+                </div>
+                <form id="student-profile-form" style="padding:20px;display:grid;gap:14px;">
+                    <div style="display:grid;grid-template-columns:repeat(auto-fit,minmax(220px,1fr));gap:12px;">
+                        <div>
+                            <label style="display:block;font-weight:600;font-size:12px;color:#374151;margin-bottom:6px;">First Name</label>
+                            <input name="firstName" value="${escapeHtml(student.firstName || '')}" ${readOnly} style="width:100%;padding:10px;border:1px solid #D1D5DB;border-radius:8px;">
+                        </div>
+                        <div>
+                            <label style="display:block;font-weight:600;font-size:12px;color:#374151;margin-bottom:6px;">Last Name</label>
+                            <input name="lastName" value="${escapeHtml(student.lastName || '')}" ${readOnly} style="width:100%;padding:10px;border:1px solid #D1D5DB;border-radius:8px;">
+                        </div>
+                        <div>
+                            <label style="display:block;font-weight:600;font-size:12px;color:#374151;margin-bottom:6px;">Student ID</label>
+                            <input name="studentId" value="${escapeHtml(student.studentId || '')}" readonly style="width:100%;padding:10px;border:1px solid #E5E7EB;border-radius:8px;background:#F9FAFB;">
+                        </div>
+                        <div>
+                            <label style="display:block;font-weight:600;font-size:12px;color:#374151;margin-bottom:6px;">Year Group</label>
+                            <input name="yearGroup" type="number" min="1" max="6" value="${yearGroupValue}" ${readOnly} style="width:100%;padding:10px;border:1px solid #D1D5DB;border-radius:8px;">
+                        </div>
+                        <div>
+                            <label style="display:block;font-weight:600;font-size:12px;color:#374151;margin-bottom:6px;">Email</label>
+                            <input name="email" type="email" value="${escapeHtml(student.email || '')}" ${readOnly} style="width:100%;padding:10px;border:1px solid #D1D5DB;border-radius:8px;">
+                        </div>
+                        <div>
+                            <label style="display:block;font-weight:600;font-size:12px;color:#374151;margin-bottom:6px;">Status</label>
+                            <select name="status" ${disabled} style="width:100%;padding:10px;border:1px solid #D1D5DB;border-radius:8px;">
+                                <option value="Active" ${currentStatus === 'active' ? 'selected' : ''}>Active</option>
+                                <option value="Inactive" ${currentStatus === 'inactive' ? 'selected' : ''}>Inactive</option>
+                                <option value="Graduated" ${currentStatus === 'graduated' ? 'selected' : ''}>Graduated</option>
+                            </select>
+                        </div>
+                    </div>
+
+                    <div style="margin-top:4px;padding:14px;border:1px solid #E5E7EB;border-radius:10px;background:#F9FAFB;">
+                        <h4 style="margin:0 0 10px 0;font-size:14px;color:#111827;">Support Card Assignment</h4>
+                        <div style="display:grid;grid-template-columns:repeat(auto-fit,minmax(180px,1fr));gap:12px;">
+                            <div>
+                                <label style="display:block;font-weight:600;font-size:12px;color:#374151;margin-bottom:6px;">Card Color</label>
+                                <select name="supportColor" ${disabled} style="width:100%;padding:10px;border:1px solid #D1D5DB;border-radius:8px;">
+                                    <option value="none" ${String(support.color || 'none').toLowerCase() === 'none' ? 'selected' : ''}>None</option>
+                                    <option value="green" ${String(support.color || '').toLowerCase() === 'green' ? 'selected' : ''}>Green</option>
+                                    <option value="yellow" ${String(support.color || '').toLowerCase() === 'yellow' ? 'selected' : ''}>Yellow</option>
+                                    <option value="red" ${String(support.color || '').toLowerCase() === 'red' ? 'selected' : ''}>Red</option>
+                                    <option value="purple" ${String(support.color || '').toLowerCase() === 'purple' ? 'selected' : ''}>Purple</option>
+                                </select>
+                            </div>
+                            <div>
+                                <label style="display:block;font-weight:600;font-size:12px;color:#374151;margin-bottom:6px;">Reason</label>
+                                <input name="supportReason" value="${escapeHtml(support.reason || '')}" ${readOnly} style="width:100%;padding:10px;border:1px solid #D1D5DB;border-radius:8px;">
+                            </div>
+                        </div>
+                        <div style="margin-top:12px;">
+                            <label style="display:block;font-weight:600;font-size:12px;color:#374151;margin-bottom:6px;">Description</label>
+                            <textarea name="supportDescription" ${readOnly} rows="3" style="width:100%;padding:10px;border:1px solid #D1D5DB;border-radius:8px;resize:vertical;">${escapeHtml(support.description || '')}</textarea>
+                        </div>
+                    </div>
+
+                    <div style="display:flex;justify-content:flex-end;gap:10px;padding-top:4px;">
+                        <button type="button" id="student-modal-cancel" class="btn-secondary">${editable ? 'Cancel' : 'Close'}</button>
+                        ${editable ? '<button type="submit" class="btn-primary">Save Changes</button>' : ''}
+                    </div>
+                </form>
+            </div>
+        </div>
+    `;
+}
+
+function openStudentProfileModal(student, editable = false) {
+    closeStudentModal();
+    document.body.insertAdjacentHTML('beforeend', buildStudentProfileModal(student, editable));
+
+    const overlay = document.getElementById('student-profile-modal-overlay');
+    const closeBtn = document.getElementById('student-modal-close');
+    const cancelBtn = document.getElementById('student-modal-cancel');
+    const form = document.getElementById('student-profile-form');
+
+    closeBtn?.addEventListener('click', closeStudentModal);
+    cancelBtn?.addEventListener('click', closeStudentModal);
+    overlay?.addEventListener('click', (event) => {
+        if (event.target === overlay) closeStudentModal();
+    });
+
+    if (editable && form) {
+        form.addEventListener('submit', async (event) => {
+            event.preventDefault();
+            const formData = new FormData(form);
+
+            const payload = {
+                firstName: String(formData.get('firstName') || '').trim(),
+                lastName: String(formData.get('lastName') || '').trim(),
+                email: String(formData.get('email') || '').trim(),
+                yearGroup: Number(formData.get('yearGroup') || 1),
+                status: String(formData.get('status') || 'active').trim(),
+                supportCard: {
+                    color: String(formData.get('supportColor') || 'none').trim(),
+                    reason: String(formData.get('supportReason') || '').trim(),
+                    description: String(formData.get('supportDescription') || '').trim()
+                }
+            };
+
+            try {
+                await adminApiCall(`/students/${student._id}`, {
+                    method: 'PUT',
+                    body: JSON.stringify(payload)
+                });
+                showToast('Student profile updated successfully');
+                closeStudentModal();
+                await loadStudentsData();
+            } catch (error) {
+                showToast(error.message || 'Failed to update student', 'error');
+            }
+        });
+    }
 }
 
 // ========== TEACHERS PAGE ==========
@@ -2440,9 +2624,37 @@ function loadUserData() {
     console.log('Loading user data...');
 }
 
-function viewStudent(id) { showToast('Viewing student ' + id); }
-function editStudent(id) { showToast('Editing student ' + id); }
-function deleteStudent(id) { if(confirm('Delete this student?')) showToast('Deleted student ' + id); }
+async function viewStudent(id) {
+    try {
+        const student = await fetchStudentById(id);
+        openStudentProfileModal(student, false);
+    } catch (error) {
+        showToast(error.message || 'Could not load student', 'error');
+    }
+}
+
+async function editStudent(id) {
+    try {
+        const student = await fetchStudentById(id);
+        openStudentProfileModal(student, true);
+    } catch (error) {
+        showToast(error.message || 'Could not load student for edit', 'error');
+    }
+}
+
+async function deleteStudent(id) {
+    const student = findStudentInStore(id);
+    const label = student ? `${student.firstName || ''} ${student.lastName || ''}`.trim() : 'this student';
+    if (!confirm(`Delete ${label || 'this student'}? This action cannot be undone.`)) return;
+
+    try {
+        await adminApiCall(`/students/${id}`, { method: 'DELETE' });
+        showToast('Student deleted successfully');
+        await loadStudentsData();
+    } catch (error) {
+        showToast(error.message || 'Failed to delete student', 'error');
+    }
+}
 function viewTeacher(id) { showToast('Viewing teacher ' + id); }
 function editTeacher(id) { showToast('Editing teacher ' + id); }
 function exportStudents() { showToast('Exporting students...'); }
