@@ -55,6 +55,21 @@ const sampleData = async () => {
     await admin.save();
     console.log('   ✅ Admin created: admin@schoolware.com / ad24 / PIN: 1234');
 
+    // Create Secretary User
+    console.log('👤 Creating secretary user...');
+    const secretary = new User({
+      email: 'secretary@schoolware.com',
+      password: 'sec24',
+      pin: '4321',
+      firstName: 'Front',
+      lastName: 'Office',
+      role: 'secretary',
+      roleHierarchy: 'Secretary',
+      phoneNumber: '+353 1 234 5679'
+    });
+    await secretary.save();
+    console.log('   ✅ Secretary created: secretary@schoolware.com / sec24 / PIN: 4321');
+
     // Create Subjects
     console.log('📚 Creating subjects...');
     const subjects = [
@@ -601,6 +616,7 @@ const sampleData = async () => {
     // Timetable for 1st Year A (Class 0)
     const timetable1A = new Timetable({
       class: createdClasses[0]._id,
+      teacher: createdTeachers[0]._id,
       academicYear: '2024-2025',
       term: 'Term 1',
       schedule: [
@@ -673,6 +689,7 @@ const sampleData = async () => {
     // Timetable for 2nd Year A (Class 1)
     const timetable2A = new Timetable({
       class: createdClasses[1]._id,
+      teacher: createdTeachers[1]._id,
       academicYear: '2024-2025',
       term: 'Term 1',
       schedule: [
@@ -742,6 +759,11 @@ const sampleData = async () => {
     });
     await timetable2A.save();
 
+    await Teacher.findByIdAndUpdate(createdTeachers[0]._id, { timetable: timetable1A._id });
+    await Teacher.findByIdAndUpdate(createdTeachers[1]._id, { timetable: timetable2A._id });
+    await Class.findByIdAndUpdate(createdClasses[0]._id, { timetable: timetable1A._id });
+    await Class.findByIdAndUpdate(createdClasses[1]._id, { timetable: timetable2A._id });
+
     console.log(`   ✅ Created 2 timetables for classes`);
 
     
@@ -751,6 +773,10 @@ const sampleData = async () => {
     console.log('  Email: admin@schoolware.com');
     console.log('  Password: ad24');
     console.log('  PIN: 1234\n');
+    console.log('Secretary:');
+    console.log('  Email: secretary@schoolware.com');
+    console.log('  Password: sec24');
+    console.log('  PIN: 4321\n');
     console.log('Teachers:');
     console.log('  Email: john.smith@schoolware.com');
     console.log('  Email: mary.jones@schoolware.com');
@@ -763,12 +789,14 @@ const sampleData = async () => {
     console.log('  Email: michael.murphy@student.schoolware.com');
     console.log('  Password: student123');
     console.log('  PIN: 1234\n');
+    console.log('  Quick Test Student: james.wilson@student.schoolware.com / student123');
     console.log('Parents:');
     console.log('  Email: parent.wilson@email.com');
     console.log('  Email: parent.davis@email.com');
     console.log('  Email: parent.murphy@email.com');
     console.log('  Password: parent123');
     console.log('  PIN: 1234\n');
+    console.log('  Quick Test Parent: parent.wilson@email.com / parent123\n');
 
     process.exit(0);
   } catch (error) {

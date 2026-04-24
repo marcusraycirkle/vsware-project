@@ -51,6 +51,21 @@ const seedCompMIS = async () => {
     await principalUser.save();
     console.log('   ✅ Principal: principal@shannoncomp.ie / PIN: 1234');
 
+    // Create Secretary account for portal flow testing
+    console.log('👤 Creating secretary account...');
+    const secretaryUser = new User({
+      email: 'secretary@shannoncomp.ie',
+      password: 'sec24',
+      pin: '4321',
+      firstName: 'Casey',
+      lastName: 'Ashe',
+      role: 'secretary',
+      phone: '0870001234',
+      isActive: true
+    });
+    await secretaryUser.save();
+    console.log('   ✅ Secretary: secretary@shannoncomp.ie / PIN: 4321');
+
     // Create Subjects
     console.log('📚 Creating subjects...');
     const subjectsData = [
@@ -375,12 +390,76 @@ const seedCompMIS = async () => {
     }
     console.log(`   ✅ Created ${students.length} students across ${houses.length} houses and ${yearGroups.length} years`);
 
+    // Create deterministic test parent + student accounts for flow testing
+    console.log('🧪 Creating fixed test parent/student accounts...');
+    const testParentUser = new User({
+      email: 'parent.test@shannoncomp.ie',
+      password: 'parent123',
+      pin: '1234',
+      firstName: 'Pat',
+      lastName: 'TestParent',
+      role: 'parent',
+      phone: '0871000001',
+      isActive: true
+    });
+    await testParentUser.save();
+
+    const testParent = new Parent({
+      user: testParentUser._id,
+      parentId: 'PAR-TEST-0001',
+      relationship: 'Mother',
+      occupation: 'Parent',
+      children: []
+    });
+    await testParent.save();
+    parents.push(testParent);
+
+    const firstYearClass = classes.find(c => c.year === 1) || classes[0];
+    const testStudentUser = new User({
+      email: 'student.test@shannoncomp.ie',
+      password: 'student123',
+      pin: '1234',
+      firstName: 'Sam',
+      lastName: 'TestStudent',
+      role: 'student',
+      dateOfBirth: new Date('2010-01-15'),
+      gender: 'Male',
+      isActive: true
+    });
+    await testStudentUser.save();
+
+    const testStudent = new Student({
+      user: testStudentUser._id,
+      studentId: 'STU-TEST-0001',
+      admissionNumber: 'ADM-TEST-0001',
+      vswareId: 'VS-TEST-0001',
+      dateOfBirth: new Date('2010-01-15'),
+      gender: 'Male',
+      currentYear: 1,
+      yearName: 'First Year',
+      yearGroup: 'First Year',
+      house: 'Bride',
+      admissionDate: new Date('2024-09-01'),
+      parents: [testParent._id],
+      classes: [firstYearClass._id],
+      status: 'Active'
+    });
+    await testStudent.save();
+    students.push(testStudent);
+
+    testParent.children.push(testStudent._id);
+    await testParent.save();
+    console.log('   ✅ student.test@shannoncomp.ie / student123 and parent.test@shannoncomp.ie / parent123');
+
     // Summary
     console.log('\n🎉 CompMIS Database Seeded Successfully!\n');
     console.log('=== LOGIN CREDENTIALS ===');
     console.log('Principal: principal@shannoncomp.ie / PIN: 1234');
-    console.log('Cory Kilmartin: 24corykilmartin@shannoncomp.ie / PIN: 1470 / Parking: 14');
+    console.log('Secretary: secretary@shannoncomp.ie / PIN: 4321');
+    console.log('Cory Kilmartin: 24corykilmartin@shannoncomp.ie / Password: 4096 / Parking: 14');
     console.log('Zuzanna Frankowska: 24zuzannafrankowska@shannoncomp.ie / PIN: 3454 / Parking: 7');
+    console.log('Sample Student: student.test@shannoncomp.ie / student123');
+    console.log('Sample Parent: parent.test@shannoncomp.ie / parent123');
     console.log('\n=== STATISTICS ===');
     console.log(`Teachers: ${teachers.length}`);
     console.log(`Students: ${students.length}`);
