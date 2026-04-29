@@ -515,53 +515,144 @@
             <div id="timetable" class="tab-container">
                 <div class="content-header">
                     <h1><i class="fas fa-calendar"></i> Your Timetable</h1>
-                    <p>Weekly class schedule</p>
+                    <p>Weekly class schedule - Tap a class for details</p>
                 </div>
 
                 <div class="card">
-                    <div class="card-title"><i class="fas fa-calendar-alt"></i> Monday</div>
-                    <div class="list-item">
-                        <div class="list-item-content">
-                            <h3>09:00 - 10:30 | Mathematics</h3>
-                            <p>Room 101 - Mr. Smith</p>
-                        </div>
+                    <div style="margin-bottom: 1rem; display: flex; gap: 1rem; justify-content: center; flex-wrap: wrap;">
+                        <button class="badge badge-info" data-week="current" onclick="switchWeek('current')" style="border: none; cursor: pointer; padding: 0.5rem 1rem;">← Previous Week</button>
+                        <span id="week-display" style="padding: 0.5rem 1rem; font-weight: 600;">This Week</span>
+                        <button class="badge badge-info" data-week="next" onclick="switchWeek('next')" style="border: none; cursor: pointer; padding: 0.5rem 1rem;">Next Week →</button>
                     </div>
-                    <div class="list-item">
-                        <div class="list-item-content">
-                            <h3>10:45 - 12:15 | English</h3>
-                            <p>Room 205 - Ms. Johnson</p>
+
+                    <!-- Calendar Grid -->
+                    <div id="timetable-grid" style="display: grid; grid-template-columns: 80px repeat(5, 1fr); gap: 0; border: 1px solid var(--border); border-radius: 6px; overflow: hidden; background: white; font-size: 0.9rem;">
+                        <!-- Header Row -->
+                        <div style="background: var(--primary); color: white; padding: 1rem; font-weight: 600; text-align: center; border-bottom: 2px solid var(--border);">Time</div>
+                        <div style="background: var(--primary); color: white; padding: 1rem; font-weight: 600; text-align: center; border-left: 1px solid var(--border); border-bottom: 2px solid var(--border);">Monday</div>
+                        <div style="background: var(--primary); color: white; padding: 1rem; font-weight: 600; text-align: center; border-left: 1px solid var(--border); border-bottom: 2px solid var(--border);">Tuesday</div>
+                        <div style="background: var(--primary); color: white; padding: 1rem; font-weight: 600; text-align: center; border-left: 1px solid var(--border); border-bottom: 2px solid var(--border);">Wednesday</div>
+                        <div style="background: var(--primary); color: white; padding: 1rem; font-weight: 600; text-align: center; border-left: 1px solid var(--border); border-bottom: 2px solid var(--border);">Thursday</div>
+                        <div style="background: var(--primary); color: white; padding: 1rem; font-weight: 600; text-align: center; border-left: 1px solid var(--border); border-bottom: 2px solid var(--border);">Friday</div>
+
+                        <!-- Period 1: 09:00 - 10:30 -->
+                        <div style="background: var(--bg-secondary); padding: 0.75rem; font-weight: 600; text-align: center; border-right: 1px solid var(--border);">09:00</div>
+                        <div class="timetable-slot" data-day="Monday" data-period="1" onclick="showClassDetail(this)" style="border-left: 1px solid var(--border); cursor: pointer; background: #E0E7FF; padding: 0.75rem; display: flex; flex-direction: column; align-items: center; justify-content: center; min-height: 80px; text-align: center;">
+                            <strong style="color: var(--primary);">Mathematics</strong>
+                            <small style="color: var(--text-secondary);">Room 101</small>
+                            <small style="color: var(--text-secondary);">Mr. Smith</small>
                         </div>
+                        <div class="timetable-slot" data-day="Tuesday" data-period="1" onclick="showClassDetail(this)" style="border-left: 1px solid var(--border); cursor: pointer; background: #D1FAE5; padding: 0.75rem; display: flex; flex-direction: column; align-items: center; justify-content: center; min-height: 80px; text-align: center;">
+                            <strong style="color: #059669;">Biology</strong>
+                            <small style="color: var(--text-secondary);">Lab 205</small>
+                            <small style="color: var(--text-secondary);">Dr. Green</small>
+                        </div>
+                        <div style="border-left: 1px solid var(--border);"></div>
+                        <div class="timetable-slot" data-day="Thursday" data-period="1" onclick="showClassDetail(this)" style="border-left: 1px solid var(--border); cursor: pointer; background: #FEF08A; padding: 0.75rem; display: flex; flex-direction: column; align-items: center; justify-content: center; min-height: 80px; text-align: center;">
+                            <strong style="color: #92400e;">History</strong>
+                            <small style="color: var(--text-secondary);">Room 302</small>
+                            <small style="color: var(--text-secondary);">Mr. Taylor</small>
+                        </div>
+                        <div style="border-left: 1px solid var(--border);"></div>
+
+                        <!-- Break: 10:30 - 10:45 -->
+                        <div style="background: var(--bg-secondary); padding: 0.5rem; font-weight: 600; text-align: center; border-right: 1px solid var(--border); border-top: 1px solid var(--border);">10:30</div>
+                        <div style="border-left: 1px solid var(--border); border-top: 1px solid var(--border); background: #F3F4F6; padding: 0.5rem; display: flex; align-items: center; justify-content: center; color: var(--text-secondary); font-size: 0.85rem; min-height: 30px;"><i class="fas fa-coffee"></i> Break</div>
+                        <div style="border-left: 1px solid var(--border); border-top: 1px solid var(--border); background: #F3F4F6; padding: 0.5rem; display: flex; align-items: center; justify-content: center; color: var(--text-secondary); font-size: 0.85rem; min-height: 30px;"><i class="fas fa-coffee"></i> Break</div>
+                        <div style="border-left: 1px solid var(--border); border-top: 1px solid var(--border); background: #F3F4F6; padding: 0.5rem; display: flex; align-items: center; justify-content: center; color: var(--text-secondary); font-size: 0.85rem; min-height: 30px;"><i class="fas fa-coffee"></i> Break</div>
+                        <div style="border-left: 1px solid var(--border); border-top: 1px solid var(--border); background: #F3F4F6; padding: 0.5rem; display: flex; align-items: center; justify-content: center; color: var(--text-secondary); font-size: 0.85rem; min-height: 30px;"><i class="fas fa-coffee"></i> Break</div>
+                        <div style="border-left: 1px solid var(--border); border-top: 1px solid var(--border); background: #F3F4F6; padding: 0.5rem; display: flex; align-items: center; justify-content: center; color: var(--text-secondary); font-size: 0.85rem; min-height: 30px;"><i class="fas fa-coffee"></i> Break</div>
+
+                        <!-- Period 2: 10:45 - 12:15 -->
+                        <div style="background: var(--bg-secondary); padding: 0.75rem; font-weight: 600; text-align: center; border-right: 1px solid var(--border); border-top: 1px solid var(--border);">10:45</div>
+                        <div class="timetable-slot" data-day="Monday" data-period="2" onclick="showClassDetail(this)" style="border-left: 1px solid var(--border); border-top: 1px solid var(--border); cursor: pointer; background: #FEE2E2; padding: 0.75rem; display: flex; flex-direction: column; align-items: center; justify-content: center; min-height: 80px; text-align: center;">
+                            <strong style="color: #DC2626;">English</strong>
+                            <small style="color: var(--text-secondary);">Room 205</small>
+                            <small style="color: var(--text-secondary);">Ms. Johnson</small>
+                        </div>
+                        <div style="border-left: 1px solid var(--border); border-top: 1px solid var(--border);"></div>
+                        <div class="timetable-slot" data-day="Wednesday" data-period="2" onclick="showClassDetail(this)" style="border-left: 1px solid var(--border); border-top: 1px solid var(--border); cursor: pointer; background: #F3E8FF; padding: 0.75rem; display: flex; flex-direction: column; align-items: center; justify-content: center; min-height: 80px; text-align: center;">
+                            <strong style="color: #A855F7;">Chemistry</strong>
+                            <small style="color: var(--text-secondary);">Lab 301</small>
+                            <small style="color: var(--text-secondary);">Dr. Williams</small>
+                        </div>
+                        <div class="timetable-slot" data-day="Thursday" data-period="2" onclick="showClassDetail(this)" style="border-left: 1px solid var(--border); border-top: 1px solid var(--border); cursor: pointer; background: #E0E7FF; padding: 0.75rem; display: flex; flex-direction: column; align-items: center; justify-content: center; min-height: 80px; text-align: center;">
+                            <strong style="color: var(--primary);">French</strong>
+                            <small style="color: var(--text-secondary);">Room 401</small>
+                            <small style="color: var(--text-secondary);">Mme. Dupont</small>
+                        </div>
+                        <div class="timetable-slot" data-day="Friday" data-period="2" onclick="showClassDetail(this)" style="border-left: 1px solid var(--border); border-top: 1px solid var(--border); cursor: pointer; background: #D1FAE5; padding: 0.75rem; display: flex; flex-direction: column; align-items: center; justify-content: center; min-height: 80px; text-align: center;">
+                            <strong style="color: #059669;">Physical Ed</strong>
+                            <small style="color: var(--text-secondary);">Sports Hall</small>
+                            <small style="color: var(--text-secondary);">Coach Murphy</small>
+                        </div>
+
+                        <!-- Lunch: 12:15 - 01:00 -->
+                        <div style="background: var(--bg-secondary); padding: 0.8rem; font-weight: 600; text-align: center; border-right: 1px solid var(--border); border-top: 1px solid var(--border);">12:15</div>
+                        <div style="border-left: 1px solid var(--border); border-top: 1px solid var(--border); background: #F3F4F6; padding: 0.75rem; display: flex; align-items: center; justify-content: center; color: var(--text-secondary); font-weight: 600; min-height: 60px;"><i class="fas fa-utensils"></i> Lunch</div>
+                        <div style="border-left: 1px solid var(--border); border-top: 1px solid var(--border); background: #F3F4F6; padding: 0.75rem; display: flex; align-items: center; justify-content: center; color: var(--text-secondary); font-weight: 600; min-height: 60px;"><i class="fas fa-utensils"></i> Lunch</div>
+                        <div style="border-left: 1px solid var(--border); border-top: 1px solid var(--border); background: #F3F4F6; padding: 0.75rem; display: flex; align-items: center; justify-content: center; color: var(--text-secondary); font-weight: 600; min-height: 60px;"><i class="fas fa-utensils"></i> Lunch</div>
+                        <div style="border-left: 1px solid var(--border); border-top: 1px solid var(--border); background: #F3F4F6; padding: 0.75rem; display: flex; align-items: center; justify-content: center; color: var(--text-secondary); font-weight: 600; min-height: 60px;"><i class="fas fa-utensils"></i> Lunch</div>
+                        <div style="border-left: 1px solid var(--border); border-top: 1px solid var(--border); background: #F3F4F6; padding: 0.75rem; display: flex; align-items: center; justify-content: center; color: var(--text-secondary); font-weight: 600; min-height: 60px;"><i class="fas fa-utensils"></i> Lunch</div>
+
+                        <!-- Period 3: 01:00 - 02:30 -->
+                        <div style="background: var(--bg-secondary); padding: 0.75rem; font-weight: 600; text-align: center; border-right: 1px solid var(--border); border-top: 1px solid var(--border);">01:00</div>
+                        <div style="border-left: 1px solid var(--border); border-top: 1px solid var(--border);"></div>
+                        <div class="timetable-slot" data-day="Tuesday" data-period="3" onclick="showClassDetail(this)" style="border-left: 1px solid var(--border); border-top: 1px solid var(--border); cursor: pointer; background: #E0E7FF; padding: 0.75rem; display: flex; flex-direction: column; align-items: center; justify-content: center; min-height: 80px; text-align: center;">
+                            <strong style="color: var(--primary);">Physics</strong>
+                            <small style="color: var(--text-secondary);">Lab 302</small>
+                            <small style="color: var(--text-secondary);">Mr. Anderson</small>
+                        </div>
+                        <div class="timetable-slot" data-day="Wednesday" data-period="3" onclick="showClassDetail(this)" style="border-left: 1px solid var(--border); border-top: 1px solid var(--border); cursor: pointer; background: #FEE2E2; padding: 0.75rem; display: flex; flex-direction: column; align-items: center; justify-content: center; min-height: 80px; text-align: center;">
+                            <strong style="color: #DC2626;">Geography</strong>
+                            <small style="color: var(--text-secondary);">Room 103</small>
+                            <small style="color: var(--text-secondary);">Mrs. Davis</small>
+                        </div>
+                        <div style="border-left: 1px solid var(--border); border-top: 1px solid var(--border);"></div>
+                        <div class="timetable-slot" data-day="Friday" data-period="3" onclick="showClassDetail(this)" style="border-left: 1px solid var(--border); border-top: 1px solid var(--border); cursor: pointer; background: #F3E8FF; padding: 0.75rem; display: flex; flex-direction: column; align-items: center; justify-content: center; min-height: 80px; text-align: center;">
+                            <strong style="color: #A855F7;">Art</strong>
+                            <small style="color: var(--text-secondary);">Studio A</small>
+                            <small style="color: var(--text-secondary);">Mr. Wilson</small>
+                        </div>
+
+                        <!-- Period 4: 02:30 - 04:00 -->
+                        <div style="background: var(--bg-secondary); padding: 0.75rem; font-weight: 600; text-align: center; border-right: 1px solid var(--border); border-top: 1px solid var(--border);">02:30</div>
+                        <div class="timetable-slot" data-day="Monday" data-period="4" onclick="showClassDetail(this)" style="border-left: 1px solid var(--border); border-top: 1px solid var(--border); cursor: pointer; background: #F3E8FF; padding: 0.75rem; display: flex; flex-direction: column; align-items: center; justify-content: center; min-height: 80px; text-align: center;">
+                            <strong style="color: #A855F7;">Computer Science</strong>
+                            <small style="color: var(--text-secondary);">IT Lab</small>
+                            <small style="color: var(--text-secondary);">Mr. Kumar</small>
+                        </div>
+                        <div style="border-left: 1px solid var(--border); border-top: 1px solid var(--border);"></div>
+                        <div style="border-left: 1px solid var(--border); border-top: 1px solid var(--border);"></div>
+                        <div class="timetable-slot" data-day="Thursday" data-period="4" onclick="showClassDetail(this)" style="border-left: 1px solid var(--border); border-top: 1px solid var(--border); cursor: pointer; background: #FEE2E2; padding: 0.75rem; display: flex; flex-direction: column; align-items: center; justify-content: center; min-height: 80px; text-align: center;">
+                            <strong style="color: #DC2626;">Economics</strong>
+                            <small style="color: var(--text-secondary);">Room 201</small>
+                            <small style="color: var(--text-secondary);">Dr. Brown</small>
+                        </div>
+                        <div style="border-left: 1px solid var(--border); border-top: 1px solid var(--border);"></div>
                     </div>
                 </div>
 
-                <div class="card">
-                    <div class="card-title"><i class="fas fa-calendar-alt"></i> Wednesday</div>
-                    <div class="list-item">
-                        <div class="list-item-content">
-                            <h3>09:00 - 10:30 | Mathematics</h3>
-                            <p>Room 101 - Mr. Smith</p>
+                <!-- Class Details Modal -->
+                <div id="class-detail-modal" style="display: none; margin-top: 1.5rem; padding: 1.5rem; background: white; border-left: 4px solid var(--primary); border-radius: 6px; box-shadow: var(--shadow);">
+                    <button onclick="document.getElementById('class-detail-modal').style.display='none'" style="float: right; background: none; border: none; font-size: 1.5rem; cursor: pointer; color: var(--text-secondary);">×</button>
+                    <h3 id="class-detail-subject"></h3>
+                    <div style="margin-top: 1rem; display: grid; grid-template-columns: 1fr 1fr; gap: 1rem;">
+                        <div>
+                            <strong>Teacher:</strong>
+                            <p id="class-detail-teacher" style="margin: 0.5rem 0; color: var(--text-secondary);"></p>
                         </div>
-                    </div>
-                    <div class="list-item">
-                        <div class="list-item-content">
-                            <h3>02:00 - 03:30 | Science Lab</h3>
-                            <p>Room 301 - Dr. Williams</p>
+                        <div>
+                            <strong>Room:</strong>
+                            <p id="class-detail-room" style="margin: 0.5rem 0; color: var(--text-secondary);"></p>
                         </div>
-                    </div>
-                </div>
-
-                <div class="card">
-                    <div class="card-title"><i class="fas fa-calendar-alt"></i> Friday</div>
-                    <div class="list-item">
-                        <div class="list-item-content">
-                            <h3>01:00 - 03:00 | Science Lab</h3>
-                            <p>Room 301 - Dr. Williams</p>
+                        <div>
+                            <strong>Time:</strong>
+                            <p id="class-detail-time" style="margin: 0.5rem 0; color: var(--text-secondary);"></p>
                         </div>
-                    </div>
-                    <div class="list-item">
-                        <div class="list-item-content">
-                            <h3>03:30 - 05:00 | Sports</h3>
-                            <p>Sports Field - PE Department</p>
+                        <div>
+                            <strong>Day:</strong>
+                            <p id="class-detail-day" style="margin: 0.5rem 0; color: var(--text-secondary);"></p>
                         </div>
                     </div>
                 </div>
@@ -824,6 +915,39 @@
             if (confirm('Are you sure you want to logout?')) {
                 localStorage.clear();
                 window.location.href = '/shannoncomp/login';
+            }
+        }
+
+        // Timetable functions
+        function showClassDetail(element) {
+            const subject = element.querySelector('strong').textContent;
+            const room = element.querySelector('small:nth-child(2)').textContent;
+            const teacher = element.querySelector('small:nth-child(3)').textContent;
+            const day = element.getAttribute('data-day');
+            const period = element.getAttribute('data-period');
+            
+            const timeRanges = {
+                '1': '09:00 - 10:30',
+                '2': '10:45 - 12:15',
+                '3': '01:00 - 02:30',
+                '4': '02:30 - 04:00'
+            };
+            
+            document.getElementById('class-detail-subject').textContent = subject;
+            document.getElementById('class-detail-teacher').textContent = teacher;
+            document.getElementById('class-detail-room').textContent = room;
+            document.getElementById('class-detail-day').textContent = day;
+            document.getElementById('class-detail-time').textContent = timeRanges[period] || '';
+            
+            document.getElementById('class-detail-modal').style.display = 'block';
+        }
+
+        function switchWeek(direction) {
+            const weekDisplay = document.getElementById('week-display');
+            if (direction === 'next') {
+                weekDisplay.textContent = 'Next Week';
+            } else if (direction === 'current') {
+                weekDisplay.textContent = 'This Week';
             }
         }
     </script>
